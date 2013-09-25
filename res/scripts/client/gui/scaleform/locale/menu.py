@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/MENU.py
 from debug_utils import LOG_WARNING
 
 class MENU(object):

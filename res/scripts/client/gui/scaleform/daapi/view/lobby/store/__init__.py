@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/store/__init__.py
 import MusicController
 from CurrentVehicle import g_currentVehicle
 from adisp import process

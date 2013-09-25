@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/sf_settings.py
 from gui.Scaleform.framework.managers.loaders import PackageBusinessHandler
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.framework import ViewSettings, VIEW_TYPE

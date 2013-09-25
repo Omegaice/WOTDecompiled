@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/BattleLoading.py
 import BigWorld
 from chat_shared import USERS_ROSTER_VOICE_MUTED
 import constants

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/SimpleDialog.py
 from gui.Scaleform.daapi.view.dialogs import DIALOG_BUTTON_ID
 from gui.Scaleform.daapi.view.meta.SimpleDialogMeta import SimpleDialogMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta

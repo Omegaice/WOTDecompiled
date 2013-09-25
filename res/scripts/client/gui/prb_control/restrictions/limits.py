@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/restrictions/limits.py
 from collections import defaultdict
 import weakref
 from CurrentVehicle import g_currentVehicle

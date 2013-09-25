@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/ResearchView.py
 from functools import partial
 import BigWorld
 from AccountCommands import RES_SUCCESS

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/__init__.py
 from gui import GUI_SETTINGS
 from gui.Scaleform.daapi.view.lobby.customization.CamouflageInterface import CamouflageInterface
 from gui.Scaleform.daapi.view.lobby.customization.EmblemInterface import EmblemLeftInterface, EmblemRightInterface

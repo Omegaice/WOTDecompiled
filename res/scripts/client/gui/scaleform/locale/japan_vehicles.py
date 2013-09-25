@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/JAPAN_VEHICLES.py
 
 
 class JAPAN_VEHICLES(object):

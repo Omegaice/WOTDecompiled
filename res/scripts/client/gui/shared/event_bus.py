@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/event_bus.py
 from collections import defaultdict
 from debug_utils import LOG_CURRENT_EXCEPTION, LOG_WARNING
 

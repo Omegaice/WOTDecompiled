@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/context.py
 from abc import ABCMeta, abstractmethod
 from tutorial.control import TutorialProxyHolder
 from tutorial.logger import LOG_MEMORY

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/doc_loader/parsers.py
 import ResMgr
 from helpers.html import translation
 from items import _xml

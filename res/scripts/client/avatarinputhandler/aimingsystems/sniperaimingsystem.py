@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/AimingSystems/SniperAimingSystem.py
 import BigWorld
 import Math
 import GUI

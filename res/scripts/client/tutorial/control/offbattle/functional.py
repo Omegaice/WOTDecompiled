@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/offbattle/functional.py
 import BigWorld
 import MusicController
 from gui import game_control

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/serializers.py
 __author__ = 'i_maliavko'
 import pickle
 from debug_utils import *

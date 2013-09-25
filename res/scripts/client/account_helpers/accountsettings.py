@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/AccountSettings.py
 import BigWorld, Settings, Event, pickle, base64
 from account_helpers import gameplay_ctx
 KEY_FILTERS = 'filters'

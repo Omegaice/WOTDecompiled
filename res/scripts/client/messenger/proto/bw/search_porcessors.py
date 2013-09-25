@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/search_porcessors.py
 import weakref
 import BigWorld
 import chat_shared

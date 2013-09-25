@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/LightFx/LightEffect.py
 import BigWorld
 import weakref
 import Event

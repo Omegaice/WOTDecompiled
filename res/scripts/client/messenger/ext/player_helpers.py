@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/ext/player_helpers.py
 import BigWorld
 import account_helpers
 from adisp import process

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/battle/SfBattleDispatcher.py
 from gui.Scaleform.windows import UIInterface
 from tutorial import LOG_MEMORY, LOG_ERROR
 from tutorial.data.chapter import SimpleEffect, Effect

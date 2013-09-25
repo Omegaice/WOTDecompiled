@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/dossier/factories.py
 import weakref
 import nations
 from dossiers.achievements import ACHIEVEMENT_TYPE

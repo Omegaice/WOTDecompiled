@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/ClanListener.py
 import BigWorld
 from PlayerEvents import g_playerEvents
 from debug_utils import LOG_DEBUG, LOG_ERROR

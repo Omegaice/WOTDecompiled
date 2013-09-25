@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/cameras.py
 import BigWorld, Math, ResMgr, Keys
 import math
 from AvatarInputHandler import mathUtils

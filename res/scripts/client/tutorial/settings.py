@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/settings.py
 from collections import namedtuple
 TUTORIAL_VERSION = '0.3.4'
 DOC_DIRECTORY = 'scripts/tutorial_docs'

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/GuiItemsManager.py
 import weakref
 import pickle
 from debug_utils import LOG_DEBUG, LOG_WARNING

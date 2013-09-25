@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/PrebattleWindow.py
 from CurrentVehicle import g_currentVehicle
 from adisp import process
 from debug_utils import LOG_ERROR

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/ServerSettingsManager.py
 import BigWorld
 import constants
 from collections import namedtuple

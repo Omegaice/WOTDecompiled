@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/debug_utils.py
 import sys
 from functools import wraps
 from warnings import warn_explicit

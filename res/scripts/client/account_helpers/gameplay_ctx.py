@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/gameplay_ctx.py
 import ArenaType
 import constants
 from debug_utils import LOG_DEBUG, LOG_ERROR, LOG_WARNING

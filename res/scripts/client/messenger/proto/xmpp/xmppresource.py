@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/xmpp/XmppResource.py
 __author__ = 'd_dichkovsky'
 
 class XmppResource:

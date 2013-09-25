@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/ClientHangarSpace.py
 import BigWorld, Math, ResMgr
 import copy
 from debug_utils import *

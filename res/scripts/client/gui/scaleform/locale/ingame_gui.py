@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/INGAME_GUI.py
 
 
 class INGAME_GUI(object):

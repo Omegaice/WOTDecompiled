@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/formatters/__init__.py
 import types
 import time
 import BigWorld

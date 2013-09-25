@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/DestructiblesCache.py
 import ResMgr
 import BigWorld
 import Math

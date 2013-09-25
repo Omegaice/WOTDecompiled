@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/trainings/Trainings.py
 import ArenaType
 import MusicController
 from adisp import process

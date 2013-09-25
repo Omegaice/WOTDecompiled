@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/restrictions/permissions.py
 from constants import PREBATTLE_ROLE, PREBATTLE_TEAM_STATE
 from constants import PREBATTLE_ACCOUNT_STATE
 from gui import prb_control

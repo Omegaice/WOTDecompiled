@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/commands.py
 from collections import namedtuple
 import types
 from tutorial.control import g_tutorialWeaver

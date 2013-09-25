@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/DossierCache.py
 import BigWorld
 import AccountCommands
 import constants

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/MapActivities.py
 import BigWorld
 import Math
 import ResMgr

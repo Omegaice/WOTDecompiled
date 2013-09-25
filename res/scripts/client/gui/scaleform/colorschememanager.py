@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/ColorSchemeManager.py
 import types
 from account_helpers.AccountSettings import AccountSettings
 import BigWorld, Math, ResMgr

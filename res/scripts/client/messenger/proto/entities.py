@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/entities.py
 from collections import deque
 from messenger.m_constants import USER_GUI_TYPE, MESSAGES_HISTORY_MAX_LEN
 from messenger.proto.events import ChannelEvents, MemberEvents

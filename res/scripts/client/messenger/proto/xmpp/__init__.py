@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/xmpp/__init__.py
 import BigWorld
 import Account
 from collections import namedtuple

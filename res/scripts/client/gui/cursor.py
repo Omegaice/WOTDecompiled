@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Cursor.py
 import BigWorld
 import GUI
 import Math

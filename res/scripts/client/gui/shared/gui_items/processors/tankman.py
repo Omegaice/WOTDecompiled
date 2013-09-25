@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/processors/tankman.py
 import BigWorld
 from debug_utils import LOG_DEBUG
 from gui.SystemMessages import SM_TYPE

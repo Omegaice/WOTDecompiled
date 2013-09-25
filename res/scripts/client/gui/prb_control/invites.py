@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/invites.py
 from collections import namedtuple
 import BigWorld
 from ConnectionManager import connectionManager

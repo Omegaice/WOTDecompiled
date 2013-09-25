@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/bound_effects.py
 import BigWorld
 import Math
 import BattleReplay

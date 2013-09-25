@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/CurrentVehicle.py
 import BigWorld
 from Event import Event
 from items import vehicles

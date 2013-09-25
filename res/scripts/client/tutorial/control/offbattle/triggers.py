@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/offbattle/triggers.py
 from PlayerEvents import g_playerEvents
 from constants import JOIN_FAILURE_NAMES
 from gui.ClientUpdateManager import g_clientUpdateManager

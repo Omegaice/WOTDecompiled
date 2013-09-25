@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/dumpers.py
 from debug_utils import LOG_ERROR
 import gui
 from gui.shared.utils import CLIP_ICON_PATH

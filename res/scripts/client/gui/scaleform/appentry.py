@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/AppEntry.py
 import WebBrowser
 from adisp import process
 import constants

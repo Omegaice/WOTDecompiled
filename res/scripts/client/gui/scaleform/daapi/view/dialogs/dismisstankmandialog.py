@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/DismissTankmanDialog.py
 from adisp import process
 from gui import makeHtmlString
 from gui.Scaleform.locale.DIALOGS import DIALOGS

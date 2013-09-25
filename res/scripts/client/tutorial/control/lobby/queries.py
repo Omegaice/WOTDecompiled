@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/lobby/queries.py
 from CurrentVehicle import g_currentVehicle
 from gui.shared.utils.gui_items import InventoryItem
 from items import vehicles, ITEM_TYPE_NAMES

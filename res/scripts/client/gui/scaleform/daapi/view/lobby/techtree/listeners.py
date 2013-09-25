@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/listeners.py
 from CurrentVehicle import g_currentVehicle
 from debug_utils import LOG_DEBUG
 from gui.ClientUpdateManager import g_clientUpdateManager

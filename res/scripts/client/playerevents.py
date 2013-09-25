@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/PlayerEvents.py
 import Event
 from constants import ARENA_PERIOD
 from debug_utils import *

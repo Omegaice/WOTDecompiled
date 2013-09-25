@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/items/vehicles.py
 from collections import namedtuple
 from math import radians, cos, pi
 from functools import partial

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/TmpConsoleCmds.py
 import BigWorld
 from debug_utils import *
 

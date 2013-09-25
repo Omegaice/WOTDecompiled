@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/ToolTip.py
 from gui.Scaleform.framework import AppRef
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.framework.entities.abstract.ToolTipMgrMeta import ToolTipMgrMeta

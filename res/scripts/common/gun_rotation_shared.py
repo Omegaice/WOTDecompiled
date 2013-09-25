@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/gun_rotation_shared.py
 import BigWorld
 from math import pi
 from constants import DEFAULT_GUN_PITCH_LIMITS_TRANSITION

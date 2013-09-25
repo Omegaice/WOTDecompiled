@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/Minimap.py
 import BigWorld, Math, ResMgr
 from gui.BattleContext import g_battleContext, PLAYER_ENTITY_NAME
 from gui.shared.utils.sound import Sound

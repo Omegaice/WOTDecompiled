@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/CaptchaDialog.py
 import threading
 import time
 import weakref

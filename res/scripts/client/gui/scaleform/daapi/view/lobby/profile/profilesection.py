@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileSection.py
 from gui.Scaleform.daapi.view.meta.ProfileSectionMeta import ProfileSectionMeta
 from helpers import i18n
 

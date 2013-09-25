@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/cooldown.py
 from chat_shared import isOperationInCooldown, CHAT_COMMANDS, getOperationCooldownPeriod
 import chat_shared
 from debug_utils import LOG_ERROR

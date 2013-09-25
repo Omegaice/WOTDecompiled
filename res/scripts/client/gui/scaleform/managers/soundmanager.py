@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/SoundManager.py
 import ResMgr
 from Vibroeffects import VibroManager
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION

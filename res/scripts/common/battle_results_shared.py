@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/battle_results_shared.py
 import struct
 from itertools import izip
 from debug_utils import *

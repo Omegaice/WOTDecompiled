@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/TechTree.py
 from functools import partial
 import weakref
 import BigWorld

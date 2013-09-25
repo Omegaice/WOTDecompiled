@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/formatters/users_messages.py
 from gui import GUI_SETTINGS
 from helpers import i18n
 from messenger.m_constants import USER_ROSTER_ACTION, MESSENGER_I18N_FILE

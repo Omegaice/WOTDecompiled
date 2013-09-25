@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/PROFILE.py
 
 
 class PROFILE(object):

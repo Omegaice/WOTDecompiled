@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/quests/event_items.py
 import time
 from datetime import datetime
 from abc import ABCMeta

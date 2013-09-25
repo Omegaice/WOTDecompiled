@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/items/tankmen.py
 from functools import partial
 import math
 import ResMgr

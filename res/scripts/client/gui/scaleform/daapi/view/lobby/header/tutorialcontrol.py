@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/header/TutorialControl.py
 from gui.Scaleform.daapi.view.meta.TutorialControlMeta import TutorialControlMeta
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 from gui.shared import g_eventBus, events, EVENT_BUS_SCOPE

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/adisp.py
 """
 Adisp is a library that allows structuring code with asynchronous calls and
 callbacks without defining callbacks as separate functions. The code then

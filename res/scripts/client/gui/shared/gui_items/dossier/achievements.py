@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/dossier/achievements.py
 from collections import namedtuple
 import BigWorld
 import dossiers

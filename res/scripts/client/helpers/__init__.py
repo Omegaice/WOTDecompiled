@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/__init__.py
 import BigWorld
 import ResMgr
 import Settings

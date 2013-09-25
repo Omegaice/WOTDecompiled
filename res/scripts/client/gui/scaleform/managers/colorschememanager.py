@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/ColorSchemeManager.py
 import Math
 import ResMgr
 from account_helpers.AccountSettings import AccountSettings

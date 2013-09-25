@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vibroeffects/Controllers/RammingController.py
 import BigWorld
 from OnceController import OnceController
 from constants import DESTRUCTIBLE_MATKIND

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/managers/loaders.py
 from collections import namedtuple
 import uuid
 import Event

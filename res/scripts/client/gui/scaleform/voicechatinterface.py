@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/VoiceChatInterface.py
 import BigWorld, Settings, constants, Event
 import BattleReplay
 from adisp import async

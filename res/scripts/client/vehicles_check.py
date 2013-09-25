@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/vehicles_check.py
 import BigWorld
 from items import vehicles
 from debug_utils import *

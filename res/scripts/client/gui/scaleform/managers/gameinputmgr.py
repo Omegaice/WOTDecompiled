@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/GameInputMgr.py
 import Keys
 import CommandMapping
 import VOIP

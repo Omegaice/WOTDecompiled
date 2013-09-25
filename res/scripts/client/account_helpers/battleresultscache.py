@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/BattleResultsCache.py
 import os
 import BigWorld
 import cPickle

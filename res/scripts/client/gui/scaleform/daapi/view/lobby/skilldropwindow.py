@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/SkillDropWindow.py
 import pickle
 from items import tankmen
 from gui import SystemMessages

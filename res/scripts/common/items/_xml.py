@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/items/_xml.py
 import ResMgr
 
 def raiseWrongXml(xmlContext, subsectionName, msg):

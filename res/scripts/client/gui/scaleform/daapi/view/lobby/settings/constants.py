@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/constants.py
 from gui.shared.utils import CONST_CONTAINER
 
 class GRAPHICS(CONST_CONTAINER):

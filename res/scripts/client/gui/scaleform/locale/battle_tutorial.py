@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/BATTLE_TUTORIAL.py
 
 
 class BATTLE_TUTORIAL(object):

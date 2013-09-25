@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/interfaces.py
 
 
 class IGUIEntry(object):

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vibroeffects/Controllers/ReloadController.py
 from OnceController import OnceController
 
 class ReloadController(OnceController):

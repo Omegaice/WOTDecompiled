@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/squad.py
 import BigWorld
 from account_helpers import gameplay_ctx
 from constants import JOIN_FAILURE, REQUEST_COOLDOWN

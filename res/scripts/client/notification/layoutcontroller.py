@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/LayoutController.py
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.framework import AppRef, VIEW_TYPE
 from gui.Scaleform.framework.entities.EventSystemEntity import EventSystemEntity

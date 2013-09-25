@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/func_utils.py
 import BigWorld
 from functools import partial
 

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/dossiers/helpers.py
 import time
 import dossiers
 import utils

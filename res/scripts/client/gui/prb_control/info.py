@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/info.py
 import BigWorld
 from collections import namedtuple
 from account_helpers import getPlayerDatabaseID, getPlayerID

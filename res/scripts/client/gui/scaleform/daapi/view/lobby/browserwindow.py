@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/BrowserWindow.py
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.daapi.view.meta.BrowserMeta import BrowserMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta

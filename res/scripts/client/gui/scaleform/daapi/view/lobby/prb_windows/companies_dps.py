@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/companies_dps.py
 from constants import PREBATTLE_COMPANY_DIVISION, PREBATTLE_COMPANY_DIVISION_NAMES
 from gui.Scaleform.framework.entities.DAAPIDataProvider import DAAPIDataProvider
 from gui.prb_control.formatters import getCompanyDivisionString

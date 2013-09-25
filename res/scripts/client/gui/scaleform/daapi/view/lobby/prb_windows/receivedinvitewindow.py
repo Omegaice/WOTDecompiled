@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/ReceivedInviteWindow.py
 from gui.Scaleform.daapi.view.lobby.prb_windows import invite_post_actions
 from gui.Scaleform.daapi.view.meta.ReceivedInviteWindowMeta import ReceivedInviteWindowMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta

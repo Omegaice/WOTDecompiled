@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/data/ChannelsDataProvider.py
 import BigWorld
 from debug_utils import LOG_ERROR
 from gui.Scaleform.framework.entities.DAAPIDataProvider import DAAPIDataProvider

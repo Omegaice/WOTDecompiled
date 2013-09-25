@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/formatters/messages.py
 from CurrentVehicle import g_currentVehicle
 from constants import JOIN_FAILURE_NAMES, KICK_REASON_NAMES
 from debug_utils import LOG_ERROR

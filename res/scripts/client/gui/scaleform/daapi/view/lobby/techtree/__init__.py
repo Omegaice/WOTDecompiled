@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/__init__.py
 from collections import namedtuple, defaultdict
 from items import ITEM_TYPE_NAMES, getTypeInfoByName
 from items.vehicles import _VEHICLE, _TURRET, _GUN, _CHASSIS, _RADIO, _ENGINE

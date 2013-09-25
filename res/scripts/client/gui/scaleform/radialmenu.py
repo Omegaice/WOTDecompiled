@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/RadialMenu.py
 import BigWorld
 import Keys
 import GUI

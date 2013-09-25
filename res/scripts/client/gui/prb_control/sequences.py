@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/sequences.py
 import time
 import BigWorld
 from constants import PREBATTLE_CACHE_KEY, PREBATTLE_COMPANY_DIVISION_NAMES

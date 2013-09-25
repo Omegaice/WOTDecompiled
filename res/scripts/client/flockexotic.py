@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/FlockExotic.py
 import BigWorld
 import math
 from Vehicle import Vehicle

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/interfaces.py
 from debug_utils import LOG_DEBUG
 from gui.prb_control.info import TeamStateInfo, PlayersStateStats, PlayerPrbInfo
 from gui.prb_control.restrictions.interfaces import IPermissions

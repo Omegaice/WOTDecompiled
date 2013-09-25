@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VOIP/messages.py
 vxFirst = 999
 vxAccountBuddyDelete = 1000
 vxAccountBuddygroupDelete = 1001

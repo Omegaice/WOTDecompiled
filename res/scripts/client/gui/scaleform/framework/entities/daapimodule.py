@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/entities/DAAPIModule.py
 import traceback
 from debug_utils import LOG_ERROR, LOG_WARNING, LOG_CURRENT_EXCEPTION
 __author__ = 'd_trofimov'

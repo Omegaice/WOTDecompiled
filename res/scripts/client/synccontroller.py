@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/SyncController.py
 import BigWorld
 import AccountCommands
 import cPickle

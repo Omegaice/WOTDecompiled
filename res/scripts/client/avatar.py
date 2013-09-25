@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Avatar.py
 import cPickle
 import zlib
 from functools import partial

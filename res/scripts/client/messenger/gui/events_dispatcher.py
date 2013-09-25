@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/events_dispatcher.py
 from gui.shared import g_eventBus, events, EVENT_BUS_SCOPE
 
 def showLobbyChannelWindow(clientID):

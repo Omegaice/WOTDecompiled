@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/SettingsInterface.py
 import sys
 from functools import partial
 import BigWorld

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/offbattle/pop_ups.py
 import BigWorld, MusicController, SoundGroups
 from tutorial.gui.Scaleform.meta.TutorialBattleNoResultsMeta import TutorialBattleNoResultsMeta
 from tutorial.gui.Scaleform.pop_ups import TutorialDialog, TutorialWindow

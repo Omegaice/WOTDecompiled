@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/settings/views.py
 from gui.Scaleform.framework import COMMON_VIEW_ALIAS
 
 class VIEW_ALIAS(COMMON_VIEW_ALIAS):

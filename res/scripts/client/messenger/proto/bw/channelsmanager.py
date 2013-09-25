@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/ChannelsManager.py
 import BigWorld
 import Event
 from chat_shared import CHAT_ACTIONS, CHAT_RESPONSES

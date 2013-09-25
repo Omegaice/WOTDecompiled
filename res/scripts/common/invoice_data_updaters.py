@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/invoice_data_updaters.py
 from debug_utils import *
 _LATEST_DATA_VERSION = 3
 

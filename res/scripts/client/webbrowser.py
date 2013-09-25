@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/WebBrowser.py
 import BigWorld
 import Keys
 from gui.Scaleform.CursorDelegator import CursorDelegator

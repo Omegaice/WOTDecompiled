@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/SoundManager.py
 from debug_utils import *
 import ResMgr
 from items import _xml

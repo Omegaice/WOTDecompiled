@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarPositionControl.py
 import BigWorld
 import constants
 import weakref

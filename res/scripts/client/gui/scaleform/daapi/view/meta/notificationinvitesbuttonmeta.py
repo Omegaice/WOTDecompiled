@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/meta/NotificationInvitesButtonMeta.py
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 
 class NotificationInvitesButtonMeta(DAAPIModule):

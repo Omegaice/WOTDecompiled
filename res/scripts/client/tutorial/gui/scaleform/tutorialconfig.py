@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/TutorialConfig.py
 import ResMgr
 from items import _xml
 from tutorial.doc_loader import sub_parsers

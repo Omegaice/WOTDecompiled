@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/meta/TutorialBattleStatisticMeta.py
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 
 class TutorialBattleStatisticMeta(DAAPIModule):

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/LOBBY_HELP.py
 
 
 class LOBBY_HELP(object):

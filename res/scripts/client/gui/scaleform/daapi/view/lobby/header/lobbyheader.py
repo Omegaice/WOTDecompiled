@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/header/LobbyHeader.py
 import datetime
 from gui.Scaleform.daapi.view.meta.LobbyHeaderMeta import LobbyHeaderMeta
 from gui.shared import events

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/formatters/service_channel.py
 import types
 from adisp import async, process
 from debug_utils import LOG_ERROR, LOG_WARNING, LOG_CURRENT_EXCEPTION, LOG_DEBUG

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/VEHICLE_CUSTOMIZATION_CN.py
 
 
 class VEHICLE_CUSTOMIZATION_CN(object):

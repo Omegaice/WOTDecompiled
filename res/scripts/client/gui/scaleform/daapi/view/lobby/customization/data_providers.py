@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/data_providers.py
 import gui
 import Math
 import time

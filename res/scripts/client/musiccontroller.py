@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/MusicController.py
 import account_helpers
 import BigWorld
 import ResMgr

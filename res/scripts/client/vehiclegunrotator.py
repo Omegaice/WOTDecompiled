@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VehicleGunRotator.py
 import BigWorld, Math
 import weakref
 import math

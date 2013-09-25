@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileSummaryPage.py
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.daapi.view.lobby.profile.ProfileSummary import ProfileSummary
 from gui.Scaleform.locale.PROFILE import PROFILE

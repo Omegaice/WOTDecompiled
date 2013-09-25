@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/FAQ.py
 
 
 class FAQ(object):

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/offbattle/context.py
 import BigWorld
 from AccountCommands import RES_SUCCESS
 from constants import FINISH_REASON, IS_TUTORIAL_ENABLED

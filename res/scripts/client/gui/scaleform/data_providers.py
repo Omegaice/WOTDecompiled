@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/data_providers.py
 from abc import abstractmethod, ABCMeta, abstractproperty
 from gui.Scaleform.CommandArgsParser import CommandArgsParser
 from gui.Scaleform.windows import UIInterface

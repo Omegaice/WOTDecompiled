@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/GraphicsPresets.py
 import BigWorld
 import ResMgr
 from MemoryCriticalController import g_critMemHandler

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/ContextMenuManager.py
 import BigWorld
 import ResMgr
 from adisp import process

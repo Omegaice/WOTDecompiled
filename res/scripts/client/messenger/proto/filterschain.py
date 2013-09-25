@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/FiltersChain.py
 from debug_utils import LOG_WARNING, LOG_DEBUG
 from messenger.proto.interfaces import IIncomingMessageFilter, IOutgoingMessageFilter
 

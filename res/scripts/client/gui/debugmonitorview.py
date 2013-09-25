@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/DebugMonitorView.py
 import BigWorld
 from gui.DebugView import DebugView
 from gui.DebugView import DebugViewItem

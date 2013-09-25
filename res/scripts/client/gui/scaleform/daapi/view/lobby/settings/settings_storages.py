@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/settings_storages.py
 import BigWorld
 from gui.shared.utils.graphics import g_monitorSettings
 from messenger import g_settings as messenger_settings

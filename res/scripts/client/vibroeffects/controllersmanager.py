@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vibroeffects/ControllersManager.py
 from Controllers.HitController import HitController
 from Controllers.DeathController import DeathController
 from Controllers.EngineController import EngineController

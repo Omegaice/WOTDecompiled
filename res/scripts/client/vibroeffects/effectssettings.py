@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vibroeffects/EffectsSettings.py
 import ResMgr
 
 class EffectsSettings:

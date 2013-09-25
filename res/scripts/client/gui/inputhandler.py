@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/InputHandler.py
 import Event
 g_instance = None
 

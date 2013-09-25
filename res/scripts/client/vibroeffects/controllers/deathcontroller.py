@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vibroeffects/Controllers/DeathController.py
 from OnceController import OnceController
 
 class DeathController:

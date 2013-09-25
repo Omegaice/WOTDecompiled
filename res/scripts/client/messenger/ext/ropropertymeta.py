@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/ext/ROPropertyMeta.py
 
 
 def getMethod(name):

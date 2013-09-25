@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/quests/QuestsWindow.py
 import sys
 import math
 from collections import defaultdict

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/PREBATTLE.py
 
 
 class PREBATTLE(object):

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/ext/channel_num_gen.py
 import BigWorld
 from constants import PREBATTLE_TYPE
 from ids_generators import SequenceIDGenerator

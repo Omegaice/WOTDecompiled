@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/EmblemInterface.py
 import BigWorld
 from abc import abstractmethod, ABCMeta
 import time

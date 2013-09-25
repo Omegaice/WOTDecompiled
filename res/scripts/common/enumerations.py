@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/enumerations.py
 from debug_utils import deprecated, LOG_DEBUG
 import types, exceptions
 

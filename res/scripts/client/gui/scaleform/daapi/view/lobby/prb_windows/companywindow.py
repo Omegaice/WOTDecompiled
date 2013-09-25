@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/CompanyWindow.py
 from adisp import process
 from gui import makeHtmlString
 from gui.Scaleform.daapi.view.lobby.prb_windows import companies_dps

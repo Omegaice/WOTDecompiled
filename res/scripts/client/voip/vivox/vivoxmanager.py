@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VOIP/Vivox/VivoxManager.py
 import BigWorld
 from VOIP import constants
 from VOIP.VOIPManager import VOIPManager

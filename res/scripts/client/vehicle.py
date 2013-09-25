@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vehicle.py
 import BigWorld, Math
 import functools
 import weakref, random

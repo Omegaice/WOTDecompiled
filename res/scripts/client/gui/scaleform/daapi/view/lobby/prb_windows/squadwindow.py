@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/SquadWindow.py
 from gui.Scaleform.daapi.view.lobby.prb_windows.PrebattleWindow import PrebattleWindow
 from gui.prb_control.settings import PREBATTLE_ROSTER, PREBATTLE_REQUEST
 from gui.shared import events, EVENT_BUS_SCOPE

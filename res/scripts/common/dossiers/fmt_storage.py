@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/dossiers/fmt_storage.py
 from struct import unpack
 from utils import getVehTypeFragsFmtValues, unpackVehTypeFrags, getVehDossiersCutFmtValues, unpackVehDossiersCut, extendRecordPacking, getRareAchievementsFmtValues, unpackRareAchievements
 

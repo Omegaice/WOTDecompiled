@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/NotificationsModel.py
 import Event
 from messenger.m_constants import PROTO_TYPE
 from messenger.proto import proto_getter

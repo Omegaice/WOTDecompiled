@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/genConsts/FITTING_TYPES.py
 
 
 class FITTING_TYPES(object):

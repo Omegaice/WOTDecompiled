@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/exchange/VcoinUpdateBalanceRequester.py
 import time
 import BigWorld
 import Event

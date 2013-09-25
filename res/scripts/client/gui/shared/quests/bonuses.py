@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/quests/bonuses.py
 import BigWorld
 from debug_utils import LOG_DEBUG
 from helpers import getLocalizedData, i18n

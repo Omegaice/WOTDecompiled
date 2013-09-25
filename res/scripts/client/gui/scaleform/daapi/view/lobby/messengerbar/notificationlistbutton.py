@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/messengerBar/NotificationListButton.py
 from gui.Scaleform.daapi.view.meta.NotificationListButtonMeta import NotificationListButtonMeta
 from notification import NotificationMVC
 

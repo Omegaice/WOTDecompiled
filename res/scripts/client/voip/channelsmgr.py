@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VOIP/ChannelsMgr.py
 import BigWorld
 from debug_utils import LOG_DEBUG, LOG_ERROR, verify
 from wotdecorators import noexcept

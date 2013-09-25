@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/prebattle_shared.py
 import items
 import nations
 from account_shared import AmmoIterator

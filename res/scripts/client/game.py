@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/game.py
 import cPickle
 import zlib
 import sys

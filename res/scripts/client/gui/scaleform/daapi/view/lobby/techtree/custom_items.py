@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/custom_items.py
 from items import ITEM_TYPE_NAMES, vehicles
 from gui.Scaleform.daapi.view.lobby.techtree import _VEHICLE_TYPE_NAME, SMALL_ICONS_PATH
 from gui.shared.utils.gui_items import FittingItem, InventoryItem, InventoryVehicle, ShopItem, getItemByCompact

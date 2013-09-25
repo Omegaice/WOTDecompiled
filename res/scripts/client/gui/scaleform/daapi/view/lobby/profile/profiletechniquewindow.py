@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileTechniqueWindow.py
 from adisp import process
 from debug_utils import LOG_ERROR
 from gui.Scaleform.daapi.view.lobby.profile.ProfileTechnique import ProfileTechnique

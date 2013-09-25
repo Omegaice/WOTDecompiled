@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/Disconnect.py
 import BigWorld, GUI
 from gui.Scaleform.CursorDelegator import g_cursorDelegator
 from helpers.i18n import makeString

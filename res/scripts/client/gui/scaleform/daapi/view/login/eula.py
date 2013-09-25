@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/login/EULA.py
 import BigWorld
 import ResMgr
 from gui import DialogsInterface

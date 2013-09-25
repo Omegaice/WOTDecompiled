@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/ConfirmModuleMeta.py
 import math
 from gui.Scaleform.daapi.view.dialogs import IDialogMeta
 import Event

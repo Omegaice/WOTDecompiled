@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/AccountValidator.py
 __author__ = 'i_maliavko'
 from adisp import process, async
 from items import vehicles, ITEM_TYPE_NAMES

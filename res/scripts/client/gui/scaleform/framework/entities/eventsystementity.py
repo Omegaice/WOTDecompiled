@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/entities/EventSystemEntity.py
 __author__ = 'd_trofimov'
 from gui.Scaleform.framework.entities.DisposableEntity import DisposableEntity
 from gui.shared import g_eventBus, EVENT_BUS_SCOPE

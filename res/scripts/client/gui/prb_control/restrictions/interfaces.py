@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/restrictions/interfaces.py
 
 
 class IPermissions(object):

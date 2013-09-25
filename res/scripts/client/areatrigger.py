@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AreaTrigger.py
 import BigWorld
 import TriggersManager
 

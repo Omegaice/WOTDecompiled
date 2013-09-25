@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/lobby/SfLobbyDispatcher.py
 import weakref
 from gui.Scaleform.Waiting import Waiting
 from gui.Scaleform.daapi.settings import VIEW_ALIAS

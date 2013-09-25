@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/aims.py
 from functools import partial
 import math
 import weakref

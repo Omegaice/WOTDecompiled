@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/settings.py
 from constants import PREBATTLE_TYPE
 from prebattle_shared import SETTING_DEFAULTS, PrebattleSettings
 VEHICLE_MIN_LEVEL = 1

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AimTrigger.py
 import BigWorld
 import TriggersManager
 

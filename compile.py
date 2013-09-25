@@ -24,9 +24,7 @@ shutil.copytree("res/scripts", "res_mods/0.8.8/scripts")
 # Compile Files
 for root, dirnames, filenames in os.walk('res_mods'):
 	for filename in fnmatch.filter(filenames, '*.py'):
-		print os.path.join(root.replace("res_mods/0.8.8/","res/"), filename.replace(".py","-old.byte"))
-
-		sys.stdout = open(os.path.join(root.replace("res_mods/0.8.8/","res/"), filename.replace(".py","-old.byte")), "w")
+		sys.stdout = open(os.path.join(root, filename.replace(".py","-old.byte")), "w")
 		with open(os.path.join(root.replace("res_mods/0.8.8/","res/"), filename.replace(".py",".pyc")), "rb") as pyc_reader:
 			pyc_reader.read(8)
 			dis.dis(marshal.load(pyc_reader))
@@ -34,7 +32,7 @@ for root, dirnames, filenames in os.walk('res_mods'):
 
 		py_compile.compile(os.path.join(root, filename), doraise=True)
 
-		sys.stdout = open(os.path.join(root.replace("res_mods/0.8.8/","res/"), filename.replace(".py","-new.byte")), "w")
+		sys.stdout = open(os.path.join(root, filename.replace(".py","-new.byte")), "w")
 		with open(os.path.join(root, filename.replace(".py",".pyc")), "rb") as pyc_reader:
 			pyc_reader.read(8)
 			dis.dis(marshal.load(pyc_reader))

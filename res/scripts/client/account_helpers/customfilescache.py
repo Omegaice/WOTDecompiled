@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/CustomFilesCache.py
 import os
 import time
 import base64

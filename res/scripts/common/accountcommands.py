@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/AccountCommands.py
 from streamIDs import STREAM_ID_ACCOUNT_CMDS_MIN, STREAM_ID_ACCOUNT_CMDS_MAX
 RES_FAILURE = -1
 RES_WRONG_ARGS = -2

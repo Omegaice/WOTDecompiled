@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/storage/ChannelsStorage.py
 from debug_utils import LOG_ERROR
 from messenger.ext.channel_num_gen import genClientID4Channel
 

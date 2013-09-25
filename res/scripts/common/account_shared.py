@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/account_shared.py
 import collections
 import time
 

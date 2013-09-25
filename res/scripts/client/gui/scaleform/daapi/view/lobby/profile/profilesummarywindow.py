@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileSummaryWindow.py
 from adisp import process
 from gui.Scaleform.daapi.view.lobby.profile.ProfileSummary import ProfileSummary
 from gui.shared import g_itemsCache

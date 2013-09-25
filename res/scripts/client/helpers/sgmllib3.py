@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/sgmllib3.py
 """A parser for SGML, using the derived class as a static DTD."""
 import _markupbase
 import re

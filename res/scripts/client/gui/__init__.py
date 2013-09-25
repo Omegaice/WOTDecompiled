@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/__init__.py
 import ResMgr, nations
 from collections import defaultdict
 from constants import IS_DEVELOPMENT

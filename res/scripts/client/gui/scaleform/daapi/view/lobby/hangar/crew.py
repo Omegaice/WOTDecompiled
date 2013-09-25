@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/Crew.py
 from adisp import process
 from CurrentVehicle import g_currentVehicle
 from debug_utils import LOG_DEBUG, LOG_ERROR

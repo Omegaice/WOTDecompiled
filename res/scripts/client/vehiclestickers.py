@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VehicleStickers.py
 import BigWorld
 import Account
 import items

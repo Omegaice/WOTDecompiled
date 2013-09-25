@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/SettingsWindow.py
 import functools
 import BigWorld
 import VOIP

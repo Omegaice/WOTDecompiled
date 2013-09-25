@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/offbattle/settings.py
 from gui.Scaleform.framework import GroupedViewSettings, VIEW_TYPE
 from tutorial.gui.Scaleform.pop_ups import TutorialDialog
 from tutorial.gui.Scaleform.offbattle import pop_ups as off_pop_ups

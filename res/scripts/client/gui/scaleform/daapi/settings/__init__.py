@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/settings/__init__.py
 from gui.Scaleform.daapi.settings.views import VIEW_ALIAS
 from gui.Scaleform.daapi.view.dialogs.DismissTankmanDialog import DismissTankmanDialog
 from gui.Scaleform.daapi.view.dialogs.IconPriceDialog import IconPriceDialog

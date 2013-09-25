@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/PlayerBonusesPanel.py
 import BigWorld
 from gui import DebugMonitorView
 from gui import DEPTH_OF_PlayerBonusesPanel

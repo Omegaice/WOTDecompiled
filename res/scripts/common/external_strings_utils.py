@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/external_strings_utils.py
 import re
 import unicodedata
 from debug_utils import LOG_CURRENT_EXCEPTION

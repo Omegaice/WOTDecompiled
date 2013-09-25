@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/xmpp/Parser.py
 import xml.parsers.expat
 
 class XMPPParser(object):

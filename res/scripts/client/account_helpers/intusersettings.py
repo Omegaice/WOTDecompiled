@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/IntUserSettings.py
 import AccountCommands
 import time
 import constants

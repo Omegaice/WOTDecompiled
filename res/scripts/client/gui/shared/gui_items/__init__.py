@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/__init__.py
 import BigWorld
 from debug_utils import *
 from helpers import i18n

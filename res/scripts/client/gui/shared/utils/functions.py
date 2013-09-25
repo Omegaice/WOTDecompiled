@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/functions.py
 import random
 import ArenaType, BigWorld, re
 from adisp import async, process

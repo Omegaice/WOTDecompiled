@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/personality.py
 import SoundGroups
 import BigWorld
 import MusicController

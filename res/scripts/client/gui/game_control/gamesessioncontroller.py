@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/game_control/GameSessionController.py
 import BigWorld, Event, account_shared, time, constants
 from adisp import process
 from helpers import time_utils

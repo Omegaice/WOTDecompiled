@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/tips.py
 import random
 import re
 from debug_utils import LOG_CURRENT_EXCEPTION

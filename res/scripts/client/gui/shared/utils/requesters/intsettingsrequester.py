@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/requesters/IntSettingsRequester.py
 import BigWorld
 from adisp import async, process
 from debug_utils import LOG_ERROR

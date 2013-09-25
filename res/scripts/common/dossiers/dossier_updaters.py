@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/dossiers/dossier_updaters.py
 import time
 import nations
 import fmt_storage

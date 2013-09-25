@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/TriggersManager.py
 import BigWorld
 import Math, math
 import PlayerEvents

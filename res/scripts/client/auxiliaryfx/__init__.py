@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AuxiliaryFx/__init__.py
 from AuxiliaryFx.FxController import AuxiliaryFxController
 from AuxiliaryFx.Roccat import RoccatFxManager
 import AuxiliaryFx

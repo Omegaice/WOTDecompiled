@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/doc_loaders/LoginDataLoader.py
 from debug_utils import LOG_CURRENT_EXCEPTION, LOG_DEBUG
 from Event import Event
 from account_helpers.SteamAccount import g_steamAccount

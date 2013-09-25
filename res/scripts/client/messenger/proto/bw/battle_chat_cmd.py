@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/battle_chat_cmd.py
 from chat_shared import CHAT_COMMANDS
 from debug_utils import LOG_ERROR
 from gui.BattleContext import g_battleContext

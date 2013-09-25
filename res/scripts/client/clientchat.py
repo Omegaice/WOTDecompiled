@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/ClientChat.py
 import cPickle
 import zlib
 import time

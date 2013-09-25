@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/doc_loader/sub_parsers/offbattle.py
 from helpers.html import translation
 from items import _xml
 from tutorial.control.offbattle import triggers

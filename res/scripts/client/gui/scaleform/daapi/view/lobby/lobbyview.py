@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/LobbyView.py
 import BigWorld
 import constants
 from debug_utils import LOG_DEBUG

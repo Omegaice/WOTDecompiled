@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/data/search_data_providers.py
 from debug_utils import LOG_DEBUG
 from gui import SystemMessages
 from gui.Scaleform.framework.entities.DAAPIDataProvider import DAAPIDataProvider

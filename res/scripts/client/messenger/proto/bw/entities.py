@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/entities.py
 import types
 import chat_shared
 from messenger.ext import passCensor

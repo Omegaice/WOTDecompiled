@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/wotdecorators.py
 from debug_utils import LOG_WRAPPED_CURRENT_EXCEPTION
 from debug_utils import LOG_WARNING
 import time

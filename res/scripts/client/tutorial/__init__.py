@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/__init__.py
 import weakref
 import BigWorld
 from tutorial import doc_loader

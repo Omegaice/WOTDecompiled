@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/SteamAccount.py
 import BigWorld
 import constants
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG

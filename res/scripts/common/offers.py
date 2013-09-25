@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/offers.py
 import time
 from collections import namedtuple
 import BigWorld

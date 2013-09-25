@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/UtilsManager.py
 import nations
 from gui import GUI_NATIONS
 from gui.Scaleform.framework.entities.abstract.UtilsManagerMeta import UtilsManagerMeta

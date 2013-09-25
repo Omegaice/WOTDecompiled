@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/LcdKeyboard.py
 import BigWorld
 _g_instance = None
 

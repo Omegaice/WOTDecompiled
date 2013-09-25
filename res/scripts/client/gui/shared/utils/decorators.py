@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/decorators.py
 import adisp
 from gui.Scaleform.Waiting import Waiting
 

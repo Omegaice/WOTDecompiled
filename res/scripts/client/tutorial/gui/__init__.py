@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/__init__.py
 import BigWorld
 from ConnectionManager import connectionManager
 from PlayerEvents import g_playerEvents

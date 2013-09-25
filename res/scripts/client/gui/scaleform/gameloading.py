@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/GameLoading.py
 import GUI
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.Flash import Flash

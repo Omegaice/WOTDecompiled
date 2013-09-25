@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/i18n.py
 from collections import defaultdict
 from encodings import utf_8
 import gettext

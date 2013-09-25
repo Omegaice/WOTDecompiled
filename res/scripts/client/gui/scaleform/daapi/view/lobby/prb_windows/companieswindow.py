@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/CompaniesWindow.py
 from adisp import process
 from gui.Scaleform.daapi.view.lobby.prb_windows import companies_dps
 from gui.Scaleform.daapi.view.lobby.prb_windows.PrebattlesListWindow import PrebattlesListWindow

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/messengerBar/MessengerBar.py
 from gui.Scaleform.daapi.view.meta.MessengerBarMeta import MessengerBarMeta
 from gui.Scaleform.framework import AppRef, VIEW_TYPE, g_entitiesFactories
 from gui.Scaleform.framework.managers.containers import POP_UP_CRITERIA

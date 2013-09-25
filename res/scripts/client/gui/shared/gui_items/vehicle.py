@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/Vehicle.py
 import BigWorld
 from itertools import izip
 from AccountCommands import LOCK_REASON, VEHICLE_SETTINGS_FLAG

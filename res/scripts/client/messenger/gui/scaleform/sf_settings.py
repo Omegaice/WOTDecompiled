@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/sf_settings.py
 from gui.Scaleform.framework.managers.loaders import PackageBusinessHandler
 from gui.Scaleform.framework import GroupedViewSettings, VIEW_TYPE, ViewSettings
 from gui.shared import EVENT_BUS_SCOPE

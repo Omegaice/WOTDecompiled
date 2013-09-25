@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/xmpp/Entities.py
 from xmpp.Stanzas import getAttr, getChild, jidAttr
 import Event
 from debug_utils import *

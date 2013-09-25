@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/requesters/abstract.py
 from adisp import async, process
 from helpers import isPlayerAccount
 from debug_utils import LOG_ERROR

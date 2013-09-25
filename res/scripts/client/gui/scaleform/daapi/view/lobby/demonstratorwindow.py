@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/DemonstratorWindow.py
 import ArenaType
 from gui.Scaleform.daapi.view.meta.DemonstratorWindowMeta import DemonstratorWindowMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta

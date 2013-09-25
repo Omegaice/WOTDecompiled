@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/TechnicalMaintenance.py
 from AccountCommands import LOCK_REASON
 from CurrentVehicle import g_currentVehicle
 from PlayerEvents import g_playerEvents

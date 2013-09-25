@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/SystemMessagesInterface.py
 import time
 import account_helpers
 from ConnectionManager import connectionManager

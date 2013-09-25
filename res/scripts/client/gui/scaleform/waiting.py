@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/Waiting.py
 import BigWorld
 import Keys
 from helpers import i18n

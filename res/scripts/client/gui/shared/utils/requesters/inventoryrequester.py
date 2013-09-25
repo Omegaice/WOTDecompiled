@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/requesters/InventoryRequester.py
 import time
 import types
 from collections import namedtuple, defaultdict

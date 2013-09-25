@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/dossier/__init__.py
 import BigWorld
 import math
 import itertools

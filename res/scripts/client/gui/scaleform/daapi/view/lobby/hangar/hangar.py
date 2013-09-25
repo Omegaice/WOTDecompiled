@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/Hangar.py
 from CurrentVehicle import g_currentVehicle
 from PlayerEvents import g_playerEvents
 from constants import IGR_TYPE

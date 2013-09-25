@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/LightFx/LightManager.py
 import time
 from debug_utils import *
 import BigWorld

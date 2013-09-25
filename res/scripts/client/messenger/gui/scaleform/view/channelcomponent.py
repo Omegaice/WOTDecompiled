@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/view/ChannelComponent.py
 import weakref
 import constants
 from debug_utils import LOG_DEBUG

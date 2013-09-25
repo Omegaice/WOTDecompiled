@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/data/ChannelsCarouselHandler.py
 from debug_utils import LOG_ERROR
 from gui.Scaleform.daapi.view.meta.ChannelCarouselMeta import ChannelCarouselMeta
 from gui.Scaleform.framework import AppRef, VIEW_TYPE

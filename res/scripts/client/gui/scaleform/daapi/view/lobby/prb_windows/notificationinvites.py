@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/NotificationInvites.py
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.daapi.view.meta.NotificationInvitesWindowMeta import NotificationInvitesWindowMeta
 from gui.Scaleform.framework import AppRef

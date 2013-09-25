@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/NotificationListView.py
 from debug_utils import LOG_ERROR, LOG_DEBUG
 from gui.Scaleform.daapi.view.meta.NotificationsListMeta import NotificationsListMeta
 from gui.Scaleform.framework.entities.View import View

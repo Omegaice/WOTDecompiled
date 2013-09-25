@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/RareAchievementsCache.py
 import Event
 from debug_utils import *
 from helpers import i18n, getClientLanguage

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/aop.py
 import re
 import sys
 import types

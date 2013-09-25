@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/doc_loaders/WindowsStoredDataLoader.py
 import base64
 import cPickle
 import Settings

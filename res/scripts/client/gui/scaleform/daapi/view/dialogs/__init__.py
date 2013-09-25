@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/__init__.py
 import BigWorld
 import Event
 from gui.ClientUpdateManager import g_clientUpdateManager

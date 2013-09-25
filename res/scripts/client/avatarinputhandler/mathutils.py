@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/mathUtils.py
 import BigWorld
 import Math
 from Math import Vector2, Vector3, Matrix

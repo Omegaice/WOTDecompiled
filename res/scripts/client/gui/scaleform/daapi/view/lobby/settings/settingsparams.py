@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/SettingsParams.py
 import BigWorld
 from account_helpers.SettingsCore import g_settingsCore
 from gui.Scaleform.daapi.view.lobby.settings import constants

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/IntroPage.py
 import BigWorld
 from debug_utils import LOG_DEBUG, LOG_ERROR
 from gui.Scaleform.framework import AppRef

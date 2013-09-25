@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/items/__init__.py
 import ResMgr
 from types import IntType
 from items import _xml

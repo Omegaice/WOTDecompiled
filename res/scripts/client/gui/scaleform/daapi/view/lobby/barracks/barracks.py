@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/barracks/Barracks.py
 import BigWorld
 from AccountCommands import LOCK_REASON
 from adisp import process

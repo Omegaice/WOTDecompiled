@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/invites.py
 from enumerations import Enumeration
 INVITE_TYPES = Enumeration('InviteTypes', ['BARTER',
  'TEAM',

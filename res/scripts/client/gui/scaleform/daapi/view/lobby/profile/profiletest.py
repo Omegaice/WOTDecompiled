@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileTest.py
 from gui.WindowsManager import g_windowsManager
 from gui.shared import events, EVENT_BUS_SCOPE
 

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/business_layer.py
 import BigWorld
 from debug_utils import *
 from gui.Scaleform.daapi.settings import VIEWS_SETTINGS, VIEWS_PACKAGES

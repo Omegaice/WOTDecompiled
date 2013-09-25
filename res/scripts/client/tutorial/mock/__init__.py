@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/mock/__init__.py
 from tutorial import loader, doc_loader, logger, GlobalStorage
 from tutorial.control.states import TutorialStateRunEffects
 from tutorial.data import chapter

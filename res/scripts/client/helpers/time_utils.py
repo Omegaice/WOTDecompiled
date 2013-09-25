@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/time_utils.py
 import time, BigWorld, datetime, calendar
 from debug_utils import *
 

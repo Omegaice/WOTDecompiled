@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/vehicle_extras.py
 import BigWorld
 import random
 from AvatarInputHandler import ShakeReason

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/HornCooldown.py
 import BigWorld
 import Event
 

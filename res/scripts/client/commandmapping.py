@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/CommandMapping.py
 import BigWorld
 import ResMgr
 import Keys

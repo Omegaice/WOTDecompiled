@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/logger.py
 from constants import IS_DEVELOPMENT
 from debug_utils import _doLog, LOG_CURRENT_EXCEPTION
 

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/html/__init__.py
 from debug_utils import LOG_CURRENT_EXCEPTION
 from helpers import i18n
 import re

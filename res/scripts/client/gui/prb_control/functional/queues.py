@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/queues.py
 import BigWorld
 import ArenaType
 from CurrentVehicle import g_currentVehicle

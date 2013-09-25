@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/__init__.py
 import BigWorld
 from constants import PREBATTLE_TYPE, ARENA_GUI_TYPE, DEFAULT_LANGUAGE
 from constants import PREBATTLE_TYPE_NAMES

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/NotificationMVC.py
 from notification.AlertController import AlertController
 from notification.LayoutController import LayoutController
 from notification.ListController import ListController

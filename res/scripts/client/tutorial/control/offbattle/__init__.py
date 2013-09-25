@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/offbattle/__init__.py
 from tutorial.data.chapter import Effect
 from tutorial.control import ControlsFactory
 from tutorial.control import context as core_ctx

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileStatistics.py
 from gui.Scaleform.daapi.view.lobby.profile import ProfileCommon
 from gui.Scaleform.daapi.view.lobby.profile.ProfileSection import ProfileSection
 from gui.Scaleform.daapi.view.meta.ProfileStatisticsMeta import ProfileStatisticsMeta

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/VehicleSellDialog.py
 from PlayerEvents import g_playerEvents
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION
 from gui.shared.gui_items import GUI_ITEM_TYPE

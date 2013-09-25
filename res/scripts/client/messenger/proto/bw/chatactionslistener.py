@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/ChatActionsListener.py
 from ChatManager import chatManager
 from debug_utils import LOG_ERROR
 

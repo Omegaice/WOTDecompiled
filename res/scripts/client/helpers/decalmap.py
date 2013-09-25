@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/DecalMap.py
 import BigWorld
 import ResMgr
 from debug_utils import *

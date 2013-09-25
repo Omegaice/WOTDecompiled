@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/artefacts.py
 __author__ = 'i_maliavko'
 from debug_utils import *
 from items import artefacts

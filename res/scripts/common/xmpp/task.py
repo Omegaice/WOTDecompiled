@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/xmpp/Task.py
 import Event
 from debug_utils import *
 import Connection

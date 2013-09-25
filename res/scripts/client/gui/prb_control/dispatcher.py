@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/dispatcher.py
 import weakref
 from CurrentVehicle import g_currentVehicle
 from adisp import async, process

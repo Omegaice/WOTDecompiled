@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/graphics.py
 from collections import namedtuple
 import BigWorld
 from debug_utils import LOG_WARNING

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AreaDestructibles.py
 import BigWorld
 from debug_utils import *
 import Math

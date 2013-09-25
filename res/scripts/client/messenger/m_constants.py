@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/m_constants.py
 import chat_shared
 from constants import PREBATTLE_TYPE
 MESSENGER_XML_FILE = 'messenger'

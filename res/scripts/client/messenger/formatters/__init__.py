@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/formatters/__init__.py
 import BigWorld
 from messenger import g_settings
 

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/AlertController.py
 from gui import DialogsInterface
 from gui.Scaleform.daapi.view.dialogs.SystemMessageMeta import SystemMessageMeta
 from notification.BaseMessagesController import BaseMessagesController

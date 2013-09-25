@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/quests/conditions.py
 import operator
 import constants
 import nations

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/login/EULADispatcher.py
 import ResMgr
 from debug_utils import LOG_ERROR, LOG_WARNING, LOG_CURRENT_EXCEPTION
 from helpers import getClientLanguage

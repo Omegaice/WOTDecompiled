@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/BaseMessagesController.py
 
 
 class BaseMessagesController:

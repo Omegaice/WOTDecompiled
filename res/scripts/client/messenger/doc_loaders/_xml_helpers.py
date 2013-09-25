@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/doc_loaders/_xml_helpers.py
 import types
 from helpers.html import translation as html_translation
 

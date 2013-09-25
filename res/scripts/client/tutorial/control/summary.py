@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/summary.py
 from tutorial.control.functional import FunctionalVarSet
 from tutorial.logger import LOG_ERROR, LOG_DEBUG
 

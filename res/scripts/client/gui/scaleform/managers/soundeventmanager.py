@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/SoundEventManager.py
 from gui.Scaleform.framework import AppRef
 from gui.ClientUpdateManager import g_clientUpdateManager
 from CurrentVehicle import g_currentVehicle

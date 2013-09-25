@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/battle_session.py
 import BigWorld
 from ConnectionManager import connectionManager
 from PlayerEvents import g_playerEvents

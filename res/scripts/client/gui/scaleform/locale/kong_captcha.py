@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/KONG_CAPTCHA.py
 
 
 class KONG_CAPTCHA(object):

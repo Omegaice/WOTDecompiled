@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/ContactInfo.py
 import BigWorld, Settings
 
 class ContactInfo:

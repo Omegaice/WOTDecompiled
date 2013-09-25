@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/game_control/IGR.py
 import Event
 import constants
 from debug_utils import LOG_DEBUG

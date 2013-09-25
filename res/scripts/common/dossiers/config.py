@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/dossiers/config.py
 RECORD_CONFIGS = {'medalKay': (1, 10, 100, 1000),
  'medalCarius': (10, 100, 1000, 10000),
  'medalKnispel': (10000, 100000, 1000000, 10000000),

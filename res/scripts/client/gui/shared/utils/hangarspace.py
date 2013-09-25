@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/HangarSpace.py
 import BigWorld
 from gui.ClientHangarSpace import ClientHangarSpace
 from gui.Scaleform.Waiting import Waiting

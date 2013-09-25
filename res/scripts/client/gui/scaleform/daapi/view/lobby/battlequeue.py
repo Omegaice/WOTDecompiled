@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/BattleQueue.py
 import BigWorld, constants, MusicController
 from gui import prb_control
 from gui.Scaleform.daapi.settings.views import VIEW_ALIAS

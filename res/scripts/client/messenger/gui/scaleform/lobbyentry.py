@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/LobbyEntry.py
 from debug_utils import LOG_ERROR
 from gui import DialogsInterface, SystemMessages
 from gui.Scaleform.daapi.view import dialogs

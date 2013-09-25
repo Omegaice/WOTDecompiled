@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/VehicleCustonizationModel.py
 import time
 
 class VehicleCustomizationModel:

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/LobbyMenu.py
 from adisp import process
 from gui import DialogsInterface
 from gui.shared import events, g_eventBus, EVENT_BUS_SCOPE

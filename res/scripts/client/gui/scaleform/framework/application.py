@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/application.py
 import weakref
 import BigWorld
 import GUI

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/no_prebattle.py
 from CurrentVehicle import g_currentVehicle
 from constants import PREBATTLE_TYPE
 from debug_utils import LOG_ERROR

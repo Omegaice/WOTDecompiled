@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/SettingsCache.py
 from Event import Event
 from adisp import async
 from gui.ClientUpdateManager import g_clientUpdateManager

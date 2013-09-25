@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/events.py
 import Event
 
 class _ChannelsSharedEvents(object):

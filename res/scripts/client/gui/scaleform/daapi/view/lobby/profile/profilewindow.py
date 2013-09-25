@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileWindow.py
 from adisp import process
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.daapi.settings import VIEW_ALIAS

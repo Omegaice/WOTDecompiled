@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/VoiceChatManager.py
 import BigWorld
 import Settings
 import constants

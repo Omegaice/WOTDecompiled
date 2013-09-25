@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/PostmortemDelay.py
 import BigWorld
 import Math
 from AvatarInputHandler.DynamicCameras.ArcadeCamera import ArcadeCamera

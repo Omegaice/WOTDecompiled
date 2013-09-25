@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/data/__init__.py
 from abc import ABCMeta, abstractmethod
 
 class IHasID(object):

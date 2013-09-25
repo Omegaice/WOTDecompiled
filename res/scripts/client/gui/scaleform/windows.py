@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/windows.py
 import GUI
 from gui import g_repeatKeyHandlers
 from debug_utils import LOG_DEBUG, LOG_WARNING

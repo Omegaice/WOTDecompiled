@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/doc_loaders/GuiColorsLoader.py
 import Math
 import ResMgr
 from debug_utils import *

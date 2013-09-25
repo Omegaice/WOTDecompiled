@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/SystemMessages.py
 from abc import ABCMeta, abstractmethod
 from enumerations import Enumeration
 SM_TYPE = Enumeration('System message type', ['Error',

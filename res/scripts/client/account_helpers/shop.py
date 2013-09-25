@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/Shop.py
 import AccountCommands
 import items
 import nations

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/Tankman.py
 import pickle
 from helpers.i18n import convert
 from items import tankmen, vehicles, ITEM_TYPE_NAMES

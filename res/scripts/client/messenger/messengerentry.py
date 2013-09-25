@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/MessengerEntry.py
 from ConnectionManager import connectionManager
 from PlayerEvents import g_playerEvents
 from messenger import g_settings

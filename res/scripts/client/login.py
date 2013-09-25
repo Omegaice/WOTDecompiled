@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Login.py
 import BigWorld
 from PlayerEvents import g_playerEvents
 from ConnectionManager import connectionManager

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/doc_loaders/__init__.py
 import ResMgr
 from messenger.doc_loaders import colors_schemes, html_templates, settings_set
 from messenger.doc_loaders import user_prefs

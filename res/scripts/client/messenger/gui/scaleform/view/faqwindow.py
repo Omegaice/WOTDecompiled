@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/view/FAQWindow.py
 from debug_utils import LOG_ERROR
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.framework.entities.View import View

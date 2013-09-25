@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/battle/__init__.py
 import weakref
 import GUI
 from gui.Scaleform.windows import UIInterface

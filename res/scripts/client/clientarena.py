@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/ClientArena.py
 import Math
 import BigWorld, ResMgr
 import ArenaType

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/Cursor.py
 from debug_utils import LOG_DEBUG, LOG_ERROR
 from gui.Scaleform.daapi.view.meta.CursorMeta import CursorMeta
 from gui.Scaleform.framework.entities.View import View

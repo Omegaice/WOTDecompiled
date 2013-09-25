@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/requesters/ItemsRequester.py
 import weakref
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict

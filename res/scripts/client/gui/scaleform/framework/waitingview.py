@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/WaitingView.py
 import Keys
 from gui import InputHandler
 from gui.Scaleform.framework.entities.View import View

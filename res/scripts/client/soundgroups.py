@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/SoundGroups.py
 import BigWorld
 import FMOD
 import Settings

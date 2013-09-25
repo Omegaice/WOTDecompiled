@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/LogitechMonitor.py
 import BigWorld
 import constants
 import CommandMapping

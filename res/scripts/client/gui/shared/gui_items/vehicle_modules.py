@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/gui_items/vehicle_modules.py
 import BigWorld
 import nations
 from helpers import i18n

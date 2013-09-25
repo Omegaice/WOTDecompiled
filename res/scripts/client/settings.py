@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Settings.py
 import BigWorld
 g_instance = None
 KEY_UPDATE_URL = 'updateUrl'

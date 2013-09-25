@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/__init__.py
 from gui.Scaleform.daapi.view.lobby.profile.ProfilePage import ProfilePage
 from gui.Scaleform.daapi.view.lobby.profile.ProfileAwards import ProfileAwards
 from gui.Scaleform.daapi.view.lobby.profile.ProfileStatistics import ProfileStatistics

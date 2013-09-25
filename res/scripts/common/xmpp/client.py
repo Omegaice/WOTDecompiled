@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/xmpp/Client.py
 import base64
 import hashlib
 import re

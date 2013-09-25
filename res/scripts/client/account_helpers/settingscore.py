@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/SettingsCore.py
 import weakref
 import Event
 from Vibroeffects import VibroManager

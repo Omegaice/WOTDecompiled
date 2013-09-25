@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/MemoryCriticalController.py
 import BigWorld
 from debug_utils import LOG_NOTE
 import Event

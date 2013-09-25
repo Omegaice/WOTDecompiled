@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/SYSTEM_MESSAGES.py
 
 
 class SYSTEM_MESSAGES(object):

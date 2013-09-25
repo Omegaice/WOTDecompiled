@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/PrbSendInvitesWindow.py
 import account_helpers
 from debug_utils import LOG_ERROR
 from gui import SystemMessages

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/techtree_dp.py
 from collections import defaultdict
 from constants import IS_DEVELOPMENT
 from debug_utils import LOG_ERROR

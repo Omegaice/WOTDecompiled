@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/physics_shared.py
 import BigWorld
 import Math
 import math

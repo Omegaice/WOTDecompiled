@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/login/__init__.py
 import random
 from constants import IS_DEVELOPMENT
 from debug_utils import LOG_DEBUG

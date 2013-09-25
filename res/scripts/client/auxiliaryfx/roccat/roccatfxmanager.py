@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AuxiliaryFx/Roccat/RoccatFxManager.py
 import BigWorld
 from AuxiliaryFx.FxController import IAuxiliaryVehicleFx
 

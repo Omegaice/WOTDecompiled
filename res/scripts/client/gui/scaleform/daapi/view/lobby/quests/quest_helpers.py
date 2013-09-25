@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/quests/quest_helpers.py
 import time
 import BigWorld
 from account_helpers.AccountSettings import AccountSettings

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/dossiers/utils.py
 from struct import unpack
 from debug_utils import *
 from itertools import chain

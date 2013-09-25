@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/requesters/ShopRequester.py
 import BigWorld
 from adisp import async
 from items import vehicles, ITEM_TYPE_NAMES

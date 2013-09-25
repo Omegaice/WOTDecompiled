@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/Flash.py
 import json, constants
 import GUI, _Scaleform, weakref
 from gui.Scaleform import SCALEFORM_SWF_PATH

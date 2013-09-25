@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/requesters/DossierRequester.py
 import time
 from functools import partial
 import BigWorld

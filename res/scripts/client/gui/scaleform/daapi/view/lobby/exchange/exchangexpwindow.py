@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/exchange/ExchangeXPWindow.py
 import BigWorld
 from adisp import process, async
 from gui import SystemMessages

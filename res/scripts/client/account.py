@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Account.py
 import BigWorld, Keys
 import Event
 import cPickle

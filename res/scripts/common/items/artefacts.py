@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/items/artefacts.py
 from types import IntType
 import items, nations
 from items import _xml, vehicles

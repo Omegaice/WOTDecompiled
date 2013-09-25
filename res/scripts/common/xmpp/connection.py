@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/xmpp/Connection.py
 import socket
 import asyncore
 import Event

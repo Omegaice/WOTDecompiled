@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/loader.py
 import BigWorld
 import weakref
 from ConnectionManager import connectionManager

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/NotificationLayoutView.py
 from debug_utils import LOG_DEBUG
 from notification.BaseNotificationView import BaseNotificationView
 

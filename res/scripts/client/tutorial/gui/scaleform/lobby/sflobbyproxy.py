@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/lobby/SfLobbyProxy.py
 from debug_utils import LOG_CURRENT_EXCEPTION
 from gui import SystemMessages
 from gui.Scaleform.Waiting import Waiting

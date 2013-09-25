@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/SystemMessageDialog.py
 from gui.Scaleform.daapi.view.meta.SystemMessageDialogMeta import SystemMessageDialogMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.framework.entities.View import View

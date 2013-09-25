@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/offbattle/queries.py
 import SoundGroups
 from constants import FINISH_REASON
 from gui import GUI_SETTINGS

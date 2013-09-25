@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Weather.py
 import BigWorld
 import ResMgr
 import FX

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/ConfirmModuleDialog.py
 from PlayerEvents import g_playerEvents
 from adisp import process
 from debug_utils import LOG_ERROR

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/ModelHitTester.py
 import math
 import BigWorld
 from Math import Vector3, Vector2, Matrix

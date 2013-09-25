@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Jabber/MUC.py
 import xmpp.Entities as XMPPEntities
 import xmpp.Stanzas as XMPPStanzas
 from xmpp.Stanzas import getAttr, getChild, jidAttr

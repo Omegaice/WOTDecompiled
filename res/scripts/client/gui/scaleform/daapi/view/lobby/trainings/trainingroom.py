@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/trainings/TrainingRoom.py
 import ArenaType
 from adisp import process
 from gui.Scaleform.daapi.settings import VIEW_ALIAS

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/m_settings.py
 from collections import namedtuple, defaultdict
 import Event
 from account_helpers.AccountSettings import AccountSettings

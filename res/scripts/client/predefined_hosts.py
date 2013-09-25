@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/predefined_hosts.py
 import BigWorld, ResMgr
 import base64, pickle, random, time, threading
 from collections import namedtuple

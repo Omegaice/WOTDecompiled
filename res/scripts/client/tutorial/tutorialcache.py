@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/TutorialCache.py
 import BigWorld
 import base64, cPickle, os
 from tutorial.logger import LOG_CURRENT_EXCEPTION, LOG_WARNING

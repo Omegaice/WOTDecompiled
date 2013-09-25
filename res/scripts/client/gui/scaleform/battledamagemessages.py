@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/BattleDamageMessages.py
 import BigWorld
 import Event
 

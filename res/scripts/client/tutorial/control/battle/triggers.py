@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/battle/triggers.py
 import BigWorld
 import TriggersManager
 from constants import ARENA_PERIOD

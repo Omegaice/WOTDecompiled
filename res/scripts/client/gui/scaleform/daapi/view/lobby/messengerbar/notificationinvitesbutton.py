@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/messengerBar/NotificationInvitesButton.py
 import BigWorld
 from debug_utils import LOG_CURRENT_EXCEPTION
 from gui.Scaleform.daapi.view.meta.NotificationInvitesButtonMeta import NotificationInvitesButtonMeta

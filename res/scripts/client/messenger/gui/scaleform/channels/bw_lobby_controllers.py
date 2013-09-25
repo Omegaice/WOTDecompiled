@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/channels/bw_lobby_controllers.py
 import types
 import BigWorld
 import constants

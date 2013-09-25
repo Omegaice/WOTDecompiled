@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/doc_loaders/GraphicsPresetsLoader.py
 import types
 import BigWorld
 import ResMgr

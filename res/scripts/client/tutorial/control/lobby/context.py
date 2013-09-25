@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/lobby/context.py
 import BigWorld
 from AccountCommands import RES_TUTORIAL_DISABLED, RES_SUCCESS
 import dossiers

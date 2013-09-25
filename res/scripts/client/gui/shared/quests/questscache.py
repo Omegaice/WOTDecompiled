@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/quests/QuestsCache.py
 import zlib
 import pickle
 from collections import defaultdict

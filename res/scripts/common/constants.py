@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/constants.py
 try:
     import BigWorld
     if BigWorld.component in ('web', 'Unknown'):

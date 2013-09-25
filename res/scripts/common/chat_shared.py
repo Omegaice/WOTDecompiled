@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/chat_shared.py
 import time
 import constants
 from Event import Event

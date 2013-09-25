@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/xmpp/Stanzas.py
 
 
 def xmlText(text):

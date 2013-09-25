@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/CustomizationInterface.py
 import Event
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/meta/ChannelComponentMeta.py
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 
 class ChannelComponentMeta(DAAPIModule):

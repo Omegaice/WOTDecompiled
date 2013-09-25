@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/ext/__init__.py
 import types
 import constants
 from messenger import g_settings

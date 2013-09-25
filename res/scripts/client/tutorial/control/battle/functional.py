@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/battle/functional.py
 import time
 import weakref
 import BigWorld

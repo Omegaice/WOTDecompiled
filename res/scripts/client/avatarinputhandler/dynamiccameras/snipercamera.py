@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/DynamicCameras/SniperCamera.py
 import BigWorld
 import Math
 from Math import Vector2, Vector3, Matrix

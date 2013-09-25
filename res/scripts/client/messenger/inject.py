@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/inject.py
 from messenger import MessengerEntry
 
 class messengerEntryProperty(property):

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/storage/PlayerCtxStorage.py
 import Event
 from constants import ACCOUNT_ATTR
 

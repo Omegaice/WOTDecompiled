@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/training.py
 from functools import partial
 import BigWorld
 from PlayerEvents import g_playerEvents

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/captcha/__init__.py
 from constants import CAPTCHA_API, CURRENT_CAPTCHA_API
 from helpers import i18n
 SUPPORTED_CAPTCHA_APIS = {CAPTCHA_API.RE_CAPTCHA: ('account_helpers.captcha.reCAPTCHA', 'reCAPTCHA'),

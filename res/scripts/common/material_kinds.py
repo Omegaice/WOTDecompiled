@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/material_kinds.py
 import ResMgr
 IDS_BY_NAMES = None
 GROUND_STRENGTHS_BY_IDS = None

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/restrictions/__init__.py
 from prebattle_shared import decodeRoster
 
 def createPermissions(functional, pID = None):

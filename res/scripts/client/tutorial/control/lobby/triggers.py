@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/lobby/triggers.py
 import BigWorld
 import dossiers
 from account_helpers.Inventory import _VEHICLE, _TANKMAN

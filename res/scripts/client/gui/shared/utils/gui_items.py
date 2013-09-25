@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/gui_items.py
 import BigWorld, pickle, nations
 from types import IntType
 from AccountCommands import LOCK_REASON

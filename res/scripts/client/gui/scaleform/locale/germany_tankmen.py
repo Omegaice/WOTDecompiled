@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/GERMANY_TANKMEN.py
 
 
 class GERMANY_TANKMEN(object):

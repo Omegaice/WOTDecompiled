@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/DemountDeviceDialog.py
 from gui.Scaleform.daapi.view.dialogs import DIALOG_BUTTON_ID
 from gui.Scaleform.daapi.view.dialogs.IconPriceDialog import IconPriceDialog
 

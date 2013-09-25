@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/VehicleBuyWindow.py
 import BigWorld
 from gui.shared.gui_items.processors.vehicle import VehicleBuyer, VehicleSlotBuyer
 from account_helpers.AccountSettings import AccountSettings, VEHICLE_BUY_WINDOW_SETTINGS

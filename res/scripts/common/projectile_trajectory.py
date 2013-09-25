@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/projectile_trajectory.py
 import BigWorld
 import Math
 

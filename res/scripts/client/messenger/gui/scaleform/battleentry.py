@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/BattleEntry.py
 import Keys
 import VOIP
 from constants import CHAT_MESSAGE_MAX_LENGTH_IN_BATTLE

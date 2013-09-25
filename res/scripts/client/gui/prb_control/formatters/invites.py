@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/formatters/invites.py
 import BigWorld
 from constants import PREBATTLE_TYPE, PREBATTLE_INVITE_STATE
 from gui import makeHtmlString

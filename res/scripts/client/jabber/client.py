@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Jabber/Client.py
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION
 from wotdecorators import noexcept
 import xmpp.Client as XMPPClient

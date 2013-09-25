@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/lobby/functional.py
 from account_helpers.AccountSettings import AccountSettings
 from tutorial.control import game_vars
 from tutorial.control.functional import FunctionalEffect, FunctionalConditions, FunctionalChapterInfo, FunctionalShowDialogEffect

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VOIP/__init__.py
 from VOIPManager import VOIPManager
 import BigWorld
 from Vivox.VivoxHandler import VivoxHandler as VOIPHandler

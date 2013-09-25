@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/ClientUpdateManager.py
 import inspect
 
 class _ClientUpdateManager(object):

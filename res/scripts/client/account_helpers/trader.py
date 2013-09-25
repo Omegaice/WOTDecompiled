@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/account_helpers/Trader.py
 import AccountCommands
 import offers
 from functools import partial

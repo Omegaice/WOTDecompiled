@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/game_control/AOGAS.py
 import BigWorld
 from constants import AOGAS_TIME, ACCOUNT_ATTR
 from debug_utils import LOG_ERROR, LOG_DEBUG

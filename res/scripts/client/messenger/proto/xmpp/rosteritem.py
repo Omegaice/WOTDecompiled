@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/xmpp/RosterItem.py
 import BigWorld
 from debug_utils import LOG_ERROR, LOG_DEBUG
 from messenger.proto.xmpp.XmppResource import XmppResource

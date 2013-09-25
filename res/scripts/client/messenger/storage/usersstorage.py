@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/storage/UsersStorage.py
 from collections import deque
 from debug_utils import LOG_ERROR
 from messenger.m_constants import USER_GUI_TYPE, BREAKERS_MAX_LENGTH

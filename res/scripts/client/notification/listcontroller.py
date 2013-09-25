@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/ListController.py
 from gui.Scaleform.framework.entities.EventSystemEntity import EventSystemEntity
 from gui.shared.events import ShowWindowEvent
 from notification.BaseMessagesController import BaseMessagesController

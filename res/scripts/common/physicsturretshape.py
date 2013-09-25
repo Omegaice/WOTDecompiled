@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/PhysicsTurretShape.py
 import BigWorld
 import Math
 _DEBUG_WITH_SVG = False

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/messengerBar/ChannelCarousel.py
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.daapi.view.meta.ChannelCarouselMeta import ChannelCarouselMeta
 from gui.Scaleform.framework import AppRef

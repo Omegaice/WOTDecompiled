@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/data/descriptor.py
 from tutorial.data.chapter import ChapterProgress
 
 class DescriptorData(object):

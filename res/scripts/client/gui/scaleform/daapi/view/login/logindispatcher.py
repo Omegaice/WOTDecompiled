@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/login/LoginDispatcher.py
 import json
 from ConnectionManager import connectionManager
 from Event import Event

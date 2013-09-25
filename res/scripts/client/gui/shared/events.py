@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/events.py
 from gui.shared.event_bus import SharedEvent
 __all__ = ['LoadEvent',
  'ShowViewEvent',

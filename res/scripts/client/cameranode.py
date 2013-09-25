@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/CameraNode.py
 import BigWorld
 
 class CameraNode(BigWorld.UserDataObject):

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/GraphicsResolutions.py
 import BigWorld
 from debug_utils import LOG_CURRENT_EXCEPTION, LOG_ERROR, LOG_DEBUG
 

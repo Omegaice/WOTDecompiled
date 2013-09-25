@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/__init__.py
 from abc import ABCMeta, abstractmethod
 from helpers.aop import Weaver
 from tutorial.logger import LOG_ERROR

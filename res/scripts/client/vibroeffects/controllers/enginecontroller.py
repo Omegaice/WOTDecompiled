@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vibroeffects/Controllers/EngineController.py
 import BigWorld
 import Vibroeffects.VibroManager as VibroManager
 from debug_utils import *

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/CursorDelegator.py
 import BigWorld, GUI
 from debug_utils import LOG_DEBUG
 

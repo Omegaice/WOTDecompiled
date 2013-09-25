@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfilePage.py
 from gui.Scaleform.daapi import LobbySubView
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.daapi.view.meta.ProfileMeta import ProfileMeta

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/dossiers_utils.py
 import BigWorld
 import pickle
 import dossiers

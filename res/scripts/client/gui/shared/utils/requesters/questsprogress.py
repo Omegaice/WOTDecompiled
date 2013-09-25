@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/requesters/QuestsProgress.py
 import BigWorld
 from adisp import async
 from gui.shared.utils.requesters.abstract import RequesterAbstract

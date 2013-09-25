@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/exchange/ExchangeVcoinWindow.py
 import BigWorld
 from debug_utils import LOG_WARNING
 from gui.ClientUpdateManager import g_clientUpdateManager

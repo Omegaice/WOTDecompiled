@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/errors.py
 import BigWorld
 from chat_shared import CHAT_RESPONSES
 from debug_utils import LOG_ERROR, LOG_WARNING

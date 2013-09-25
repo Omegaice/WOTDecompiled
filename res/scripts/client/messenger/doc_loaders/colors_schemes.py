@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/doc_loaders/colors_schemes.py
 from messenger.doc_loaders import _xml_helpers
 
 def _readColors(xmlCtx, section, colorsNames, defName):

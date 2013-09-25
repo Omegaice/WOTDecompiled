@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/context.py
 import BigWorld
 from CurrentVehicle import g_currentVehicle
 from constants import PREBATTLE_TYPE

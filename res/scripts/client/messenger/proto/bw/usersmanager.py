@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/UsersManager.py
 import BigWorld
 import Event
 import chat_shared

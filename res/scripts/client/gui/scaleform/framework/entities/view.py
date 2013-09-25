@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/entities/View.py
 from debug_utils import LOG_DEBUG
 __author__ = 'd_trofimov'
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule

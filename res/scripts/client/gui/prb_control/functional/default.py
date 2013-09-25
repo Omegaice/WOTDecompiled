@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/default.py
 import weakref
 import BigWorld
 from PlayerEvents import g_playerEvents

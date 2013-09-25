@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/CamouflageInterface.py
 import BigWorld
 import functools
 from datetime import timedelta

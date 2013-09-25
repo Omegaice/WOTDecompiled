@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/BenchmarkLocation.py
 import BigWorld
 
 class BenchmarkLocation(BigWorld.UserDataObject):

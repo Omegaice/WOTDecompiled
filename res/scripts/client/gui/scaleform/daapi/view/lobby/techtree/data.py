@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/data.py
 import BigWorld
 from AccountCommands import LOCK_REASON
 from CurrentVehicle import g_currentVehicle

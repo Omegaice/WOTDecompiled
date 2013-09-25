@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VOIP/constants.py
 LOGIN_STATE_LOGGED_OUT = 0
 LOGIN_STATE_LOGGED_IN = 1
 LOGIN_STATE_LOGGING_IN = 2

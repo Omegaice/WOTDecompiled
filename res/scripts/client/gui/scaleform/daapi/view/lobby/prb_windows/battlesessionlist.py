@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/BattleSessionList.py
 from adisp import process
 from gui.Scaleform.daapi.view.lobby.prb_windows.PrebattlesListWindow import PrebattlesListWindow
 from gui.Scaleform.managers.windows_stored_data import DATA_TYPE, TARGET_ID

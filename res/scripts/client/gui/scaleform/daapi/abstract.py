@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/abstract.py
 from debug_utils import LOG_DEBUG
 
 class StatsStorageMeta(object):

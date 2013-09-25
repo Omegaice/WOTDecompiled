@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/data/chapter.py
 from TriggersManager import TRIGGER_TYPE
 from tutorial.data import HasID, HasTargetID, HasIDAndTarget
 

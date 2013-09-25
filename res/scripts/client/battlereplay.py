@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/BattleReplay.py
 import os
 import datetime
 import json

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/obfuscators.py
 import base64
 from debug_utils import LOG_CURRENT_EXCEPTION
 

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/battle/__init__.py
 from tutorial.data.chapter import Effect
 from tutorial.control import ControlsFactory, functional as core_func
 from tutorial.control.battle import functional

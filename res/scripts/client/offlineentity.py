@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/OfflineEntity.py
 import BigWorld
 
 class OfflineEntity(BigWorld.Entity):

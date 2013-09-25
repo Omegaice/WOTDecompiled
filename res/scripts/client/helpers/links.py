@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/links.py
 import BigWorld, ResMgr
 import constants
 from debug_utils import LOG_CURRENT_EXCEPTION, LOG_ERROR

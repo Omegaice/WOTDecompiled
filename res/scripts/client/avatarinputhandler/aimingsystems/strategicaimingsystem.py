@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/AimingSystems/StrategicAimingSystem.py
 import BigWorld
 import Math
 from Math import Vector3, Matrix

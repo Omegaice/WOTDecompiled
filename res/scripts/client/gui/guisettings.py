@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/GuiSettings.py
 import ResMgr
 from debug_utils import *
 from helpers import getClientLanguage

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/Research.py
 import weakref
 from AccountCommands import RES_SUCCESS
 from PlayerEvents import g_playerEvents

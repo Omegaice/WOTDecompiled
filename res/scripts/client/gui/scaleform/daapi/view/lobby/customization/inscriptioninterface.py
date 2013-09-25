@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/InscriptionInterface.py
 import BigWorld
 from abc import abstractmethod, ABCMeta
 from CurrentVehicle import g_currentVehicle

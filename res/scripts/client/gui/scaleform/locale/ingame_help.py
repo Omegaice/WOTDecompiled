@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/INGAME_HELP.py
 
 
 class INGAME_HELP(object):

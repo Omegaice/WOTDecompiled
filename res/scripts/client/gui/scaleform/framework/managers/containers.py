@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/managers/containers.py
 import weakref, types
 from Event import Event
 from debug_utils import LOG_DEBUG, LOG_WARNING, LOG_ERROR

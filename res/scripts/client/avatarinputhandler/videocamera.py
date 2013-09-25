@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/VideoCamera.py
 import Math
 from Math import Vector3, Matrix
 import BigWorld

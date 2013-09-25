@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/dossiers/dependences.py
 import nations
 import collections
 from config import RECORD_CONFIGS

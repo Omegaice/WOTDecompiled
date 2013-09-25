@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VehicleAppearance.py
 import BigWorld
 import ResMgr
 import Math

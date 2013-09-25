@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/Event.py
 from debug_utils import *
 
 class Event(object):

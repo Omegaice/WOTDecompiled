@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/meta/TutorialDialogMeta.py
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 
 class TutorialDialogMeta(DAAPIModule):

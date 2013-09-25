@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/locale/AOGAS.py
 
 
 class AOGAS(object):

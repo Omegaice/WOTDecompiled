@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VehicleEffects.py
 import BigWorld
 import Math
 import Pixie

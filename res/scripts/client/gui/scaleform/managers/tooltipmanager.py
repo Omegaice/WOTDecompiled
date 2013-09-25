@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/ToolTipManager.py
 import pickle
 import ResMgr
 import BigWorld

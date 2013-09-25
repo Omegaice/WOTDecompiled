@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/recruitWindow/RecruitWindow.py
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG
 from gui.ClientUpdateManager import g_clientUpdateManager
 import nations

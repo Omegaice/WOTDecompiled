@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/items_manager.py
 from gui.Scaleform.framework import VIEW_TYPE, AppRef
 from gui.Scaleform.framework.managers.containers import ExternalCriteria
 from tutorial import LOG_WARNING

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/store/Shop.py
 from PlayerEvents import g_playerEvents
 from gui.Scaleform.daapi.view.dialogs.ConfirmModuleMeta import BuyModuleMeta
 from gui.Scaleform.genConsts.STORE_TYPES import STORE_TYPES

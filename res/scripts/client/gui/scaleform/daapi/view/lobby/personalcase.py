@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/PersonalCase.py
 from adisp import async
 from CurrentVehicle import g_currentVehicle
 from debug_utils import LOG_ERROR, LOG_DEBUG

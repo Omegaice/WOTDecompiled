@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/ext/dictionaries.py
 from debug_utils import *
 import re, sre_compile
 import ResMgr

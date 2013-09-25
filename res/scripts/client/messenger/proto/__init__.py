@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/__init__.py
 from messenger.ext.ROPropertyMeta import ROPropertyMeta
 from messenger.m_constants import PROTO_TYPE, PROTO_TYPE_NAMES
 from messenger.proto.bw import BWProtoPlugin

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/settings/tooltips.py
 from gui.Scaleform.managers.ToolTipManager import ToolTipManager
 __author__ = 'd_trofimov'
 TOOLTIPS = {'tankman': {'tooltip': 'ToolTipTankmenUI',

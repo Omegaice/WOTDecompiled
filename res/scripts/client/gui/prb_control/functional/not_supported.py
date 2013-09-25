@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/not_supported.py
 import BigWorld
 from constants import PREBATTLE_TYPE_NAMES
 from debug_utils import LOG_ERROR

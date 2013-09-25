@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/mock/battle.py
 import BigWorld
 from tutorial import loader, doc_loader
 from tutorial.control.battle.context import BattleClientCtx

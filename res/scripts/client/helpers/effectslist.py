@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/EffectsList.py
 import BigWorld
 import ResMgr
 import Pixie

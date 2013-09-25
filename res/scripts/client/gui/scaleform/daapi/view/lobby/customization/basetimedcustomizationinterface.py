@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/BaseTimedCustomizationInterface.py
 import time
 from abc import abstractmethod, ABCMeta
 from datetime import timedelta

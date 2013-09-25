@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/mock/offbattle.py
 import time
 from constants import FINISH_REASON
 from tutorial import doc_loader, loader

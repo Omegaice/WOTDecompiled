@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/MovingText.py
 import BigWorld, time, constants
 from debug_utils import *
 from windows import UIInterface

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/__init__.py
 from collections import namedtuple
 from gui.Scaleform.framework.factories import EntitiesFactories, DAAPIModuleFactory, ViewFactory
 

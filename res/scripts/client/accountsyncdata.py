@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AccountSyncData.py
 import AccountCommands
 from SyncController import SyncController
 from debug_utils import *

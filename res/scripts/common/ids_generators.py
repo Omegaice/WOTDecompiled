@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/ids_generators.py
 import time
 
 class Int32IDGenerator(object):

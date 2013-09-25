@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/ArenaType.py
 import ResMgr
 from constants import IS_CLIENT, IS_BASEAPP, IS_WEB, IS_CELLAPP, ARENA_TYPE_XML_PATH, ARENA_GAMEPLAY_NAMES, ARENA_GAMEPLAY_IDS
 from items.vehicles import CAMOUFLAGE_KINDS

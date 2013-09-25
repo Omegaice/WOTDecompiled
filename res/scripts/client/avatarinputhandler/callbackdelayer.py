@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/CallbackDelayer.py
 import BigWorld
 import functools
 

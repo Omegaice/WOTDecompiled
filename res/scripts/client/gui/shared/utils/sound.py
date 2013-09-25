@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/sound.py
 import BigWorld
 import FMOD
 from debug_utils import LOG_DEBUG

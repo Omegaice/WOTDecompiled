@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/requesters/__init__.py
 import BigWorld
 import nations
 import constants

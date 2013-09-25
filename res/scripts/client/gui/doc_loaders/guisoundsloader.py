@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/doc_loaders/GuiSoundsLoader.py
 __author__ = 'i_maliavko'
 import ResMgr
 from items import _xml

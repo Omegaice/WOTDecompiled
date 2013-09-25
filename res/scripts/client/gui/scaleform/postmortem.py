@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/Postmortem.py
 import BigWorld
 from gui import DEPTH_OF_Postmortem
 from gui.Scaleform.windows import ModalWindow

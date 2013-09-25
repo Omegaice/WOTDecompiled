@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/storage/__init__.py
 from messenger import error
 from messenger.ext.ROPropertyMeta import ROPropertyMeta
 from messenger.storage.ChannelsStorage import ChannelsStorage

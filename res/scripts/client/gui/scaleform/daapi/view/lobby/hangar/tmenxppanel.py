@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/TmenXpPanel.py
 from debug_utils import LOG_DEBUG
 from gui import SystemMessages
 from gui.Scaleform.daapi.view.meta.TmenXpPanelMeta import TmenXpPanelMeta

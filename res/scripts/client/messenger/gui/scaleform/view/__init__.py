@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/view/__init__.py
 from messenger.gui.Scaleform.view.BattleChannelView import BattleChannelView
 from messenger.gui.Scaleform.view.ChannelComponent import ChannelComponent
 from messenger.gui.Scaleform.view.ChannelsManagementWindow import ChannelsManagementWindow

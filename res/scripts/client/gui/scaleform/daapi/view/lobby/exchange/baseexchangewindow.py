@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/exchange/BaseExchangeWindow.py
 from gui.ClientUpdateManager import g_clientUpdateManager
 from gui.Scaleform.daapi.view.meta.BaseExchangeWindowMeta import BaseExchangeWindowMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta

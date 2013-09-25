@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/helpers/EdgeDetectColorController.py
 import BigWorld, ResMgr, Math
 from account_helpers.SettingsCore import g_settingsCore
 g_instance = None

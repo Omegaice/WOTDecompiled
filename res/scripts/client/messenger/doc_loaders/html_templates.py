@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/doc_loaders/html_templates.py
 from helpers.html import translation as html_translation, templates
 
 class _MessageTemplate(templates.Template):

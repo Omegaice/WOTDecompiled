@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/battle/layout.py
 import weakref
 from gui import DEPTH_OF_Aim
 from gui.BattleContext import g_battleContext

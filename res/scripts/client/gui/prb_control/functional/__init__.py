@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/__init__.py
 from constants import PREBATTLE_TYPE, IS_DEVELOPMENT
 from debug_utils import LOG_ERROR
 from gui import prb_control

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/WindowsManager.py
 import BigWorld
 import Event
 import constants

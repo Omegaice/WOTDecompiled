@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/view/SimpleChannelWindow.py
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.framework.entities.View import View
 from messenger.gui.Scaleform.meta.BaseChannelWindowMeta import BaseChannelWindowMeta

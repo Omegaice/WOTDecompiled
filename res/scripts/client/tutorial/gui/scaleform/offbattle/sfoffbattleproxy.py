@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/offbattle/SfOffbattleProxy.py
 from tutorial.gui import GUI_EFFECT_NAME
 from tutorial.gui.Scaleform import effects_player
 from tutorial.gui.Scaleform.lobby.SfLobbyProxy import SfLobbyProxy

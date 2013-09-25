@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/IconDialog.py
 from gui.Scaleform.daapi.view.dialogs.SimpleDialog import SimpleDialog
 from gui.Scaleform.daapi.view.meta.IconDialogMeta import IconDialogMeta
 

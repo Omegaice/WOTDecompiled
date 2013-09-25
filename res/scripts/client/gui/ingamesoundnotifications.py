@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/IngameSoundNotifications.py
 import BigWorld
 import ResMgr
 import BattleReplay

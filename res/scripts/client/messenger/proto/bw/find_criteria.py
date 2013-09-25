@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/find_criteria.py
 import chat_shared
 from debug_utils import LOG_WARNING
 from messenger.m_constants import PREBATTLE_TYPE_CHAT_FLAG, PROTO_TYPE, LAZY_CHANNEL

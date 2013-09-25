@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/ConnectionManager.py
 from constants import CLIENT_INACTIVITY_TIMEOUT
 import json
 import hashlib

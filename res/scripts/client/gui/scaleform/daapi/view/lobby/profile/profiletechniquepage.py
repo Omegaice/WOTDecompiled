@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileTechniquePage.py
 from gui.Scaleform.daapi.view.lobby.profile.ProfileTechnique import ProfileTechnique
 from gui.Scaleform.locale.PROFILE import PROFILE
 from helpers.i18n import makeString

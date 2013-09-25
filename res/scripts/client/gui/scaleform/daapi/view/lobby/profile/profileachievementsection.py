@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileAchievementSection.py
 from gui.Scaleform.daapi.view.lobby.profile.ProfileSection import ProfileSection
 from gui.Scaleform.daapi.view.meta.ProfileAchievementSectionMeta import ProfileAchievementSectionMeta
 from gui.shared import g_itemsCache

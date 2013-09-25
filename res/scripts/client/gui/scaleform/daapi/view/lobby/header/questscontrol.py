@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/header/QuestsControl.py
 from debug_utils import LOG_DEBUG
 from gui.shared import g_questsCache, events
 from gui.Scaleform.daapi.view.lobby.quests import quest_helpers

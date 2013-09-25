@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/triggers.py
 from tutorial.control import TutorialProxyHolder
 from tutorial.data import IHasID
 from tutorial.logger import LOG_ERROR

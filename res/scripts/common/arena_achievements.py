@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/arena_achievements.py
 from constants import IS_BASEAPP
 from dossiers import RECORD_NAMES, RECORD_INDICES
 ACHIEVEMENTS = ('warrior', 'invader', 'sniper', 'defender', 'steelwall', 'supporter', 'scout', 'evileye', 'medalWittmann', 'medalOrlik', 'medalOskin', 'medalHalonen', 'medalBurda', 'medalBillotte', 'medalKolobanov', 'medalFadin', 'medalRadleyWalters', 'medalLafayettePool', 'medalLehvaslaiho', 'medalNikolas', 'medalPascucci', 'medalDumitru', 'medalBrunoPietro', 'medalTarczay', 'heroesOfRassenay', 'medalDeLanglade', 'medalTamadaYoshio', 'raider', 'kamikaze', 'huntsman', 'bombardier', 'luckyDevil', 'ironMan', 'sturdy', 'alaric', 'lumberjack', 'medalBrothersInArms', 'medalCrucialContribution')

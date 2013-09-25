@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/control_modes.py
 import BigWorld, Math, Keys, GUI, ResMgr
 import math
 import stat

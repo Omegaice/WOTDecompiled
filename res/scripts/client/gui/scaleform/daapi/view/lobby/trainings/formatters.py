@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/trainings/formatters.py
 from gui.Scaleform.locale.MENU import MENU
 from gui.shared.utils.functions import getArenaSubTypeName
 from helpers import i18n

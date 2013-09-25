@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/key_mapping.py
 import BigWorld, Keys
 from gui.BattleContext import g_battleContext
 BW_TO_SCALEFORM = {Keys.KEY_NONE: 666,

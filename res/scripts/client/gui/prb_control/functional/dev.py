@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/functional/dev.py
 import random
 import ArenaType
 import BigWorld

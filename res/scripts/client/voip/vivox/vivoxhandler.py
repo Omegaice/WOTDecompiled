@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VOIP/Vivox/VivoxHandler.py
 import BigWorld
 from VOIP.ChannelsMgr import ChannelsMgr
 from VOIP import messages

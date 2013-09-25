@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/AvatarInputHandler/__init__.py
 import BigWorld, Math, math, ResMgr, Keys
 import Settings
 import GUI

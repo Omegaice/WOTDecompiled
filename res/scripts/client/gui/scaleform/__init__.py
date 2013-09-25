@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/__init__.py
 from nations import NAMES
 SCALEFORM_SUPPORT = False
 try:

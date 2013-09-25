@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/invite_post_actions.py
 import BigWorld
 from ConnectionManager import connectionManager
 from adisp import process

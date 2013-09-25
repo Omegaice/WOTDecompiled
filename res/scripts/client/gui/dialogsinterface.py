@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/DialogsInterface.py
 from gui.BattleContext import g_battleContext
 from gui.Scaleform.Waiting import Waiting
 from gui.shared import events, g_eventBus

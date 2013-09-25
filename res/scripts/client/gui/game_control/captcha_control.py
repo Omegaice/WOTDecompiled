@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/game_control/captcha_control.py
 from functools import partial
 import AccountCommands
 import BigWorld

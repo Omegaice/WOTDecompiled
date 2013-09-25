@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/battle/context.py
 import BigWorld, FMOD
 from collections import namedtuple
 import struct

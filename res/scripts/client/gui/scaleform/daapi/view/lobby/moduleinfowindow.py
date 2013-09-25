@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/ModuleInfoWindow.py
 from debug_utils import LOG_DEBUG
 from gui.shared.utils import SHELLS_COUNT_PROP_NAME, SHELL_RELOADING_TIME_PROP_NAME, RELOAD_MAGAZINE_TIME_PROP_NAME, GUN_RELOADING_TYPE, GUN_CAN_BE_CLIP, GUN_NORMAL, GUN_CLIP, RELOAD_TIME_PROP_NAME, CLIP_VEHICLES_PROP_NAME, CLIP_ICON_PATH, EXTRA_MODULE_INFO
 import gui.shared.utils.ItemsParameters

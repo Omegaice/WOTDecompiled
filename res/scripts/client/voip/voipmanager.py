@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/VOIP/VOIPManager.py
 import BigWorld
 import Event
 import constants

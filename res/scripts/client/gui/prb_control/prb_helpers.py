@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/prb_helpers.py
 from adisp import process
 from gui.shared.utils.functions import checkAmmoLevel
 from gui.prb_control.functional.interfaces import IPrbListener

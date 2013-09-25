@@ -1,4 +1,3 @@
-# Embedded file name: scripts/common/Singleton.py
 
 
 class Singleton(object):

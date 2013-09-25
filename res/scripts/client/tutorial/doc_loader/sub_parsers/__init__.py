@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/doc_loader/sub_parsers/__init__.py
 from items import _xml, vehicles
 from helpers.html import translation
 import nations

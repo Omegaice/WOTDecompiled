@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/gui/Scaleform/effects_player.py
 from gui.Scaleform.framework import AppRef, VIEW_TYPE
 from gui.Scaleform.framework.managers.containers import POP_UP_CRITERIA
 from tutorial.logger import LOG_ERROR, LOG_DEBUG

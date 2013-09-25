@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/channels/bw_factories.py
 import chat_shared
 from constants import PREBATTLE_TYPE
 from debug_utils import LOG_ERROR

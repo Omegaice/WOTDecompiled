@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/interfaces.py
 
 
 class IProtoPlugin(object):

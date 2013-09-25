@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/entities/DAAPIDataProvider.py
 from abc import ABCMeta, abstractmethod, abstractproperty
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule

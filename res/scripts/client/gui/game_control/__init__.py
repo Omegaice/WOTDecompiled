@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/game_control/__init__.py
 from gui.game_control.AOGAS import AOGASController
 from gui.game_control.captcha_control import CaptchaController
 from gui.game_control.GameSessionController import GameSessionController

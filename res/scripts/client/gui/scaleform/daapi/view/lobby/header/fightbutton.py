@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/header/FightButton.py
 from CurrentVehicle import g_currentVehicle
 from account_helpers import isDemonstrator
 from adisp import process

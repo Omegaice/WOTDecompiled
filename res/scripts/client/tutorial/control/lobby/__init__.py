@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/lobby/__init__.py
 from tutorial.control import ControlsFactory, functional as core_func
 from tutorial.control import context as core_ctx
 from tutorial.control.lobby import functional

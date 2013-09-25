@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/shared/utils/__init__.py
 import types
 import itertools
 import AccountCommands

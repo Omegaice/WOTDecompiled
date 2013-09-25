@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vibroeffects/Controllers/TrackBreakingController.py
 import BigWorld
 import Math
 from Math import Matrix

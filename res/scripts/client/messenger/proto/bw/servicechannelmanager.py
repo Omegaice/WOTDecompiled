@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/proto/bw/ServiceChannelManager.py
 from collections import deque
 import BigWorld
 from chat_shared import CHAT_ACTIONS

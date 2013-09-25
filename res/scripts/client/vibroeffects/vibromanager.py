@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/Vibroeffects/VibroManager.py
 import BigWorld
 import copy
 from EffectsSettings import EffectsSettings

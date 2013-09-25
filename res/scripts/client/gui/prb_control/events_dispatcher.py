@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/prb_control/events_dispatcher.py
 from constants import PREBATTLE_TYPE
 from debug_utils import LOG_ERROR
 from gui.Scaleform.framework import VIEW_TYPE, g_entitiesFactories as guiFactory

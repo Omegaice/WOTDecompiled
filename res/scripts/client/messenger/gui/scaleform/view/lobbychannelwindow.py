@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/view/LobbyChannelWindow.py
 from gui.Scaleform.managers.windows_stored_data import DATA_TYPE, TARGET_ID
 from gui.Scaleform.managers.windows_stored_data import stored_window
 from messenger.gui.Scaleform.data.MembersDataProvider import MembersDataProvider

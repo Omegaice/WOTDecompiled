@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/channels/__init__.py
 from debug_utils import LOG_ERROR, LOG_WARNING, LOG_DEBUG
 from messenger.gui.Scaleform.channels import bw_factories
 from messenger.gui.interfaces import IControllersCollection

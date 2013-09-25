@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/LightFx/Controllers/HealthController.py
 from LightFx import LightManager
 
 class HealthController:

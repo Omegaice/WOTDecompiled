@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/entry_decorator.py
 from __builtin__ import property
 from collections import defaultdict
 from messenger.gui import setGUIEntries

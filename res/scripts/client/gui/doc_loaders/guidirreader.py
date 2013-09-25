@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/doc_loaders/GuiDirReader.py
 import ResMgr
 
 class GuiDirReader(object):

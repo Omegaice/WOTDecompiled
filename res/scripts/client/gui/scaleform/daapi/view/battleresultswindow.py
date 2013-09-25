@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/BattleResultsWindow.py
 import re
 import math
 import BigWorld

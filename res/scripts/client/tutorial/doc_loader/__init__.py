@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/doc_loader/__init__.py
 import ResMgr
 from tutorial.doc_loader.parsers import DescriptorParser, ChapterParser
 from tutorial.settings import GLOBAL_REFS_FILE_PATH

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/managers/GlobalVarsManager.py
 from gui import GUI_SETTINGS
 from gui.Scaleform.framework.entities.abstract.GlobalVarsMgrMeta import GlobalVarsMgrMeta
 from helpers import getClientOverride

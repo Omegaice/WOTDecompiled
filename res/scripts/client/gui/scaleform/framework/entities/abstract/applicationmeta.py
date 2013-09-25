@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/framework/entities/abstract/ApplicationMeta.py
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 
 class ApplicationMeta(DAAPIModule):

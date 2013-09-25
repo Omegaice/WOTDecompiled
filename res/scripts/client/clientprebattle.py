@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/ClientPrebattle.py
 import cPickle
 import Event
 from constants import PREBATTLE_UPDATE, PREBATTLE_ACCOUNT_STATE, PREBATTLE_TEAM_STATE

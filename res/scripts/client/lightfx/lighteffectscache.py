@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/LightFx/LightEffectsCache.py
 import ResMgr
 import LightEffect
 

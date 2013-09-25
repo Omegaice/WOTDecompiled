@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/ProjectileMover.py
 import BigWorld
 import Math
 import math

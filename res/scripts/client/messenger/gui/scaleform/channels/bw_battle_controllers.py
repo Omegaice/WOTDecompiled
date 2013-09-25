@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/messenger/gui/Scaleform/channels/bw_battle_controllers.py
 import BattleReplay
 from debug_utils import LOG_DEBUG, LOG_ERROR
 from gui.BattleContext import g_battleContext

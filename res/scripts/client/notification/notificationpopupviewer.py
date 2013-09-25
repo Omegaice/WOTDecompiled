@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/notification/NotificationPopUpViewer.py
 from gui.Scaleform.daapi.view.meta.NotificationPopUpViewerMeta import NotificationPopUpViewerMeta
 from notification import NotificationsModel
 from messenger import g_settings

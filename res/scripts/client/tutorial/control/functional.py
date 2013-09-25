@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/tutorial/control/functional.py
 import BigWorld
 from tutorial.control import TutorialProxyHolder, game_vars
 from tutorial.control.context import GlobalStorage

@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/MinimapLobby.py
 import BigWorld
 import Math
 import ArenaType

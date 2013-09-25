@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/Params.py
 from gui.Scaleform.daapi.view.meta.ParamsMeta import ParamsMeta
 from CurrentVehicle import g_currentVehicle
 from gui.shared import events

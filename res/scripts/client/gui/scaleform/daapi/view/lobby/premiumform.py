@@ -1,4 +1,3 @@
-# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/PremiumForm.py
 import BigWorld
 from adisp import process
 from debug_utils import LOG_DEBUG
