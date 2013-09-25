@@ -30,6 +30,8 @@ for root, dirnames, filenames in os.walk('res_mods'):
 			dis.dis(marshal.load(pyc_reader))
 		sys.stdout.close()
 
+		sys.stdout = sys.__stdout__
+		print "Compiling ", os.path.join(root, filename)
 		py_compile.compile(os.path.join(root, filename), doraise=True)
 
 		sys.stdout = open(os.path.join(root, filename.replace(".py","-new.byte")), "w")

@@ -66,6 +66,7 @@ from AvatarInputHandler import cameras
 import VOIP
 import material_kinds
 import functools
+from battle_results_shared import *
 
 class _CRUISE_CONTROL_MODE():
     NONE = 0
@@ -1264,7 +1265,8 @@ class PlayerAvatar(BigWorld.Entity, ClientChat):
                 flags = 2
             if not self.__cruiseControlMode == _CRUISE_CONTROL_MODE.FWD50:
                 isOn = self.__cruiseControlMode == _CRUISE_CONTROL_MODE.BCKW50
-                isOn and flags |= 16
+                if isOn:
+                    flags |= 16
             elif self.__cruiseControlMode == _CRUISE_CONTROL_MODE.FWD25:
                 flags |= 32
         rotateLeftFlag = 4
@@ -1557,7 +1559,6 @@ class PlayerAvatar(BigWorld.Entity, ClientChat):
             LOG_CURRENT_EXCEPTION()
 
     def __convertBattleResultsToOldStyle(self, results):
-        from battle_results_shared import *
         from dossiers import RECORD_INDICES
         arenaUniqueID, private, pickled = results
         oldStyle = {}
