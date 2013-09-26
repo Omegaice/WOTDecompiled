@@ -293,7 +293,8 @@ class TankmanDescr(object):
             xp *= vehicleType.crewXpFactor
             if not tankmanHasSurvived:
                 xp *= 0.9
-            self.role != 'commander' and xp *= 1.0 + commanderTutorXpBonusFactor
+            if self.role != 'commander':
+                xp *= 1.0 + commanderTutorXpBonusFactor
         return int(xp)
 
     @staticmethod
@@ -387,7 +388,8 @@ class TankmanDescr(object):
                 newVehTags = vehicles.g_list.getList(self.nationID)[newVehicleTypeID]['tags']
                 roleLevelLoss = 0.0 if newVehicleTypeID == self.vehicleTypeID else vehicleChangeRoleLevelLoss
                 isSameClass = len(self.__vehicleTags & newVehTags & vehicles.VEHICLE_CLASS_TAGS)
-                isSameClass or roleLevelLoss += classChangeRoleLevelLoss
+                if isSameClass:
+                    roleLevelLoss += classChangeRoleLevelLoss
             newRoleLevel = int(round(self.roleLevel * (1.0 - roleLevelLoss)))
             newRoleLevel = max(minNewRoleLevel, newRoleLevel)
             self.vehicleTypeID = newVehicleTypeID
