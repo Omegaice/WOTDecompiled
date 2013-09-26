@@ -43,10 +43,6 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
         invCount, vehCount = (0, 0)
         try:
             invCount = inventoryModules[inventoryModules.index(module)].count
-        except Exception:
-            pass
-
-        try:
             vehCount = vehiclesModules[vehiclesModules.index(module)].count
         except Exception:
             pass
@@ -118,7 +114,6 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
 
         self.as_setAmmoS(ammo)
         Waiting.hide('updateAmmo')
-        return
 
     @process
     def __requestAvailableItems(self, type):
@@ -183,7 +178,6 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
                 dataProvider.append(moduleData)
 
         self.as_setDataS(dataProvider, type)
-        return
 
     def showTechnicalMaintenance(self):
         self.fireEvent(ShowWindowEvent(ShowWindowEvent.SHOW_TECHNICAL_MAINTENANCE))
@@ -196,11 +190,10 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
 
     def showModuleInfo(self, moduleId):
         if moduleId is None:
-            return LOG_ERROR('There is error while attempting to show module info window: ', str(moduleId))
+            LOG_ERROR('There is error while attempting to show module info window: ', str(moduleId))
         else:
             self.fireEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_MODULE_INFO_WINDOW, {'moduleId': moduleId,
              'vehicleDescr': g_currentVehicle.item.descriptor}))
-            return
 
     @process
     def setVehicleModule(self, newId, slotIdx, oldId, isRemove):
@@ -208,7 +201,8 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
             isUseGold = oldId is not None
             newComponent = gui_items.getItemByCompact(newId)
             newComponentItem = g_itemsCache.items.getItemByCD(newComponent.compactDescr)
-            return newComponentItem is None and None
+            if newComponentItem is None:
+                pass
         else:
             oldComponentItem = None
             if oldId:
@@ -223,7 +217,7 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
                 if result and len(result.userMsg):
                     SystemMessages.g_instance.pushI18nMessage(result.userMsg, type=result.sysMsgType)
                 if not result.success:
-                    return
+                    pass
             iVehicles = yield Requester(ITEM_TYPE_NAMES[1]).getFromInventory()
             oldStyleVehicle = None
             for v in iVehicles:
@@ -241,7 +235,7 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
                     newComponentItem = g_itemsCache.items.getItemByCD(newComponent.compactDescr)
                 Waiting.hide('buyItem')
                 if not buyResult.success:
-                    return
+                    pass
             Waiting.show('applyModule')
             result = yield getInstallerProcessor(g_currentVehicle.item, newComponentItem, slotIdx, not isRemove, isUseGold, conflictedEqs).request()
             if result and result.auxData:
@@ -267,4 +261,3 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
 
                 SystemMessages.g_instance.pushI18nMessage(message, type=SystemMessages.SM_TYPE.Information if success else SystemMessages.SM_TYPE.Warning)
             Waiting.hide('applyModule')
-            return
