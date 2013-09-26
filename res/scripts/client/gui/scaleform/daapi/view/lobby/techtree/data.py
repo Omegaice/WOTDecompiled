@@ -411,7 +411,8 @@ class ResearchItemsData(_ItemsData):
                 xp = self._accFreeXP + self._earnedXP
             if available:
                 state = NODE_STATE.NEXT_2_UNLOCK
-                xp >= unlockProps.xpCost and state |= NODE_STATE.ENOUGH_XP
+                if xp >= unlockProps.xpCost:
+                    state |= NODE_STATE.ENOUGH_XP
         if nodeCD in self._elite:
             state |= NODE_STATE.ELITE
         if renderer is None:
