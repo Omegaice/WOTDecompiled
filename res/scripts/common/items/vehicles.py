@@ -506,7 +506,8 @@ if not IS_CELLAPP:
                     cd += chr(emblemPositions) + emblems
                 if self.__hornID is not None:
                     cd += chr(self.__hornID)
-                camouflages and cd += camouflages
+                if camouflages:
+                    cd += camouflages
             return cd
 
         def getCost(self):
