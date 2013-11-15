@@ -1,4 +1,5 @@
 *.zip
 *.pyc
 *.byte
+.DS_Store
 res_mods
