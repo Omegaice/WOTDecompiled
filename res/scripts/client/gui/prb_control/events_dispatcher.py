@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:38 EST
+# Embedded file name: scripts/client/gui/prb_control/events_dispatcher.py
 from constants import PREBATTLE_TYPE
 from debug_utils import LOG_ERROR
 from gui.Scaleform.framework import VIEW_TYPE, g_entitiesFactories as guiFactory
@@ -111,7 +113,7 @@ def addCompanyToCarousel():
 def removeCompanyFromCarousel():
     clientID = channel_num_gen.getClientID4Prebattle(PREBATTLE_TYPE.COMPANY)
     if not clientID:
-        LOG_ERROR('Client ID not found', '_removeCompanyFromCarousel')
+        LOG_ERROR('Client ID not found', 'removeCompanyFromCarousel')
         return
     g_eventBus.handleEvent(ChannelManagementEvent(clientID, ChannelManagementEvent.REQUEST_TO_REMOVE), scope=EVENT_BUS_SCOPE.LOBBY)
 
@@ -225,6 +227,50 @@ def addCompaniesToCarousel():
         return
 
 
+def showUnitWindow():
+    g_eventBus.handleEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_UNIT_WINDOW), scope=EVENT_BUS_SCOPE.LOBBY)
+
+
+def _closeUnitWindow():
+    g_eventBus.handleEvent(events.LoadEvent(events.HideWindowEvent.HIDE_UNIT_WINDOW), scope=EVENT_BUS_SCOPE.LOBBY)
+
+
+def addUnitToCarousel():
+    from gui.Scaleform.locale.CYBERSPORT import CYBERSPORT
+    clientID = channel_num_gen.getClientID4Prebattle(PREBATTLE_TYPE.UNIT)
+    if not clientID:
+        LOG_ERROR('Client ID not found', 'addUnitToCarousel')
+        return
+    else:
+        g_eventBus.handleEvent(ChannelManagementEvent(clientID, ChannelManagementEvent.REQUEST_TO_ADD, {'label': CYBERSPORT.WINDOW_TITLE,
+         'canClose': False,
+         'isNotified': False,
+         'icon': None,
+         'order': channel_num_gen.getOrder4Prebattle(),
+         'criteria': {POP_UP_CRITERIA.VIEW_ALIAS: guiFactory.getAliasByEvent(events.ShowWindowEvent.SHOW_UNIT_WINDOW)},
+         'openHandler': showUnitWindow}), scope=EVENT_BUS_SCOPE.LOBBY)
+        return
+
+
+def removeUnitFromCarousel():
+    clientID = channel_num_gen.getClientID4Prebattle(PREBATTLE_TYPE.UNIT)
+    if not clientID:
+        LOG_ERROR('Client ID not found', 'removeUnitFromCarousel')
+        return
+    g_eventBus.handleEvent(ChannelManagementEvent(clientID, ChannelManagementEvent.REQUEST_TO_REMOVE), scope=EVENT_BUS_SCOPE.LOBBY)
+
+
+def loadUnit():
+    addUnitToCarousel()
+    showUnitWindow()
+
+
+def unloadUnit():
+    _closeUnitWindow()
+    removeUnitFromCarousel()
+    requestToDestroyPrbChannel(PREBATTLE_TYPE.UNIT)
+
+
 def requestToDestroyPrbChannel(prbType):
     g_eventBus.handleEvent(events.MessengerEvent(events.MessengerEvent.PRB_CHANNEL_CTRL_REQUEST_DESTROY, {'prbType': prbType}), scope=EVENT_BUS_SCOPE.LOBBY)
 
@@ -244,3 +290,6 @@ def showParentControlNotification():
     else:
         key = 'koreaParentNotification'
     DialogsInterface.showI18nInfoDialog(key, lambda *args: None)
+# okay decompyling res/scripts/client/gui/prb_control/events_dispatcher.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:39 EST

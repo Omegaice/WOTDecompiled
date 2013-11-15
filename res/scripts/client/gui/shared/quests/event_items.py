@@ -1,9 +1,10 @@
+# 2013.11.15 11:26:55 EST
+# Embedded file name: scripts/client/gui/shared/quests/event_items.py
 import time
 from datetime import datetime
 from abc import ABCMeta
 import constants
 from helpers import getLocalizedData, i18n, time_utils
-from debug_utils import LOG_DEBUG
 from gui.shared.quests.bonuses import getBonusObj
 from gui.shared.quests.conditions import getConditionObj
 from gui.Scaleform.locale.QUESTS import QUESTS
@@ -83,10 +84,14 @@ class Quest(ServerEventAbstract):
 
     def isCompleted(self):
         groupBy = self.getCumulativeGroup()
-        if groupBy is None:
-            return self.getBonusCount() == self.getBonusLimit()
+        bonusLimit = self.getBonusLimit()
+        if groupBy is None and bonusLimit is not None:
+            return self.getBonusCount() >= self.getBonusLimit()
         else:
             return False
+
+    def isOutOfDate(self):
+        return self.getFinishTimeLeft() <= 0
 
     def isAvailable(self):
         if not self._isPrevTaskCompleted:
@@ -180,10 +185,13 @@ class Quest(ServerEventAbstract):
         return self._progress or {}
 
     def getProgress(self):
+        result = None
         for condName, cond in self.getConditions().iteritems():
-            return cond.getProgress()
+            progress = cond.getProgress()
+            if progress is not None:
+                result = progress
 
-        return None
+        return result
 
     def getBonusLimit(self):
         bonus = self._data.get('conditions', {}).get('bonus', {})
@@ -226,3 +234,6 @@ class Quest(ServerEventAbstract):
                     result.update(self.__parseConditions(v, name))
 
         return result
+# okay decompyling res/scripts/client/gui/shared/quests/event_items.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:55 EST

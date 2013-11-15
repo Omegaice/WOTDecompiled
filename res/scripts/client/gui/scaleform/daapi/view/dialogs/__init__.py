@@ -1,10 +1,13 @@
+# 2013.11.15 11:25:55 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/__init__.py
 import BigWorld
 import Event
+from debug_utils import LOG_DEBUG
 from gui.ClientUpdateManager import g_clientUpdateManager
 from helpers import i18n, time_utils
 from gui import makeHtmlString
 from gui.shared import events, g_itemsCache
-from gui.Scaleform.framework import AppRef
+from gui.Scaleform.framework import AppRef, VIEW_SCOPE
 from gui.Scaleform.locale.DIALOGS import DIALOGS
 I18N_PRICE_KEY = '{0:>s}/messagePrice'
 I18N_TITLE_KEY = '{0:>s}/title'
@@ -21,6 +24,9 @@ class IDialogMeta(object):
 
     def getEventType(self):
         raise NotImplementedError, 'Dialog event type must be specified'
+
+    def getViewScopeType(self):
+        raise NotImplementedError, 'Dialog scope must be specified'
 
 
 class ISimpleDialogButtonsMeta(object):
@@ -127,6 +133,9 @@ class SimpleDialogMeta(ISimpleDialogMeta):
     def canViewSkip(self):
         return True
 
+    def getViewScopeType(self):
+        return VIEW_SCOPE.DEFAULT
+
 
 class I18nDialogMeta(SimpleDialogMeta):
 
@@ -165,6 +174,13 @@ class I18nDialogMeta(SimpleDialogMeta):
 
     def _makeString(self, key, ctx):
         return i18n.makeString(DIALOGS.all(key), **ctx)
+
+    def getViewScopeType(self):
+        if self._meta is not None:
+            return self._meta.getViewScopeType()
+        else:
+            return super(I18nDialogMeta, self).getViewScopeType()
+            return
 
 
 class I18nInfoDialogMeta(I18nDialogMeta):
@@ -296,6 +312,12 @@ class HtmlMessageDialogMeta(SimpleDialogMeta):
         return makeHtmlString(self._path, self._key, ctx=self._ctx)
 
 
+class HtmlMessageLocalDialogMeta(HtmlMessageDialogMeta):
+
+    def getViewScopeType(self):
+        return VIEW_SCOPE.LOBBY_SUB
+
+
 class DisconnectMeta(I18nInfoDialogMeta, AppRef):
 
     def __init__(self, reason = None, isBan = False, expiryTime = None):
@@ -329,3 +351,6 @@ class DisconnectMeta(I18nInfoDialogMeta, AppRef):
 
     def canViewSkip(self):
         return False
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/dialogs/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:55 EST

@@ -1,7 +1,10 @@
+# 2013.11.15 11:26:23 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/login/LoginDispatcher.py
 import json
 from ConnectionManager import connectionManager
 from Event import Event
 from PlayerEvents import g_playerEvents
+from gui.LobbyContext import g_lobbyContext
 from gui.Scaleform.Waiting import Waiting
 from account_helpers import pwd_token
 from account_helpers.SteamAccount import g_steamAccount
@@ -15,7 +18,6 @@ from gui.Scaleform.locale.MENU import MENU
 from gui.Scaleform.locale.WAITING import WAITING
 from gui.Scaleform.locale.SYSTEM_MESSAGES import SYSTEM_MESSAGES
 from gui import DialogsInterface
-from gui.prb_control.dispatcher import g_prbLoader
 from helpers import i18n
 from helpers.i18n import makeString
 from helpers.links import openMigrationWebsite
@@ -103,8 +105,6 @@ class LoginDispatcher(DisposableEntity):
         g_playerEvents.onLoginQueueNumberReceived += self.handleQueue
         g_playerEvents.onAccountBecomePlayer += self.__pe_onAccountBecomePlayer
         g_playerEvents.onKickWhileLoginReceived += self.handleKickWhileLogin
-        if self.__loginDataLoader.host == '' and len(g_preDefinedHosts.shortList()):
-            self.__loginDataLoader.host = g_preDefinedHosts.shortList()[0][0]
         self.onSetOptions(g_preDefinedHosts.shortList(), self.__loginDataLoader.host)
 
     def _dispose(self):
@@ -271,7 +271,7 @@ class LoginDispatcher(DisposableEntity):
             return
 
         token2 = str(msg_dict.get('token2', ''))
-        g_prbLoader.getInvitesManager().setCredentials(self.__loginDataLoader.user, token2)
+        g_lobbyContext.setCredentials(self.__loginDataLoader.user, token2)
         self.__loginDataLoader.saveUserToken(self.__loginDataLoader.passLength, token2)
 
     def showSecurityMessage(self):
@@ -509,3 +509,6 @@ class LoginDispatcher(DisposableEntity):
         self.__autoLoginTimerID = None
         self.onDoAutoLogin()
         return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/login/logindispatcher.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:24 EST

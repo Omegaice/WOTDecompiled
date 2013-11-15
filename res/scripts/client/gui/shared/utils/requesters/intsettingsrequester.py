@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:04 EST
+# Embedded file name: scripts/client/gui/shared/utils/requesters/IntSettingsRequester.py
 import BigWorld
 from adisp import async, process
 from debug_utils import LOG_ERROR
@@ -123,3 +125,6 @@ class IntSettingsRequester(object):
     def _addIntSettings(self, settings, callback = None):
         if not BattleReplay.g_replayCtrl.isPlaying:
             BigWorld.player().intUserSettings.addIntSettings(settings, callback)
+# okay decompyling res/scripts/client/gui/shared/utils/requesters/intsettingsrequester.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:05 EST

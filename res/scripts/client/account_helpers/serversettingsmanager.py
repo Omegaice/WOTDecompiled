@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:10 EST
+# Embedded file name: scripts/client/account_helpers/ServerSettingsManager.py
 import BigWorld
 import constants
 from collections import namedtuple
@@ -6,6 +8,7 @@ from adisp import process, async
 from debug_utils import LOG_ERROR, LOG_DEBUG
 from gui.Scaleform.daapi.view.lobby.settings import constants as settings_constants
 from gui.shared.utils import CONST_CONTAINER
+from helpers import isPlayerAvatar
 __author__ = 'a_brukish'
 
 class SETTINGS_SECTIONS(CONST_CONTAINER):
@@ -21,7 +24,7 @@ class SETTINGS_SECTIONS(CONST_CONTAINER):
 
 
 class ServerSettingsManager(object):
-    __version = 2
+    __version = 3
     GAME = settings_constants.GAME
     GRAPHICS = settings_constants.GRAPHICS
     SOUND = settings_constants.SOUND
@@ -37,7 +40,8 @@ class ServerSettingsManager(object):
                               GAME.DYNAMIC_CAMERA: 6,
                               GAME.REPLAY_ENABLED: 7,
                               GAME.ENABLE_SERVER_AIM: 8,
-                              GAME.SHOW_VEHICLES_COUNTER: 9}, offsets={GAME.GAMEPLAY_MASK: Offset(10, 1024 | 2048 | 4096),
+                              GAME.SHOW_VEHICLES_COUNTER: 9,
+                              GAME.SNIPER_MODE_STABILIZATION: 13}, offsets={GAME.GAMEPLAY_MASK: Offset(10, 1024 | 2048 | 4096),
                               GAME.DATE_TIME_MESSAGE_INDEX: Offset(16, 983040),
                               GAME.MINIMAP_ALPHA: Offset(20, 267386880)}),
      SETTINGS_SECTIONS.GRAPHICS: Section(masks={GRAPHICS.FPS_PERFOMANCER: 0}, offsets={}),
@@ -55,7 +59,8 @@ class ServerSettingsManager(object):
                                'mixingType': Offset(24, 4278190080L)}),
      SETTINGS_SECTIONS.AIM_3: Section(masks={}, offsets={'cassette': Offset(0, 255),
                                'gunTag': Offset(8, 65280),
-                               'gunTagType': Offset(16, 16711680)}),
+                               'gunTagType': Offset(16, 16711680),
+                               'reloaderTimer': Offset(24, 4278190080L)}),
      SETTINGS_SECTIONS.MARKERS: Section(masks={'markerBaseIcon': 0,
                                  'markerBaseLevel': 1,
                                  'markerBaseHpIndicator': 2,
@@ -83,7 +88,8 @@ class ServerSettingsManager(object):
      'mixingType': 2,
      'cassette': 3,
      'gunTag': 3,
-     'gunTagType': 3}
+     'gunTagType': 3,
+     'reloaderTimer': 3}
 
     def __init__(self, core):
         self._core = core
@@ -106,8 +112,10 @@ class ServerSettingsManager(object):
         g_postProcessing.refresh()
         enableDynamicCamera = self._core.options.getSetting(self.GAME.DYNAMIC_CAMERA)
         enableDynamicCameraValue = enableDynamicCamera.get()
+        enableSniperStabilization = self._core.options.getSetting(self.GAME.SNIPER_MODE_STABILIZATION)
+        enableSniperStabilizationValue = enableSniperStabilization.get()
         from AvatarInputHandler import AvatarInputHandler
-        AvatarInputHandler.enableDynamicCamera(enableDynamicCameraValue)
+        AvatarInputHandler.enableDynamicCamera(enableDynamicCameraValue, enableSniperStabilizationValue)
         from messenger.doc_loaders import user_prefs
         from messenger import g_settings as messenger_settings
         user_prefs.loadFromServer(messenger_settings)
@@ -123,6 +131,8 @@ class ServerSettingsManager(object):
         alternativeVoicesValue = alternativeVoices.get()
         alternativeVoices.setSystemValue(alternativeVoicesValue)
         self._core.options.getSetting('keyboard').setSystemValue()
+        if isPlayerAvatar():
+            BigWorld.player().invRotationOnBackMovement = self._core.getSetting('backDraftInvert')
 
     def getGameSetting(self, key, default = None):
         return self._getSectionSettings(SETTINGS_SECTIONS.GAME, key, default)
@@ -161,7 +171,7 @@ class ServerSettingsManager(object):
         else:
             return default
 
-    def setAimSettings(self, settings):
+    def _buildAimSettings(self, settings):
         settingToServer = {}
         for section, options in settings.iteritems():
             mapping = {}
@@ -181,9 +191,11 @@ class ServerSettingsManager(object):
                     continue
                 settingToServer[storageKey] = storingValue
 
-        g_settingsCache.setSettings(settingToServer)
+        return settingToServer
+
+    def setAimSettings(self, settings):
+        g_settingsCache.setSettings(self._buildAimSettings(settings))
         self.setVersion()
-        LOG_DEBUG('Apply server settings: ', settings)
         self._core.onSettingsChanged(settings)
 
     def getMarkersSetting(self, section, key, default = None):
@@ -196,7 +208,7 @@ class ServerSettingsManager(object):
         else:
             return default
 
-    def setMarkersSettings(self, settings):
+    def _buildMarkersSettings(self, settings):
         settingToServer = {}
         for section, options in settings.iteritems():
             storageKey = 'MARKERS_%(section)s' % {'section': section.upper()}
@@ -208,9 +220,11 @@ class ServerSettingsManager(object):
                 continue
             settingToServer[storageKey] = storingValue
 
-        g_settingsCache.setSettings(settingToServer)
+        return settingToServer
+
+    def setMarkersSettings(self, settings):
+        g_settingsCache.setSettings(self._buildMarkersSettings(settings))
         self.setVersion()
-        LOG_DEBUG('Apply server settings: ', settings)
         self._core.onSettingsChanged(settings)
 
     def setVersion(self):
@@ -223,7 +237,6 @@ class ServerSettingsManager(object):
     def setSettings(self, settings):
         g_settingsCache.setSettings(settings)
         self.setVersion()
-        LOG_DEBUG('Apply server settings: ', settings)
         self._core.onSettingsChanged(settings)
 
     def getSetting(self, key, default = None):
@@ -257,17 +270,24 @@ class ServerSettingsManager(object):
         else:
             return default
 
-    def _setSectionSettings(self, section, settings):
-        LOG_DEBUG('Applying %s server settings: ' % section, settings)
-        storingValue = storedValue = g_settingsCache.getSectionSettings(section)
+    def _buildSectionSettings(self, section, settings):
+        storedValue = g_settingsCache.getSectionSettings(section, None)
+        storingValue = storedValue if storedValue is not None else 0
         masks = self.SECTIONS[section].masks
         offsets = self.SECTIONS[section].offsets
-        storingValue = self._mapValues(settings, storingValue, masks, offsets)
+        return self._mapValues(settings, storingValue, masks, offsets)
+
+    def _setSectionSettings(self, section, settings):
+        LOG_DEBUG('Applying %s server settings: ' % section, settings)
+        storedValue = g_settingsCache.getSectionSettings(section, None)
+        storingValue = self._buildSectionSettings(section, settings)
         if storedValue == storingValue:
             return
-        g_settingsCache.setSectionSettings(section, storingValue)
-        self.setVersion()
-        self._core.onSettingsChanged(settings)
+        else:
+            g_settingsCache.setSectionSettings(section, storingValue)
+            self.setVersion()
+            self._core.onSettingsChanged(settings)
+            return
 
     def _extractValue(self, key, storedValue, default, masks, offsets):
         if key in masks:
@@ -297,10 +317,15 @@ class ServerSettingsManager(object):
     @process
     def _updateToVersion(self, callback = None):
         currentVersion = g_settingsCache.getVersion()
+        gameData = {}
+        controlsData = {}
+        aimData = {}
+        markersData = {}
+        keyboardData = {}
         initialized = False
         processed = False
         if currentVersion < 1:
-            self._initializeDefaultSettings()
+            gameData, controlsData, aimData, markersData, keyboardData = self._initializeDefaultSettings()
             initialized = True
         if currentVersion < 2 and not initialized:
 
@@ -309,11 +334,20 @@ class ServerSettingsManager(object):
                 BigWorld.player().intUserSettings.delIntSettings(range(1, 60), callback)
 
             yield wrapper()
-            self._initializeDefaultSettings()
+            gameData, controlsData, aimData, markersData, keyboardData = self._initializeDefaultSettings()
             initialized = True
             processed = True
+        if currentVersion < 3:
+            if not initialized:
+                aimData.update({'arcade': self._core.getSetting('arcade'),
+                 'sniper': self._core.getSetting('sniper')})
+            aimData['arcade']['reloaderTimer'] = 100
+            aimData['sniper']['reloaderTimer'] = 100
+            if not initialized:
+                gameData['horStabilizationSnp'] = self._core.getSetting('dynamicCamera')
         if not processed:
             yield lambda callback: callback(None)
+        self._setSettingsSections(gameData, controlsData, aimData, markersData, keyboardData)
         callback(self)
         return
 
@@ -385,13 +419,26 @@ class ServerSettingsManager(object):
                     LOG_DEBUG('Controls preferences is not available.')
 
             keyboardData = self._core.options.getSetting('keyboard').getCurrentMapping()
+        return (gameData,
+         controlsData,
+         aimData,
+         markersData,
+         keyboardData)
+
+    def _setSettingsSections(self, gameData, controlsData, aimData, markersData, keyboardData):
+        settings = {}
         if gameData:
-            self.setGameSettings(gameData)
+            settings[SETTINGS_SECTIONS.GAME] = self._buildSectionSettings(SETTINGS_SECTIONS.GAME, gameData)
         if controlsData:
-            self.setControlsSettings(controlsData)
+            settings[SETTINGS_SECTIONS.CONTROLS] = self._buildSectionSettings(SETTINGS_SECTIONS.CONTROLS, controlsData)
         if aimData:
-            self.setAimSettings(aimData)
+            settings.update(self._buildAimSettings(aimData))
         if markersData:
-            self.setMarkersSettings(markersData)
+            settings.update(self._buildMarkersSettings(markersData))
         if keyboardData:
-            self.setSettings(keyboardData)
+            settings.update(keyboardData)
+        if settings:
+            self.setSettings(settings)
+# okay decompyling res/scripts/client/account_helpers/serversettingsmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:11 EST

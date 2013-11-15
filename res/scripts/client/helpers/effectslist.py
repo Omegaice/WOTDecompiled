@@ -1,9 +1,12 @@
+# 2013.11.15 11:27:07 EST
+# Embedded file name: scripts/client/helpers/EffectsList.py
 import BigWorld
 import ResMgr
 import Pixie
 import Math
 import random
 import DecalMap
+import material_kinds
 from debug_utils import *
 from functools import partial
 import string
@@ -100,9 +103,18 @@ class _PixieEffectDesc(_EffectDesc):
             self._force = dataSection.readInt(key, 0)
             if self._force < 0:
                 _raiseWrongConfig(key, self.TYPE)
+        if dataSection.has_key('surfaceMatKind'):
+            matKindNames = dataSection.readString('surfaceMatKind', '').split(' ')
+            self._surfaceMatKinds = []
+            for matKindName in matKindNames:
+                self._surfaceMatKinds += material_kinds.EFFECT_MATERIAL_IDS_BY_NAMES.get(matKindName, [])
+
+        else:
+            self._surfaceMatKinds = None
         self._orientByClosestSurfaceNormal = dataSection.readBool('orientBySurfaceNormal', False)
         self._alwaysUpdate = dataSection.readBool('alwaysUpdateModel', False)
         self.__prototypePixies = {}
+        return
 
     def prerequisites(self):
         return self._files
@@ -133,6 +145,10 @@ class _PixieEffectDesc(_EffectDesc):
         if scale is not None:
             elem['scale'] = scale
         elem['surfaceNormal'] = args.get('surfaceNormal', None)
+        surfaceMatKind = args.get('surfaceMatKind', None)
+        if surfaceMatKind is not None and self._surfaceMatKinds is not None:
+            if surfaceMatKind not in self._surfaceMatKinds:
+                return
         elem['node'] = _findTargetNode(model, nodePos, elem['newPos'][1] if elem['newPos'] else None, self._orientByClosestSurfaceNormal, elem['surfaceNormal'])
         elem['model'] = model
         elem['typeDesc'] = self
@@ -366,6 +382,7 @@ class _SoundParameterEffectDesc(_EffectDesc):
                     self.__param = elem['sound'].param(self._paramName)
                     self.__param.seekSpeed = 0
                 except Exception:
+                    LOG_ERROR("Failed to find parameter named '" + self._paramName + "' in sound event named '" + elem['sound'].name + "'")
                     LOG_CURRENT_EXCEPTION()
 
         self.__isPlayer = args.get('isPlayer', False)
@@ -707,3 +724,6 @@ class EffectsListPlayer:
             LOG_CURRENT_EXCEPTION()
 
         return
+# okay decompyling res/scripts/client/helpers/effectslist.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:08 EST

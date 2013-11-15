@@ -1,18 +1,22 @@
+# 2013.11.15 11:26:23 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/login/EULADispatcher.py
 import ResMgr
 from debug_utils import LOG_ERROR, LOG_WARNING, LOG_CURRENT_EXCEPTION
 from helpers import getClientLanguage
 from gui import VERSION_FILE_PATH, makeHtmlString, GUI_SETTINGS
 from gui.shared.events import ShowWindowEvent, CloseWindowEvent
 from gui.Scaleform.framework.entities.EventSystemEntity import EventSystemEntity
+from Event import Event
 SHOW_LICENCE_TAG = 'showLicense'
 EULA_TEMPLATES_FILE_PATH = 'gui/EULA_templates.xml'
 EULA_FILE_PATH = 'text/EULA.xml'
 
 class EULADispatcher(EventSystemEntity):
+    onEULAClosed = Event()
 
     def _populate(self):
         EventSystemEntity._populate(self)
-        if self.__isShowLicense():
+        if self.isShowLicense():
             isShowFullEULA = GUI_SETTINGS.eula.full
             if isShowFullEULA:
                 self.__eulaText = self.__readEULAFull()
@@ -26,10 +30,11 @@ class EULADispatcher(EventSystemEntity):
                  'text': self.__eulaText}))
 
     def __onEulaClosed(self, event):
+        self.onEULAClosed()
         if event.isAgree:
             self.__saveVersionFile()
 
-    def __isShowLicense(self):
+    def isShowLicense(self):
         dSection = ResMgr.openSection(VERSION_FILE_PATH)
         if dSection is None:
             LOG_ERROR('Can not open file:', VERSION_FILE_PATH)
@@ -182,3 +187,6 @@ class _LicenseXMLProcessor(object):
         else:
             result.append(section.asWideString)
         return result
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/login/euladispatcher.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:23 EST

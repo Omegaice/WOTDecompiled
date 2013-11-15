@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:19 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/ResearchView.py
 from functools import partial
 import BigWorld
 from AccountCommands import RES_SUCCESS
@@ -6,7 +8,7 @@ import enumerations
 from gui import SystemMessages, DialogsInterface
 from gui.Scaleform.daapi.view.meta.ResearchViewMeta import ResearchViewMeta
 from gui.Scaleform.framework import AppRef
-from gui.Scaleform.daapi.view.dialogs import HtmlMessageDialogMeta, SimpleDialogMeta
+from gui.Scaleform.daapi.view.dialogs import HtmlMessageDialogMeta, SimpleDialogMeta, HtmlMessageLocalDialogMeta
 from gui.Scaleform.framework.entities.View import View
 from gui.Scaleform.daapi.view.lobby.techtree import _VEHICLE, _RESEARCH_ITEMS, NODE_STATE, RequestState
 from gui.shared import events
@@ -168,7 +170,7 @@ class ResearchView(View, ResearchViewMeta, AppRef):
         else:
             key = 'confirmUnlockItem'
             ctx['userString'] = vehicles.getDictDescr(itemCD)['userString']
-        return HtmlMessageDialogMeta('html_templates:lobby/dialogs', key, ctx=ctx)
+        return HtmlMessageLocalDialogMeta('html_templates:lobby/dialogs', key, ctx=ctx)
 
     def _getConflictedEqsMeta(self, conflictedEqs):
         if len(conflictedEqs):
@@ -195,6 +197,8 @@ class ResearchView(View, ResearchViewMeta, AppRef):
         if xp < 0:
             xp = vehXP
             freeXP = xpCost - xp
+        else:
+            xp = xpCost
         return {'vehXP': xp,
          'freeXP': freeXP,
          'xpCost': xpCost}
@@ -245,7 +249,7 @@ class ResearchView(View, ResearchViewMeta, AppRef):
         if not self._data.isNext2Unlock(unlockCD):
             LOG_ERROR('Required items are not unlocked', unlockCD, vehCD)
             return False
-        if self._data._accFreeXP + self._data.getVehXP(vehCD) < xpCost:
+        if max(self._data._accFreeXP, 0) + self._data.getVehXP(vehCD) < xpCost:
             LOG_ERROR('XP not enough for unlock', vehCD, unlockIdx, xpCost)
             return False
         if RequestState.inProcess('unlock'):
@@ -263,7 +267,13 @@ class ResearchView(View, ResearchViewMeta, AppRef):
     def __cb_onUnlock(self, itemCD, costCtx, resultID):
         Waiting.hide('research')
         RequestState.received('unlock')
+        ctx = {'xpCost': BigWorld.wg_getIntegralFormat(costCtx['xpCost']),
+         'freeXP': BigWorld.wg_getIntegralFormat(costCtx['freeXP']),
+         'vehXP': BigWorld.wg_getIntegralFormat(costCtx['vehXP'])}
         if RES_SUCCESS == resultID:
-            self._showUnlockItemMsg(itemCD, costCtx)
+            self._showUnlockItemMsg(itemCD, ctx)
         else:
             self._showMessage(self.MSG_SCOPE.Unlocks, 'server_error', itemCD)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/techtree/researchview.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:19 EST

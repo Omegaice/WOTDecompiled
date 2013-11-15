@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:10 EST
+# Embedded file name: scripts/client/messenger/formatters/service_channel.py
 import types
 from adisp import async, process
 from debug_utils import LOG_ERROR, LOG_WARNING, LOG_CURRENT_EXCEPTION, LOG_DEBUG
@@ -8,7 +10,6 @@ from messenger.formatters import TimeFormatter
 from messenger.m_constants import MESSENGER_I18N_FILE
 import offers
 from constants import INVOICE_ASSET, AUTO_MAINTENANCE_TYPE, AUTO_MAINTENANCE_RESULT, PREBATTLE_TYPE, FINISH_REASON, KICK_REASON_NAMES, KICK_REASON
-import dossiers
 from gui.prb_control.formatters import getPrebattleFullDescription
 from gui.shared.utils.gui_items import formatPrice
 from helpers import i18n, html, getClientLanguage, getLocalizedData
@@ -16,6 +17,7 @@ from helpers import time_utils
 from items import getTypeInfoByIndex, getTypeInfoByName, tankmen
 from items import vehicles as vehicles_core
 from account_helpers import rare_achievements
+from dossiers2.custom.records import DB_ID_TO_RECORD
 import enumerations
 from messenger import g_settings
 
@@ -180,17 +182,18 @@ class BattleResultsFormatter(ServiceChannelFormatter):
         return g_settings.htmlTemplates.format(self.__goldTemplateKey, {'gold': BigWorld.wg_getGoldFormat(gold)})
 
     def __makeAchievementsString(self, battleResult):
-        from dossiers.achievements import ACHIEVEMENTS, ACHIEVEMENT_SECTIONS_INDICES
+        from dossiers2.ui.achievements import ACHIEVEMENTS, ACHIEVEMENT_SECTIONS_INDICES
 
         def sortFunction(a, b):
-            aKey = dossiers.RECORD_NAMES[a[0]]
-            bKey = dossiers.RECORD_NAMES[b[0]]
+            aKey = DB_ID_TO_RECORD[a[0]][1]
+            bKey = DB_ID_TO_RECORD[b[0]][1]
             aOrderVal = ACHIEVEMENT_SECTIONS_INDICES[ACHIEVEMENTS.get(aKey, {}).get('section', 'battle')]
             bOrderVal = ACHIEVEMENT_SECTIONS_INDICES[ACHIEVEMENTS.get(bKey, {}).get('section', 'battle')]
             return aOrderVal - bOrderVal
 
         def filterFunc(item):
-            if dossiers.RECORD_NAMES[item[0]] == 'maxXP':
+            achieveName = DB_ID_TO_RECORD[item[0]][1]
+            if achieveName in ('maxXP', 'maxFrags', 'maxDamage'):
                 return False
             return True
 
@@ -201,7 +204,7 @@ class BattleResultsFormatter(ServiceChannelFormatter):
         else:
             achieveList = []
             for recordIdx, value in sorted(records, cmp=sortFunction):
-                achieveKey = dossiers.RECORD_NAMES[recordIdx]
+                achieveKey = DB_ID_TO_RECORD[recordIdx][1]
                 achieveI18n = i18n.makeString('#achievements:%s' % achieveKey)
                 rule = AchievementsFormatRulesDict.get(achieveKey)
                 if rule:
@@ -235,7 +238,10 @@ class AutoMaintenanceFormatter(ServiceChannelFormatter):
                                              AUTO_MAINTENANCE_TYPE.EQUIP: '#messenger:serviceChannelMessages/autoEquipSkipped'},
      AUTO_MAINTENANCE_RESULT.DISABLED_OPTION: {AUTO_MAINTENANCE_TYPE.REPAIR: '#messenger:serviceChannelMessages/autoRepairDisabledOption',
                                                AUTO_MAINTENANCE_TYPE.LOAD_AMMO: '#messenger:serviceChannelMessages/autoLoadDisabledOption',
-                                               AUTO_MAINTENANCE_TYPE.EQUIP: '#messenger:serviceChannelMessages/autoEquipDisabledOption'}}
+                                               AUTO_MAINTENANCE_TYPE.EQUIP: '#messenger:serviceChannelMessages/autoEquipDisabledOption'},
+     AUTO_MAINTENANCE_RESULT.NO_WALLET_SESSION: {AUTO_MAINTENANCE_TYPE.REPAIR: '#messenger:serviceChannelMessages/autoRepairErrorNoWallet',
+                                                 AUTO_MAINTENANCE_TYPE.LOAD_AMMO: '#messenger:serviceChannelMessages/autoLoadErrorNoWallet',
+                                                 AUTO_MAINTENANCE_TYPE.EQUIP: '#messenger:serviceChannelMessages/autoEquipErrorNoWallet'}}
 
     def notify(self):
         return True
@@ -285,7 +291,7 @@ class AchievementFormatter(ServiceChannelFormatter):
         achievesList = list()
         achieves = message.data.get('popUpRecords')
         if achieves is not None:
-            achievesList.extend([ i18n.makeString('#achievements:%s' % name) for name in achieves ])
+            achievesList.extend([ i18n.makeString('#%s:%s' % name) for name in achieves ])
         rares = message.data.get('rareAchievements')
         if rares is not None:
             unknownAchieves = 0
@@ -1134,3 +1140,6 @@ class BattleTutorialResultsFormatter(ServiceChannelFormatter):
         else:
             return
             return
+# okay decompyling res/scripts/client/messenger/formatters/service_channel.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:12 EST

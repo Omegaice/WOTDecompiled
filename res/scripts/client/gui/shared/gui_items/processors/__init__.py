@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:49 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/processors/__init__.py
 from collections import namedtuple
 import BigWorld
 from debug_utils import *
@@ -162,11 +164,11 @@ class Processor(object):
     @async
     @process
     def request(self, callback = None):
-        res = yield self.__validate()
+        res = yield self.__confirm()
         if not res.success:
             callback(res)
             return
-        res = yield self.__confirm()
+        res = yield self.__validate()
         if not res.success:
             callback(res)
             return
@@ -217,6 +219,10 @@ class VehicleItemProcessor(ItemProcessor):
         @param module: module to be installed
         @param allowableTypes: module allowable types
         """
-        super(VehicleItemProcessor, self).__init__(module, [plugins.VehicleValidator(vehicle), plugins.ModuleValidator(module), plugins.ModuleTypeValidator(module, allowableTypes)])
+        super(VehicleItemProcessor, self).__init__(module, [plugins.VehicleValidator(vehicle, False, prop={'isBroken': True,
+          'isLocked': True}), plugins.ModuleValidator(module), plugins.ModuleTypeValidator(module, allowableTypes)])
         self.vehicle = vehicle
         self.allowableTypes = allowableTypes
+# okay decompyling res/scripts/client/gui/shared/gui_items/processors/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:49 EST

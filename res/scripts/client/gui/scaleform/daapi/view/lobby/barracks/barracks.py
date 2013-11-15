@@ -1,31 +1,31 @@
+# 2013.11.15 11:25:56 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/barracks/Barracks.py
 import BigWorld
 from AccountCommands import LOCK_REASON
 from adisp import process
 from gui.prb_control.dispatcher import g_prbLoader
-from gui.prb_control.prb_helpers import PrbListener
-from items import vehicles
+from gui.prb_control.prb_helpers import GlobalListener
 from helpers.i18n import convert
 from items.tankmen import getSkillsConfig, ROLES
 from PlayerEvents import g_playerEvents
 from account_helpers.AccountSettings import AccountSettings, BARRACKS_FILTER
 from CurrentVehicle import g_currentVehicle
 from helpers import i18n
-from debug_utils import LOG_DEBUG, LOG_ERROR
+from debug_utils import LOG_ERROR
 from gui.ClientUpdateManager import g_clientUpdateManager
 from gui import nationCompareByIndex, SystemMessages
 from gui.shared import events, g_itemsCache
 from gui.shared.event_bus import EVENT_BUS_SCOPE
 from gui.Scaleform.daapi import LobbySubView
 from gui.Scaleform.daapi.view.meta.BarracksMeta import BarracksMeta
-from gui.shared.gui_items import GUI_ITEM_TYPE
 from gui.shared.gui_items.processors.common import TankmanBerthsBuyer
 from gui.shared.gui_items.processors.tankman import TankmanDismiss, TankmanUnload
 from gui.shared.utils import decorators
-from gui.shared.utils.requesters import StatsRequester, StatsRequesterr, ShopRequester, Requester, ItemsRequester
+from gui.shared.utils.requesters import StatsRequester, StatsRequesterr, ShopRequester, Requester
 from gui.shared.utils.gui_items import getItemByCompact
 from gui.shared.gui_items.Tankman import Tankman
 
-class Barracks(BarracksMeta, LobbySubView, PrbListener):
+class Barracks(BarracksMeta, LobbySubView, GlobalListener):
 
     def __init__(self):
         super(Barracks, self).__init__()
@@ -34,7 +34,7 @@ class Barracks(BarracksMeta, LobbySubView, PrbListener):
     def _populate(self):
         super(LobbySubView, self)._populate()
         self.app.component.wg_inputKeyMode = 1
-        self.startPrbListening()
+        self.startGlobalListening()
         g_playerEvents.onShopResync += self.__updateTankmen
         g_clientUpdateManager.addCallbacks({'inventory.8': self.__updateTankmen,
          'stats.berths': self.__updateTankmen})
@@ -43,7 +43,7 @@ class Barracks(BarracksMeta, LobbySubView, PrbListener):
     def _dispose(self):
         g_clientUpdateManager.removeObjectCallbacks(self)
         g_playerEvents.onShopResync -= self.__updateTankmen
-        self.stopPrbListening()
+        self.stopGlobalListening()
         super(LobbySubView, self)._dispose()
 
     def openPersonalCase(self, value, tabNumber):
@@ -78,7 +78,7 @@ class Barracks(BarracksMeta, LobbySubView, PrbListener):
         modulesAll = yield Requester('vehicle').getFromInventory()
         modulesAll.sort()
         for module in modulesAll:
-            if self.filter['nation'] != -1 and self.filter['nation'] != module.descriptor.type.id[0] or self.filter['tankType'] != 'None' and self.filter['tankType'] != module.type:
+            if self.filter['nation'] != -1 and self.filter['nation'] != module.descriptor.type.id[0] or self.filter['tankType'] != 'None' and self.filter['tankType'] != -1 and self.filter['tankType'] != module.type:
                 continue
             data.append({'data': {'type': module.type,
                       'nationID': module.descriptor.type.id[0],
@@ -101,8 +101,7 @@ class Barracks(BarracksMeta, LobbySubView, PrbListener):
 
     @process
     def onShowRecruitWindow(self, callbackID):
-        credits = yield StatsRequester().getCredits()
-        gold = yield StatsRequester().getGold()
+        credits, gold = g_itemsCache.items.stats.money
         upgradeParams = yield StatsRequester().getTankmanCost()
         data = [credits,
          gold,
@@ -160,9 +159,10 @@ class Barracks(BarracksMeta, LobbySubView, PrbListener):
                     if tman1vehicle is not None and tman2vehicle is not None:
                         break
 
-                res = tman1vehicle.__cmp__(tman2vehicle)
-                if res:
-                    return res
+                if tman1vehicle is not None and tman2vehicle is not None:
+                    res = tman1vehicle.__cmp__(tman2vehicle)
+                    if res:
+                        return res
                 if TANKMEN_ROLES_ORDER[first.descriptor.role] < TANKMEN_ROLES_ORDER[second.descriptor.role]:
                     return -1
                 if TANKMEN_ROLES_ORDER[first.descriptor.role] > TANKMEN_ROLES_ORDER[second.descriptor.role]:
@@ -188,6 +188,9 @@ class Barracks(BarracksMeta, LobbySubView, PrbListener):
                         vehicleID = vehicle.inventoryId
                         break
 
+                if vehicle is None:
+                    LOG_ERROR('Cannot find vehicle for tankman: ', tankman, tankman.descriptor.role, tankman.vehicle.name, tankman.firstname, tankman.lastname)
+                    continue
                 for i in range(len(vehicle.crew)):
                     if vehicle.crew[i] == tankman.inventoryId:
                         slot = i
@@ -234,8 +237,8 @@ class Barracks(BarracksMeta, LobbySubView, PrbListener):
             if invVehicle.isCurrent:
                 dispatcher = g_prbLoader.getDispatcher()
                 if dispatcher is not None:
-                    permission = dispatcher.getPrbFunctional().getPermissions()
-                    if permission and not permission.canChangeVehicle():
+                    permission = dispatcher.getGUIPermissions()
+                    if not permission.canChangeVehicle():
                         return (True, i18n.makeString('#menu:tankmen/lockReason/prebattle'))
             return (False, '')
 
@@ -275,3 +278,13 @@ class Barracks(BarracksMeta, LobbySubView, PrbListener):
     def onPlayerStateChanged(self, functional, roster, accountInfo):
         if accountInfo.isCurrentPlayer():
             self.__updateTankmen()
+
+    def onUnitFunctionalFinished(self):
+        self.__updateTankmen()
+
+    def onUnitPlayerStateChanged(self, pInfo):
+        if pInfo.isCurrentPlayer():
+            self.__updateTankmen()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/barracks/barracks.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:57 EST

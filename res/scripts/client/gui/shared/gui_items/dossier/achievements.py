@@ -1,6 +1,7 @@
+# 2013.11.15 11:26:48 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/dossier/achievements.py
 from collections import namedtuple
 import BigWorld
-import dossiers
 from gui import nationCompareByIndex
 from gui.shared.utils.RareAchievementsCache import g_rareAchievesCache
 from helpers import i18n
@@ -8,6 +9,9 @@ from items import vehicles
 from debug_utils import LOG_DEBUG
 from gui.shared.utils import dossiers_utils, CONST_CONTAINER
 from gui.shared.gui_items import GUIItem
+from dossiers2.custom.config import RECORD_CONFIGS
+from dossiers2.custom.cache import getCache as getDossiersCache
+from dossiers2.custom.helpers import getTankExpertRequirements, getMechanicEngineerRequirements
 
 class MARK_OF_MASTERY(CONST_CONTAINER):
     MASTER = 4
@@ -27,15 +31,16 @@ class RegularAchievement(GUIItem):
         self.value = self._readValue(dossier)
         self.lvlUpTotalValue = self._readLevelUpTotalValue(dossier, proxy)
         self.lvlUpValue = self._readLevelUpValue(dossier, proxy)
-        self.isActive = self._getActivity(dossier, proxy)
         self._progress = self._calculateProgress(dossier, proxy)
+        self.isDone = self._getDoneStatus(dossier, proxy)
 
     def __repr__(self):
-        return '%s<name=%s; value=%s; levelUpValue=%s levelUpTotalValue=%s>' % (self.__class__.__name__,
+        return '%s<name=%s; value=%s; levelUpValue=%s levelUpTotalValue=%s isDone=%s>' % (self.__class__.__name__,
          self.name,
          str(self.value),
          str(self.lvlUpValue),
-         str(self.lvlUpTotalValue))
+         str(self.lvlUpTotalValue),
+         str(self.isDone))
 
     def __cmp__(self, other):
         if isinstance(other, RegularAchievement):
@@ -82,7 +87,7 @@ class RegularAchievement(GUIItem):
     @classmethod
     def isInDossier(cls, name, dossier):
         if dossier is not None:
-            return bool(dossier[name])
+            return bool(dossier.getAchievementRecord(name))
         else:
             return False
 
@@ -99,13 +104,13 @@ class RegularAchievement(GUIItem):
          'section': self.getSection(),
          'value': self.value,
          'levelUpValue': self.lvlUpValue,
-         'isActive': self.isActive,
+         'isDone': self.isDone,
          'icon': self.icon})
         return result
 
     def _readValue(self, dossier):
         if dossier is not None:
-            return dossier[self.name]
+            return dossier.getAchievementRecord(self.name)
         else:
             return 0
 
@@ -118,14 +123,14 @@ class RegularAchievement(GUIItem):
     def _getIconName(self):
         return self._getActualName()
 
-    def _getActivity(self, dossier, proxy):
-        return True
-
     def _calculateProgress(self, dossier, proxy):
         return 0.0
 
     def _getActualName(self):
         return self.name
+
+    def _getDoneStatus(self, dossier, proxy):
+        return self._progress == 1.0
 
 
 class SeriesAchievement(RegularAchievement):
@@ -133,7 +138,7 @@ class SeriesAchievement(RegularAchievement):
     def _readValue(self, dossier):
         record = self.getRecord()
         if dossier is not None and record is not None:
-            return dossier[record]
+            return dossier.getAchievementRecord(record)
         else:
             return 0
 
@@ -143,7 +148,7 @@ class SeriesAchievement(RegularAchievement):
     def _readLevelUpValue(self, dossier, proxy):
         record = self.getCurrentRecord()
         if dossier is not None and record is not None:
-            return self.lvlUpTotalValue - dossier[record]
+            return self.lvlUpTotalValue - dossier.getAchievementRecord(record)
         else:
             return 0
 
@@ -157,8 +162,8 @@ class ClassAchievement(RegularAchievement):
         elif self.value == 1:
             return
         else:
-            config = dossiers.RECORD_CONFIGS[self.name]
-            recordValue = dossier[record]
+            config = RECORD_CONFIGS[self.name]
+            recordValue = dossier.getTotalStats().getRecord(record)
             return config[len(config) - self.value + 1] - recordValue
 
     def _getIconName(self):
@@ -196,12 +201,12 @@ class SimpleProgressAchievement(RegularAchievement):
         super(SimpleProgressAchievement, self).__init__(name, dossier, proxy)
 
     def _readLevelUpValue(self, dossier, proxy):
-        minValue = dossiers.RECORD_CONFIGS[self.name]
+        minValue = RECORD_CONFIGS[self.name]
         medals, series = divmod(self._progressValue, minValue)
         return minValue - series
 
     def _readLevelUpTotalValue(self, dossier, proxy):
-        return dossiers.RECORD_CONFIGS[self.name]
+        return RECORD_CONFIGS[self.name]
 
     def _calculateProgress(self, dossier, proxy):
         if self.lvlUpTotalValue == 0:
@@ -210,6 +215,10 @@ class SimpleProgressAchievement(RegularAchievement):
 
     def _readProgressValue(self, dossier):
         return 0
+
+    @property
+    def isInNear(self):
+        return self.progress >= 0.95 or self.lvlUpValue == 1
 
 
 class NationSpecificAchievement(SimpleProgressAchievement):
@@ -231,10 +240,14 @@ class NationSpecificAchievement(SimpleProgressAchievement):
         return len(self._getVehiclesDescrsList(dossier, proxy))
 
     def _readLevelUpTotalValue(self, dossier, proxy):
+        cache = getDossiersCache()
         if self.nationID != -1:
-            return len(dossiers.g_cache['vehiclesInTreesByNation'][self.nationID])
+            return len(cache['vehiclesInTreesByNation'][self.nationID])
         else:
-            return len(dossiers.g_cache['vehiclesInTrees'])
+            return len(cache['vehiclesInTrees'])
+
+    def _getDoneStatus(self, dossier, proxy):
+        return bool(dossier.getAchievementRecord(self.name))
 
 
 class TankExpertAchievement(NationSpecificAchievement, HasVehiclesList):
@@ -251,13 +264,10 @@ class TankExpertAchievement(NationSpecificAchievement, HasVehiclesList):
                 return 1
             else:
                 return nationCompareByIndex(self.nationID, other.nationID)
-        return 1
+        return super(TankExpertAchievement, self).__cmp__(other)
 
     def _getVehiclesDescrsList(self, dossier, proxy):
-        return dossiers.getTankExpertRequirements(dossiers.g_cache, dossier['vehTypeFrags']).get(self.name, [])
-
-    def _getActivity(self, dossier, proxy):
-        return not len(self._getVehiclesDescrsList(dossier, proxy))
+        return getTankExpertRequirements(dossier.getRecord('vehTypeFrags')).get(self.name, [])
 
 
 class MechEngineerAchievement(NationSpecificAchievement, HasVehiclesList):
@@ -274,16 +284,13 @@ class MechEngineerAchievement(NationSpecificAchievement, HasVehiclesList):
                 return 1
             else:
                 return nationCompareByIndex(self.nationID, other.nationID)
-        return 1
+        return super(MechEngineerAchievement, self).__cmp__(other)
 
     def _getVehiclesDescrsList(self, dossier, proxy):
         if proxy is not None and self.isCurrentUser:
-            return dossiers.getMechanicEngineerRequirements(dossiers.g_cache, set(), proxy.stats.unlocks, self.nationID).get(self.name, [])
+            return getMechanicEngineerRequirements(set(), proxy.stats.unlocks, self.nationID).get(self.name, [])
         else:
             return []
-
-    def _getActivity(self, dossier, proxy):
-        return not len(self._getVehiclesDescrsList(dossier, proxy))
 
 
 class WhiteTigerAchievement(RegularAchievement):
@@ -294,7 +301,7 @@ class WhiteTigerAchievement(RegularAchievement):
 
     @classmethod
     def __getWhiteTigerKillings(cls, dossier):
-        return dossier['vehTypeFrags'].get(cls.WHITE_TIGER_COMP_DESCR, 0)
+        return dossier.getRecord('vehTypeFrags').get(cls.WHITE_TIGER_COMP_DESCR, 0)
 
     def _readValue(self, dossier):
         if dossier is not None:
@@ -313,7 +320,7 @@ class MousebaneAchievement(SimpleProgressAchievement):
         super(MousebaneAchievement, self).__init__('mousebane', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['vehTypeFrags'].get(dossiers.g_cache['mausTypeCompDescr'], 0)
+        return dossier.getRecord('vehTypeFrags').get(getDossiersCache()['mausTypeCompDescr'], 0)
 
 
 class BeasthunterAchievement(SimpleProgressAchievement):
@@ -322,7 +329,7 @@ class BeasthunterAchievement(SimpleProgressAchievement):
         super(BeasthunterAchievement, self).__init__('beasthunter', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['fragsBeast']
+        return dossier.getAchievementRecord('fragsBeast')
 
 
 class PattonValleyAchievement(SimpleProgressAchievement):
@@ -331,7 +338,7 @@ class PattonValleyAchievement(SimpleProgressAchievement):
         super(PattonValleyAchievement, self).__init__('pattonValley', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['fragsPatton']
+        return dossier.getAchievementRecord('fragsPatton')
 
 
 class SinaiAchievement(SimpleProgressAchievement):
@@ -340,7 +347,7 @@ class SinaiAchievement(SimpleProgressAchievement):
         super(SinaiAchievement, self).__init__('sinai', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['fragsSinai']
+        return dossier.getAchievementRecord('fragsSinai')
 
 
 class ClassProgressAchievement(SimpleProgressAchievement):
@@ -352,7 +359,7 @@ class ClassProgressAchievement(SimpleProgressAchievement):
 
     def _readLevelUpTotalValue(self, dossier, proxy):
         progressValue = self._progressValue if self._progressValue else 5
-        medalCfg = dossiers.RECORD_CONFIGS[self.name]
+        medalCfg = RECORD_CONFIGS[self.name]
         maxMedalClass = len(medalCfg)
         nextMedalClass = progressValue - 1
         nextMedalClassIndex = maxMedalClass - nextMedalClass
@@ -390,10 +397,12 @@ class MedalKnispelAchievement(ClassProgressAchievement):
         super(MedalKnispelAchievement, self).__init__('medalKnispel', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['medalKnispel']
+        return dossier.getAchievementRecord('medalKnispel')
 
     def _readCurrentProgressValue(self, dossier):
-        return dossier['damageDealt'] + dossier['damageReceived']
+        total = dossier.getTotalStats()
+        _7x7 = dossier.getTeam7x7Stats()
+        return total.getDamageDealt() + total.getDamageReceived() + _7x7.getDamageDealt() + _7x7.getDamageReceived()
 
 
 class MedalCariusAchievement(ClassProgressAchievement):
@@ -402,10 +411,12 @@ class MedalCariusAchievement(ClassProgressAchievement):
         super(MedalCariusAchievement, self).__init__('medalCarius', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['medalCarius']
+        return dossier.getAchievementRecord('medalCarius')
 
     def _readCurrentProgressValue(self, dossier):
-        return dossier['frags']
+        total = dossier.getTotalStats()
+        _7x7 = dossier.getTeam7x7Stats()
+        return total.getFragsCount() + _7x7.getFragsCount()
 
 
 class MedalAbramsAchievement(ClassProgressAchievement):
@@ -414,10 +425,12 @@ class MedalAbramsAchievement(ClassProgressAchievement):
         super(MedalAbramsAchievement, self).__init__('medalAbrams', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['medalAbrams']
+        return dossier.getAchievementRecord('medalAbrams')
 
     def _readCurrentProgressValue(self, dossier):
-        return dossier['winAndSurvived']
+        total = dossier.getTotalStats()
+        _7x7 = dossier.getTeam7x7Stats()
+        return total.getWinAndSurvived() + _7x7.getWinAndSurvived()
 
 
 class MedalPoppelAchievement(ClassProgressAchievement):
@@ -426,10 +439,12 @@ class MedalPoppelAchievement(ClassProgressAchievement):
         super(MedalPoppelAchievement, self).__init__('medalPoppel', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['medalPoppel']
+        return dossier.getAchievementRecord('medalPoppel')
 
     def _readCurrentProgressValue(self, dossier):
-        return dossier['spotted']
+        total = dossier.getTotalStats()
+        _7x7 = dossier.getTeam7x7Stats()
+        return total.getSpottedEnemiesCount() + _7x7.getSpottedEnemiesCount()
 
 
 class MedalKayAchievement(ClassProgressAchievement):
@@ -438,10 +453,10 @@ class MedalKayAchievement(ClassProgressAchievement):
         super(MedalKayAchievement, self).__init__('medalKay', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['medalKay']
+        return dossier.getAchievementRecord('medalKay')
 
     def _readCurrentProgressValue(self, dossier):
-        return dossier['battleHeroes']
+        return dossier.getAchievementRecord('battleHeroes')
 
 
 class MedalEkinsAchievement(ClassProgressAchievement):
@@ -450,10 +465,12 @@ class MedalEkinsAchievement(ClassProgressAchievement):
         super(MedalEkinsAchievement, self).__init__('medalEkins', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['medalEkins']
+        return dossier.getAchievementRecord('medalEkins')
 
     def _readCurrentProgressValue(self, dossier):
-        return dossier['frags8p']
+        total = dossier.getTotalStats()
+        _7x7 = dossier.getTeam7x7Stats()
+        return total.getFrags8p() + _7x7.getFrags8p()
 
 
 class MedalLeClercAchievement(ClassProgressAchievement):
@@ -462,10 +479,12 @@ class MedalLeClercAchievement(ClassProgressAchievement):
         super(MedalLeClercAchievement, self).__init__('medalLeClerc', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['medalLeClerc']
+        return dossier.getAchievementRecord('medalLeClerc')
 
     def _readCurrentProgressValue(self, dossier):
-        return dossier['capturePoints']
+        total = dossier.getTotalStats()
+        _7x7 = dossier.getTeam7x7Stats()
+        return total.getCapturePoints() + _7x7.getCapturePoints()
 
 
 class MedalLavrinenkoAchievement(ClassProgressAchievement):
@@ -474,10 +493,12 @@ class MedalLavrinenkoAchievement(ClassProgressAchievement):
         super(MedalLavrinenkoAchievement, self).__init__('medalLavrinenko', dossier, proxy)
 
     def _readProgressValue(self, dossier):
-        return dossier['medalLavrinenko']
+        return dossier.getAchievementRecord('medalLavrinenko')
 
     def _readCurrentProgressValue(self, dossier):
-        return dossier['droppedCapturePoints']
+        total = dossier.getTotalStats()
+        _7x7 = dossier.getTeam7x7Stats()
+        return total.getDroppedCapturePoints() + _7x7.getDroppedCapturePoints()
 
 
 class RareAchievement(RegularAchievement):
@@ -497,7 +518,7 @@ class RareAchievement(RegularAchievement):
     @classmethod
     def isInDossier(cls, rareID, dossier):
         if dossier is not None:
-            return rareID in dossier['rareAchievements']
+            return rareID in dossier.getRecord('rareAchievements')
         else:
             return False
 
@@ -519,3 +540,6 @@ class RareAchievement(RegularAchievement):
 
     def __repr__(self):
         return '%s<rareID=%s>' % (self.__class__.__name__, str(self.rareID))
+# okay decompyling res/scripts/client/gui/shared/gui_items/dossier/achievements.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:48 EST

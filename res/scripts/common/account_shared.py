@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:30 EST
+# Embedded file name: scripts/common/account_shared.py
 import collections
 import time
 
@@ -74,3 +76,6 @@ def currentWeekPlayDaysCount(curTime, newDayStart, newWeekStart):
     elif curWeekPlayDaysCnt > 8:
         curWeekPlayDaysCnt -= 7
     return curWeekPlayDaysCnt
+# okay decompyling res/scripts/common/account_shared.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:30 EST

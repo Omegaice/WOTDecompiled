@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:47 EST
+# Embedded file name: scripts/client/gui/Scaleform/Battle.py
 import math
 import weakref
 import BigWorld
@@ -5,6 +7,7 @@ import ResMgr
 import FMOD
 import GUI
 import Math
+import SoundGroups
 import Vehicle
 from chat_shared import USERS_ROSTER_VOICE_MUTED
 import constants
@@ -12,21 +15,22 @@ import BattleReplay
 import CommandMapping
 from account_helpers.AccountSettings import AccountSettings
 from account_helpers.SettingsCore import g_settingsCore
-from dossiers import RECORD_NAMES
+from dossiers2.custom.records import DB_ID_TO_RECORD
+from dossiers2.ui.achievements import BATTLE_HERO_TEXTS as heroesTexts
 from gui.prb_control.formatters import getPrebattleFullDescription
 from messenger import MessengerEntry, g_settings
 from messenger.proto.events import g_messengerEvents
 from messenger.storage import storage_getter
+import nations
 from windows import BattleWindow
 from SettingsInterface import SettingsInterface
 from debug_utils import LOG_CURRENT_EXCEPTION, LOG_DEBUG, LOG_ERROR, LOG_CODEPOINT_WARNING
 from helpers import i18n, html, isPlayerAvatar
 from helpers.i18n import makeString
 from PlayerEvents import g_playerEvents
-from arena_achievements import BATTLE_HERO_TEXTS as heroesTexts
 from MemoryCriticalController import g_critMemHandler
 from items.vehicles import NUM_EQUIPMENT_SLOTS, VEHICLE_CLASS_TAGS
-from gui import DEPTH_OF_Battle, DEPTH_OF_VehicleMarker, TANKMEN_ROLES_ORDER_DICT, GUI_SETTINGS, g_tankActiveCamouflage, g_guiResetters, g_repeatKeyHandlers, makeHtmlString
+from gui import DEPTH_OF_Battle, DEPTH_OF_VehicleMarker, TANKMEN_ROLES_ORDER_DICT, GUI_SETTINGS, g_tankActiveCamouflage, g_guiResetters, g_repeatKeyHandlers, makeHtmlString, game_control
 from gui.BattleContext import g_battleContext, PLAYER_ENTITY_NAME
 from gui.Scaleform import VehicleActions, VoiceChatInterface, ColorSchemeManager
 from gui.Scaleform.SoundManager import SoundManager
@@ -154,6 +158,11 @@ class Battle(BattleWindow):
             aim = BigWorld.player().inputHandler.aim
             if aim is not None:
                 aim.updateAmmoState(True)
+            BigWorld.player().soundNotifications.clear()
+            vehicle = BigWorld.entities[id]
+            if isinstance(vehicle, Vehicle.Vehicle):
+                nationId = vehicle.typeDescriptor.type.id[0]
+                SoundGroups.g_instance.soundModes.setCurrentNation(nations.NAMES[nationId])
             return
 
     def onCameraChanged(self, cameraMode, curVehID = None):
@@ -177,6 +186,9 @@ class Battle(BattleWindow):
             aim = BigWorld.player().inputHandler.aim
             if aim is not None:
                 aim.updateAmmoState(True)
+        aim = BigWorld.player().inputHandler.aim
+        if aim is not None:
+            aim.onCameraChange()
         return
 
     def showVehicleTimer(self, code, time, warnLvl = 'critical'):
@@ -459,7 +471,10 @@ class Battle(BattleWindow):
             if descExtra:
                 arenaData.extend([arena.guiType + 1, descExtra])
             elif arena.guiType == constants.ARENA_GUI_TYPE.RANDOM:
-                arenaData.extend([arenaSubType, '#arenas:type/%s/name' % arenaSubType])
+                arenaTypeName = '#arenas:type/%s/name' % arenaSubType
+                if arenaSubType == 'assault':
+                    arenaSubType += '1' if isBaseExists(BigWorld.player().arenaTypeID, BigWorld.player().team) else '2'
+                arenaData.extend([arenaSubType, arenaTypeName])
             else:
                 arenaData.extend([arena.guiType + 1, '#menu:loading/battleTypes/%d' % arena.guiType])
             extraData = arena.extraData or {}
@@ -501,7 +516,7 @@ class Battle(BattleWindow):
                     roster = 0
                     isMuted = False
                 if vData['name'] is not None:
-                    name = vData['name']
+                    name = g_battleContext.getFullPlayerName(vData, showVehShortName=False)
                 else:
                     name = makeString('#ingame_gui:players_panel/unknown_name')
                 if vData['vehicleType'] is not None:
@@ -546,6 +561,8 @@ class Battle(BattleWindow):
                     igrLabel = makeHtmlString('html_templates:battle/players_list', 'igr_name_label')
                 else:
                     igrLabel = ''
+                roamingCtrl = game_control.g_instance.roaming
+                disableCtxMenu = not roamingCtrl.isInRoaming() and not roamingCtrl.isPlayerInRoaming(dbID)
                 stat[team].append([name,
                  vIcon,
                  vShortName,
@@ -566,7 +583,8 @@ class Battle(BattleWindow):
                  not isAlive,
                  vType,
                  vData['igrType'],
-                 igrLabel])
+                 igrLabel,
+                 disableCtxMenu])
 
             squadsSorted = {1: sorted(squads[1].iteritems(), cmp=lambda x, y: cmp(x[0], y[0])),
              2: sorted(squads[2].iteritems(), cmp=lambda x, y: cmp(x[0], y[0]))}
@@ -587,7 +605,7 @@ class Battle(BattleWindow):
                     item[6] = sNumber
                     if item[5] == player.playerVehicleID and item[6] > 0:
                         value[2] = item[6]
-                    value.extend(item[:-6])
+                    value.extend(item[:-7])
                     if team != player.team:
                         value[-1] = False
                     value.append(self.__cameraVehicleID == item[5])
@@ -596,6 +614,7 @@ class Battle(BattleWindow):
                     value.append(item[5])
                     value.append(item[19] != constants.IGR_TYPE.NONE)
                     value.append(item[20])
+                    value.append(item[21])
 
                 if team == player.team:
                     value[1] = player.playerVehicleID
@@ -644,7 +663,7 @@ class Battle(BattleWindow):
                 hl = set()
                 if results.has_key('achieveIndices'):
                     for i, heroId in enumerate(results['achieveIndices']):
-                        herolist = [makeString(heroesTexts[RECORD_NAMES[heroId]])]
+                        herolist = [makeString(heroesTexts[DB_ID_TO_RECORD[heroId][1]])]
                         if results.has_key('heroVehicleIDs') and len(results['heroVehicleIDs']) > i:
                             if self.__arena.vehicles.get(results['heroVehicleIDs'][i], False):
                                 if not self.__arena.vehicles[results['heroVehicleIDs'][i]]['isAlive']:
@@ -2074,3 +2093,6 @@ def vehicleHasTurretRotator(vTypeDesc):
     if vTypeDesc.type.tags & set(['SPG', 'AT-SPG']) and len(vTypeDesc.hull.get('fakeTurrets', {}).get('battle', ())) > 0:
         result = False
     return result
+# okay decompyling res/scripts/client/gui/scaleform/battle.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:50 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:43 EST
+# Embedded file name: scripts/client/gui/prb_control/functional/training.py
 from functools import partial
 import BigWorld
 from PlayerEvents import g_playerEvents
@@ -10,13 +12,14 @@ from gui.prb_control import events_dispatcher, info
 from gui.prb_control.formatters import messages
 from gui.prb_control.functional.default import PrbEntry, PrbFunctional
 from gui.prb_control.functional.interfaces import IPrbListUpdater
-from gui.prb_control.context import SetPlayerStateCtx, TrainingSettingsCtx
+from gui.prb_control.context import SetPlayerStateCtx, TrainingSettingsCtx, LeavePrbCtx
 from gui.prb_control.info import PlayerPrbInfo, setRequestCoolDown, isRequestInCoolDown
 from gui.prb_control.restrictions.limits import TrainingLimits
 from gui.prb_control.sequences import PrbListIterator
-from gui.prb_control.restrictions.permissions import TrainingPermissions
-from gui.prb_control.settings import PREBATTLE_ROSTER, PREBATTLE_REQUEST
+from gui.prb_control.restrictions.permissions import TrainingPrbPermissions
+from gui.prb_control.settings import PREBATTLE_ROSTER, REQUEST_TYPE
 from gui.prb_control.settings import PREBATTLE_SETTING_NAME
+from gui.prb_control.settings import PREBATTLE_ACTION_NAME, GUI_EXIT
 from gui.shared import g_eventBus, EVENT_BUS_SCOPE
 from gui.shared.events import LoadEvent
 from gui.shared.utils.functions import checkAmmoLevel
@@ -25,7 +28,9 @@ from prebattle_shared import decodeRoster
 class TrainingEntry(PrbEntry):
 
     def doAction(self, action, dispatcher = None):
-        if prb_control.getClientPrebattle() is None:
+        if action.actionName == PREBATTLE_ACTION_NAME.LEAVE_TRAINING_LIST:
+            events_dispatcher.loadHangar()
+        elif prb_control.getClientPrebattle() is None:
             self.__loadTrainingList()
         elif prb_control.isTraining():
             if dispatcher is not None:
@@ -41,14 +46,14 @@ class TrainingEntry(PrbEntry):
             LOG_ERROR('Invalid context to create training', ctx)
             if callback:
                 callback(False)
-        elif info.isRequestInCoolDown(PREBATTLE_REQUEST.CREATE):
+        elif info.isRequestInCoolDown(REQUEST_TYPE.CREATE):
             SystemMessages.pushMessage(messages.getJoinFailureMessage(JOIN_FAILURE.COOLDOWN), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
         elif prb_control.getClientPrebattle() is None or ctx.isForced():
             ctx.startProcessing(callback=callback)
             BigWorld.player().prb_createTraining(ctx.getArenaTypeID(), ctx.getRoundLen(), ctx.isOpened(), ctx.getComment())
-            info.setRequestCoolDown(PREBATTLE_REQUEST.CREATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_CREATION)
+            info.setRequestCoolDown(REQUEST_TYPE.CREATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_CREATION)
         else:
             LOG_ERROR('First, player has to confirm exit from the current prebattle', prb_control.getPrebattleType())
             if callback:
@@ -124,15 +129,16 @@ class TrainingFunctional(PrbFunctional):
      LoadEvent.LOAD_BARRACKS)
 
     def __init__(self, settings):
-        requests = {PREBATTLE_REQUEST.ASSIGN: self.assign,
-         PREBATTLE_REQUEST.SET_TEAM_STATE: self.setTeamState,
-         PREBATTLE_REQUEST.SET_PLAYER_STATE: self.setPlayerState,
-         PREBATTLE_REQUEST.CHANGE_SETTINGS: self.changeSettings,
-         PREBATTLE_REQUEST.SWAP_TEAMS: self.swapTeams,
-         PREBATTLE_REQUEST.CHANGE_ARENA_VOIP: self.changeArenaVoip,
-         PREBATTLE_REQUEST.KICK: self.kickPlayer,
-         PREBATTLE_REQUEST.SEND_INVITE: self.sendInvites}
-        super(TrainingFunctional, self).__init__(settings, permClass=TrainingPermissions, limits=TrainingLimits(self), requestHandlers=requests)
+        requests = {REQUEST_TYPE.ASSIGN: self.assign,
+         REQUEST_TYPE.SET_TEAM_STATE: self.setTeamState,
+         REQUEST_TYPE.SET_PLAYER_STATE: self.setPlayerState,
+         REQUEST_TYPE.CHANGE_SETTINGS: self.changeSettings,
+         REQUEST_TYPE.SWAP_TEAMS: self.swapTeams,
+         REQUEST_TYPE.CHANGE_ARENA_VOIP: self.changeArenaVoip,
+         REQUEST_TYPE.KICK: self.kickPlayer,
+         REQUEST_TYPE.SEND_INVITE: self.sendInvites}
+        self._guiExit = GUI_EXIT.UNKNOWN
+        super(TrainingFunctional, self).__init__(settings, permClass=TrainingPrbPermissions, limits=TrainingLimits(self), requestHandlers=requests)
         self.__settingRecords = []
 
     def init(self, clientPrb = None, ctx = None):
@@ -144,13 +150,18 @@ class TrainingFunctional(PrbFunctional):
         self.__enterTrainingRoom()
 
     def fini(self, clientPrb = None, woEvents = False):
-        super(TrainingFunctional, self).fini(clientPrb=clientPrb)
+        super(TrainingFunctional, self).fini(clientPrb=clientPrb, woEvents=woEvents)
         remove = g_eventBus.removeListener
         for event in self.__loadEvents:
             remove(event, self.__handleViewLoad, scope=EVENT_BUS_SCOPE.LOBBY)
 
         if not woEvents:
-            events_dispatcher.exitFromTrainingRoom()
+            if self._guiExit == GUI_EXIT.TRAINING_LIST:
+                events_dispatcher.loadTrainingList()
+            elif self._guiExit == GUI_EXIT.HANGAR:
+                events_dispatcher.loadHangar()
+            else:
+                events_dispatcher.exitFromTrainingRoom()
         events_dispatcher.requestToDestroyPrbChannel(PREBATTLE_TYPE.TRAINING)
 
     def getRosters(self, keys = None):
@@ -190,6 +201,18 @@ class TrainingFunctional(PrbFunctional):
         self.__enterTrainingRoom()
         return True
 
+    def doLeaveAction(self, dispatcher, ctx = None):
+        if ctx is None:
+            ctx = LeavePrbCtx(guiExit=GUI_EXIT.HANGAR, waitingID='prebattle/leave')
+        if dispatcher._setRequestCtx(ctx):
+            self.leave(ctx)
+        return
+
+    def leave(self, ctx, callback = None):
+        ctx.startProcessing(callback)
+        self._guiExit = ctx.getGuiExit()
+        BigWorld.player().prb_leave(ctx.onResponseReceived)
+
     def hasGUIPage(self):
         return True
 
@@ -197,13 +220,13 @@ class TrainingFunctional(PrbFunctional):
         self.__enterTrainingRoom()
 
     def changeSettings(self, ctx, callback = None):
-        if ctx.getRequestType() != PREBATTLE_REQUEST.CHANGE_SETTINGS:
+        if ctx.getRequestType() != REQUEST_TYPE.CHANGE_SETTINGS:
             LOG_ERROR('Invalid context for request changeSettings', ctx)
             if callback:
                 callback(False)
             return
-        if isRequestInCoolDown(PREBATTLE_REQUEST.CHANGE_SETTINGS):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.CHANGE_SETTINGS), type=SystemMessages.SM_TYPE.Error)
+        if isRequestInCoolDown(REQUEST_TYPE.CHANGE_SETTINGS):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.CHANGE_SETTINGS), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
@@ -261,15 +284,15 @@ class TrainingFunctional(PrbFunctional):
             if callback:
                 callback(False)
         else:
-            setRequestCoolDown(PREBATTLE_REQUEST.CHANGE_SETTINGS)
+            setRequestCoolDown(REQUEST_TYPE.CHANGE_SETTINGS)
 
     def changeArenaVoip(self, ctx, callback = None):
         if ctx.getChannels() == self._settings[PREBATTLE_SETTING_NAME.ARENA_VOIP_CHANNELS]:
             if callback:
                 callback(True)
             return
-        if isRequestInCoolDown(PREBATTLE_REQUEST.CHANGE_ARENA_VOIP):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.CHANGE_ARENA_VOIP), type=SystemMessages.SM_TYPE.Error)
+        if isRequestInCoolDown(REQUEST_TYPE.CHANGE_ARENA_VOIP):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.CHANGE_ARENA_VOIP), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
@@ -277,7 +300,7 @@ class TrainingFunctional(PrbFunctional):
         if pPermissions.canChangeArenaVOIP():
             ctx.startProcessing(callback=callback)
             BigWorld.player().prb_changeArenaVoip(ctx.getChannels(), ctx.onResponseReceived)
-            setRequestCoolDown(PREBATTLE_REQUEST.CHANGE_ARENA_VOIP)
+            setRequestCoolDown(REQUEST_TYPE.CHANGE_ARENA_VOIP)
         else:
             LOG_ERROR('Player can not change arena VOIP', pPermissions)
             if callback:
@@ -292,7 +315,7 @@ class TrainingFunctional(PrbFunctional):
         else:
             events_dispatcher.loadHangar()
 
-    def __onSettingChanged(self, code, record = '', callback = False):
+    def __onSettingChanged(self, code, record = '', callback = None):
         if code < 0:
             LOG_ERROR('Server return error for training change', code, record)
             if callback:
@@ -305,3 +328,6 @@ class TrainingFunctional(PrbFunctional):
 
     def __handleViewLoad(self, _):
         self.setPlayerState(SetPlayerStateCtx(False, waitingID='prebattle/player_not_ready'))
+# okay decompyling res/scripts/client/gui/prb_control/functional/training.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:44 EST

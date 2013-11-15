@@ -1,9 +1,12 @@
+# 2013.11.15 11:26:06 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/PersonalCase.py
+import pickle
 from adisp import async
 from CurrentVehicle import g_currentVehicle
-from debug_utils import LOG_ERROR, LOG_DEBUG
+from debug_utils import LOG_ERROR
 from gui.Scaleform.framework import AppRef
 from gui.prb_control.dispatcher import g_prbLoader
-from gui.prb_control.prb_helpers import PrbListener
+from gui.prb_control.prb_helpers import GlobalListener
 from items import vehicles, tankmen
 from gui import TANKMEN_ROLES_ORDER_DICT, SystemMessages
 from gui.ClientUpdateManager import g_clientUpdateManager
@@ -19,7 +22,7 @@ from gui.shared.gui_items.processors.tankman import TankmanDismiss, TankmanUnloa
 from gui.shared import EVENT_BUS_SCOPE, events, g_itemsCache, REQ_CRITERIA
 from helpers.i18n import makeString
 
-class PersonalCase(View, WindowViewMeta, PersonalCaseMeta, PrbListener, AppRef):
+class PersonalCase(View, WindowViewMeta, PersonalCaseMeta, GlobalListener, AppRef):
 
     def __init__(self, ctx):
         super(PersonalCase, self).__init__()
@@ -30,6 +33,7 @@ class PersonalCase(View, WindowViewMeta, PersonalCaseMeta, PrbListener, AppRef):
     def onClientChanged(self, diff):
         inventory = diff.get('inventory', {})
         stats = diff.get('stats', {})
+        cache = diff.get('cache', {})
         isTankmanChanged = False
         if vehicles._TANKMAN in inventory:
             isTankmanChanged = True
@@ -41,10 +45,10 @@ class PersonalCase(View, WindowViewMeta, PersonalCaseMeta, PrbListener, AppRef):
             self.__setSkillsData()
             self.__setDossierData()
         if not 'credits' in stats:
-            isMoneyChanged = 'gold' in stats
-            isVehicleChanged = 'unlocks' in stats
-            if isTankmanChanged or isMoneyChanged or isVehicleChanged:
-                self.__setRetrainingData()
+            if not 'gold' in stats:
+                isMoneyChanged = 'mayConsumeWalletResources' in cache
+                isVehicleChanged = 'unlocks' in stats
+                (isTankmanChanged or isMoneyChanged or isVehicleChanged) and self.__setRetrainingData()
             (isTankmanChanged or isMoneyChanged) and self.__setDocumentsData()
         return
 
@@ -53,6 +57,13 @@ class PersonalCase(View, WindowViewMeta, PersonalCaseMeta, PrbListener, AppRef):
 
     def onPlayerStateChanged(self, functional, roster, accountInfo):
         if accountInfo.isCurrentPlayer():
+            self.__setCommonData()
+
+    def onUnitFunctionalFinished(self):
+        self.__setCommonData()
+
+    def onUnitPlayerStateChanged(self, pInfo):
+        if pInfo.isCurrentPlayer():
             self.__setCommonData()
 
     def onWindowClose(self):
@@ -129,11 +140,11 @@ class PersonalCase(View, WindowViewMeta, PersonalCaseMeta, PrbListener, AppRef):
     def _populate(self):
         super(PersonalCase, self)._populate()
         g_clientUpdateManager.addCallbacks({'': self.onClientChanged})
-        self.startPrbGlobalListening()
+        self.startGlobalListening()
 
     def _dispose(self):
         super(PersonalCase, self)._dispose()
-        self.stopPrbGlobalListening()
+        self.stopGlobalListening()
         g_clientUpdateManager.removeObjectCallbacks(self)
 
     @decorators.process('updating')
@@ -182,10 +193,12 @@ class PersonalCaseDataProvider(object):
         currentVehicle = None
         if tankman.isInTank:
             currentVehicle = g_itemsCache.items.getItemByCD(tankman.vehicleDescr.type.compactDescr)
+        isLocked, reason = self.__getTankmanLockMessage(currentVehicle)
         callback({'tankman': g_itemSerializer.pack(tankman),
          'currentVehicle': g_itemSerializer.pack(currentVehicle) if currentVehicle is not None else None,
          'nativeVehicle': g_itemSerializer.pack(nativeVehicle),
-         'lockMessage': self.__getTankmanLockMessage(currentVehicle)})
+         'isOpsLocked': isLocked or g_currentVehicle.isLocked(),
+         'lockMessage': reason})
         return
 
     @async
@@ -204,7 +217,10 @@ class PersonalCaseDataProvider(object):
             for sectionIdx, section in enumerate(achieves):
                 packedAchieves.append([])
                 for achievement in section:
-                    packedAchieves[sectionIdx].append(g_itemSerializer.pack(achievement))
+                    data = g_itemSerializer.pack(achievement)
+                    data['dossierType'] = GUI_ITEM_TYPE.TANKMAN_DOSSIER
+                    data['dossierCompDescr'] = pickle.dumps(tmanDossier.getDossierDescr().makeCompDescr())
+                    packedAchieves[sectionIdx].append(data)
 
             callback({'achievements': packedAchieves,
              'stats': tmanDossier.getStats()})
@@ -294,16 +310,19 @@ class PersonalCaseDataProvider(object):
     @staticmethod
     def __getTankmanLockMessage(vehicle):
         if vehicle is None:
-            return ''
+            return (False, '')
         elif vehicle.isInBattle:
-            return makeString('#menu:tankmen/lockReason/inbattle')
+            return (False, makeString('#menu:tankmen/lockReason/inbattle'))
         elif vehicle.isBroken:
-            return makeString('#menu:tankmen/lockReason/broken')
+            return (False, makeString('#menu:tankmen/lockReason/broken'))
         else:
             if g_currentVehicle.item == vehicle:
                 dispatcher = g_prbLoader.getDispatcher()
                 if dispatcher is not None:
-                    permission = dispatcher.getPrbFunctional().getPermissions()
-                    if permission and not permission.canChangeVehicle():
-                        return makeString('#menu:tankmen/lockReason/prebattle')
-            return ''
+                    permission = dispatcher.getGUIPermissions()
+                    if not permission.canChangeVehicle():
+                        return (True, makeString('#menu:tankmen/lockReason/prebattle'))
+            return (False, '')
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/personalcase.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:06 EST

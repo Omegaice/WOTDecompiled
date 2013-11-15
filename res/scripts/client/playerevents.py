@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:17 EST
+# Embedded file name: scripts/client/PlayerEvents.py
 import Event
 from constants import ARENA_PERIOD
 from debug_utils import *
@@ -26,12 +28,16 @@ class _PlayerEvents(object):
         self.onTutorialEnqueued = Event.Event()
         self.onTutorialDequeued = Event.Event()
         self.onTutorialEnqueueFailure = Event.Event()
+        self.onEnqueuedUnitAssembler = Event.Event()
+        self.onDequeuedUnitAssembler = Event.Event()
+        self.onEnqueueUnitAssemblerFailure = Event.Event()
         self.onPrebattleJoined = Event.Event()
         self.onPrebattleLeft = Event.Event()
         self.onPrebattleJoinFailure = Event.Event()
         self.onArenaCreated = Event.Event()
         self.onArenaJoinFailure = Event.Event()
         self.onKickedFromRandomQueue = Event.Event()
+        self.onKickedFromUnitAssembler = Event.Event()
         self.onKickedFromPrebattle = Event.Event()
         self.onKickedFromArena = Event.Event()
         self.onQueueInfoReceived = Event.Event()
@@ -64,3 +70,6 @@ class _PlayerEvents(object):
 
 
 g_playerEvents = _PlayerEvents()
+# okay decompyling res/scripts/client/playerevents.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:17 EST

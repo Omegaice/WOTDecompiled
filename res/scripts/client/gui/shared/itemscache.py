@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:54 EST
+# Embedded file name: scripts/client/gui/shared/ItemsCache.py
 from Event import Event
 from adisp import async
 from debug_utils import LOG_DEBUG
@@ -60,5 +62,11 @@ class _ItemsCache(object):
         self.__items.invalidateCache(diff)
         self.__items.request()(cbWrapper)
 
+    def isSynced(self):
+        return self.items.isSynced()
+
 
 g_itemsCache = _ItemsCache()
+# okay decompyling res/scripts/client/gui/shared/itemscache.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:54 EST

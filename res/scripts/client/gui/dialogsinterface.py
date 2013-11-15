@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:34 EST
+# Embedded file name: scripts/client/gui/DialogsInterface.py
 from gui.BattleContext import g_battleContext
 from gui.Scaleform.Waiting import Waiting
 from gui.shared import events, g_eventBus
@@ -52,3 +54,6 @@ def showDisconnect(reason = None, isBan = False, expiryTime = None):
 
         __ifDisconnectDialogShown = True
         showDialog(DisconnectMeta(reason, isBan, expiryTime), callback)
+# okay decompyling res/scripts/client/gui/dialogsinterface.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:34 EST

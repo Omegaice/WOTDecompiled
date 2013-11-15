@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:09 EST
+# Embedded file name: scripts/client/Login.py
 import BigWorld
 from PlayerEvents import g_playerEvents
 from ConnectionManager import connectionManager
@@ -9,7 +11,7 @@ class PlayerLogin(BigWorld.Entity):
         pass
 
     def onBecomePlayer(self):
-        self.base.setLoginPriorityFromClient(connectionManager.loginPriority)
+        pass
 
     def onBecomeNonPlayer(self):
         pass
@@ -27,3 +29,6 @@ class PlayerLogin(BigWorld.Entity):
 
 
 Login = PlayerLogin
+# okay decompyling res/scripts/client/login.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:09 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:11 EST
+# Embedded file name: scripts/client/account_helpers/SettingsCache.py
 from Event import Event
 from adisp import async
 from gui.ClientUpdateManager import g_clientUpdateManager
@@ -70,3 +72,6 @@ class _SettingsCache(object):
 
 
 g_settingsCache = _SettingsCache()
+# okay decompyling res/scripts/client/account_helpers/settingscache.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:11 EST

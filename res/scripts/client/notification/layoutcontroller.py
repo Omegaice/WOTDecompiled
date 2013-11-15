@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:17 EST
+# Embedded file name: scripts/client/notification/LayoutController.py
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.framework import AppRef, VIEW_TYPE
 from gui.Scaleform.framework.entities.EventSystemEntity import EventSystemEntity
@@ -54,3 +56,6 @@ class LayoutController(BaseMessagesController, EventSystemEntity, AppRef):
         self.removeListener(LoadEvent.LOAD_TRAININGS, self.__onSomeViewSelected, EVENT_BUS_SCOPE.LOBBY)
         self.removeListener(LoadEvent.LOAD_TRAINING_ROOM, self.__onSomeViewSelected, EVENT_BUS_SCOPE.LOBBY)
         BaseMessagesController.cleanUp(self)
+# okay decompyling res/scripts/client/notification/layoutcontroller.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:17 EST

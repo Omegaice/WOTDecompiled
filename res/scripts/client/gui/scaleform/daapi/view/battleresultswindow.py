@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:53 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/BattleResultsWindow.py
 import re
 import math
 import BigWorld
@@ -9,9 +11,10 @@ from adisp import async, process
 from CurrentVehicle import g_currentVehicle
 from arena_achievements import ACHIEVEMENTS, ACHIEVEMENTS_WITH_REWARD
 from constants import ARENA_BONUS_TYPE, IS_DEVELOPMENT, ARENA_GUI_TYPE, IGR_TYPE
-from dossiers import RECORD_NAMES, RECORD_INDICES
+from dossiers2.custom.records import RECORD_DB_IDS, DB_ID_TO_RECORD
 from helpers import time_utils
 from gui import makeHtmlString
+from gui.LobbyContext import g_lobbyContext
 from gui.shared import g_questsCache, events
 from gui.shared.quests import event_items
 from gui.shared.utils.dossiers_utils import getMedalDict
@@ -120,9 +123,7 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
             playerInfo = playersData.get(playerDBID, dict())
             playerName = playerInfo.get('name', i18n.makeString(UNKNOWN_PLAYER_NAME_VALUE))
             clanName = playerInfo.get('clanAbbrev', '')
-            if len(clanName) > 0:
-                playerName = '{0} [{1}]'.format(playerName, clanName)
-            self.__playersNameCache[playerDBID] = playerName
+            playerName = self.__playersNameCache[playerDBID] = g_lobbyContext.getPlayerFullName(playerName, clanAbbrev=clanName, pDBID=playerDBID)
         return playerName
 
     def __getPlayerClan(self, playerDBID, playersData):
@@ -271,7 +272,7 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
         creditsPenalty = self.__calculateBaseCreditsPenalty(pData)
         creditsCompensation = self.__calculateBaseCreditsContribution(pData)
         premCreditsF10 = float(pData.get('premiumCreditsFactor10', 10))
-        creditsBase = int(self.__calculateBaseCredits(pData))
+        creditsBase = pData.get('originalCredits', 0)
         creditsCell = creditsBase + creditsPenalty - creditsCompensation
         creditsBaseStr = self.__makeCreditsLabel(creditsCell, not isPremium)
         creditsBasePremStr = self.__makeCreditsLabel(int(creditsBase * premCreditsF10 / 10.0) + int(creditsPenalty * premCreditsF10 / 10.0) - int(creditsCompensation * premCreditsF10 / 10.0), isPremium)
@@ -339,7 +340,7 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
         creditsData.append(self.__getStatsLine(totalLbl, creditsNoPremTotalStr, goldTotalStr, creditsPremTotalStr, goldTotalPremStr))
         pData['creditsData'] = creditsData
         xpData = []
-        xpBase = int(self.__calculateBaseXp(pData))
+        xpBase = int(pData.get('originalXP', 0))
         xpPenalty = int(self.__calculateBaseXpPenalty(pData))
         premXpMulty = float(pData.get('premiumXPFactor10', 10)) / 10.0
         xpCellStr = self.__makeXpLabel(xpBase + xpPenalty, not isPremium)
@@ -348,7 +349,7 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
         freeXpBaseStr = self.__makeFreeXpLabel(freeXp, not isPremium)
         freeXpBasePremStr = self.__makeFreeXpLabel(int(freeXp * premXpMulty), isPremium)
         medals = pData.get('dossierPopUps', [])
-        if RECORD_INDICES.get('maxXP') in map(lambda (id, value): id, medals):
+        if RECORD_DB_IDS[('max15x15', 'maxXP')] in map(lambda (id, value): id, medals):
             label = makeHtmlString('html_templates:lobby/battle_results', 'xpRecord', {})
         else:
             label = self.__resultLabel('base')
@@ -397,9 +398,10 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
         pData['achievementsLeft'] = []
         pData['achievementsRight'] = []
         for achievementId, achieveValue in achievements:
-            if achievementId == RECORD_INDICES.get('maxXP'):
+            achieveName = DB_ID_TO_RECORD[achievementId][1]
+            if achieveName in ('maxXP', 'maxFrags', 'maxDamage'):
                 continue
-            medalDict = getMedalDict(RECORD_NAMES[achievementId], rank=achieveValue)
+            medalDict = getMedalDict(achieveName, rank=achieveValue)
             medalDict['unic'] = True
             type = medalDict['type']
             if type == 'markOfMastery':
@@ -603,7 +605,7 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
                     row['medalsCount'] = len(achievements)
                     achievementsList = []
                     for achievementId in achievements:
-                        medalDict = getMedalDict(RECORD_NAMES[achievementId], 0)
+                        medalDict = getMedalDict(DB_ID_TO_RECORD[achievementId][1], 0)
                         medalDict['unic'] = True
                         medalDict['isEpic'] = medalDict['type'] in ACHIEVEMENTS_WITH_RIBBON
                         achievementsList.append(medalDict)
@@ -668,23 +670,6 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
 
         return (stat[pData.get('team')], stat[pData.get('team') % 2 + 1])
 
-    def __calculateBaseXp(self, pData):
-        aogasF10 = float(pData.get('aogasFactor10', 10))
-        if not aogasF10:
-            return 0
-        isPrem = pData.get('isPremium', False)
-        xp = float(pData.get('xp', 0))
-        dailyF10 = float(pData.get('dailyXPFactor10', 10))
-        premF10 = float(pData.get('premiumXPFactor10', 10))
-        igrF10 = float(pData.get('igrXPFactor10', 10))
-        eventXp = float(pData.get('eventXP', 0))
-        baseXp = math.ceil((int(100.0 * xp / aogasF10) - 10.0 * eventXp) / dailyF10)
-        if isPrem:
-            baseXp = math.ceil(baseXp * 10.0 / premF10)
-        if igrF10:
-            baseXp = math.ceil(baseXp * 10.0 / igrF10)
-        return baseXp
-
     def __calculateBaseXpPenalty(self, pData):
         aogasF10 = float(pData.get('aogasFactor10', 10))
         if not aogasF10:
@@ -717,8 +702,6 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
         return freeXP
 
     def __calculateTotalXp(self, pData, baseXp, usePremFactor = False):
-        if not baseXp:
-            return 0
         isPrem = pData.get('isPremium', False)
         XP = float(pData.get('xp', 0))
         if isPrem != usePremFactor:
@@ -730,19 +713,6 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
             premMultyplier = premF10 if usePremFactor else 10.0
             XP = int((int(int(int(baseXp * (igrF10 / 10.0)) * (premMultyplier / 10.0)) * (dailyF10 / 10.0)) + eventXP) * aogasF10 / 10.0)
         return XP
-
-    def __calculateBaseCredits(self, pData):
-        aogasF10 = float(pData.get('aogasFactor10', 10))
-        if not aogasF10:
-            return 0
-        isPrem = pData.get('isPremium', False)
-        credits = float(pData.get('credits', 0))
-        premF10 = float(pData.get('premiumCreditsFactor10', 10))
-        eventCredits = float(pData.get('eventCredits', 0))
-        baseCredits = math.ceil(10.0 * credits / aogasF10) - eventCredits
-        if isPrem:
-            baseCredits = math.ceil(baseCredits * 10.0 / premF10)
-        return baseCredits
 
     def __calculateBaseCreditsPenalty(self, pData):
         isPrem = pData.get('isPremium', False)
@@ -761,8 +731,6 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
         return creditsContribution
 
     def __calculateTotalCredits(self, pData, baseCredits, usePremFactor = False):
-        if not baseCredits:
-            return 0
         isPrem = pData.get('isPremium', False)
         credits = float(pData.get('credits', 0))
         if isPrem != usePremFactor:
@@ -806,7 +774,7 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
                     return 1
                 if b.isSubtask():
                     return -1
-            return 0
+            return cmp(a.getID(), b.getID())
 
         from gui.Scaleform.daapi.view.lobby.quests import quest_helpers
         quests = g_questsCache.getQuests()
@@ -830,7 +798,7 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
         elif IS_DEVELOPMENT:
             results = self.testData
             yield lambda callback: callback(None)
-        LOG_DEBUG('aaaaaaaaa', results)
+        LOG_DEBUG('Player got battle results: ', self.arenaUniqueID, results)
         if results:
             from BattleReplay import g_replayCtrl
             g_replayCtrl.onExtendedBattleResultsReceived(results)
@@ -895,3 +863,6 @@ class BattleResultsWindow(View, WindowViewMeta, BattleResultsMeta):
         else:
             callback(None)
         return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/battleresultswindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:55 EST

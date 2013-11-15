@@ -1,17 +1,14 @@
+# 2013.11.15 11:25:08 EST
+# Embedded file name: scripts/client/account_helpers/DossierCache.py
 import BigWorld
 import AccountCommands
-import constants
-import dossiers
 import cPickle
 import os
 import base64
-from functools import partial
 from SyncController import SyncController
-from items import vehicles, tankmen
 from PlayerEvents import g_playerEvents as events
-from constants import DOSSIER_TYPE
-from AccountCommands import VEHICLE_SETTINGS_FLAG
 from debug_utils import *
+from constants import DOSSIER_TYPE
 
 class DossierCache(object):
 
@@ -30,10 +27,6 @@ class DossierCache(object):
         self.__syncID = 0
         self.__isFirstSync = True
         self.__readCache()
-        return
-
-    def getCache(self, callback):
-        self.get(None, None, callback)
         return
 
     def onAccountBecomePlayer(self):
@@ -129,16 +122,15 @@ class DossierCache(object):
                 self.__version = actualCacheVersion
             if syncID == self.__syncID:
                 self.__isSynchronizing = False
-            for dossierType, ownerID, changeTime, dossierCompDescr in dossiersList:
-                self.__cache[dossierType, ownerID] = (changeTime, dossierCompDescr)
+            for ownerID, changeTime, dossierCompDescr in dossiersList:
+                self.__cache[DOSSIER_TYPE.VEHICLE, ownerID] = (changeTime, dossierCompDescr)
                 self.__maxChangeTime = max(self.__maxChangeTime, changeTime)
 
             if self.__isFirstSync:
                 self.__isFirstSync = False
             else:
                 events.onDossiersResync()
-            if dossiers:
-                self.__writeCache()
+            self.__writeCache()
             return
 
     def __onGetResponse(self, resultID, getterFromCache, default, callback):
@@ -198,3 +190,6 @@ class DossierCache(object):
         if fileHandler is not None:
             fileHandler.close()
         return
+# okay decompyling res/scripts/client/account_helpers/dossiercache.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:08 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:29 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/ARENAS.py
 
 
 class ARENAS(object):
@@ -75,6 +77,8 @@ class ARENAS(object):
     C_39_CRIMEA_DESCRIPTION = '#arenas:39_crimea/description'
     C_42_NORTH_AMERICA_NAME = '#arenas:42_north_america/name'
     C_42_NORTH_AMERICA_DESCRIPTION = '#arenas:42_north_america/description'
+    C_43_NORTH_AMERICA_NAME = '#arenas:43_north_america/name'
+    C_43_NORTH_AMERICA_DESCRIPTION = '#arenas:43_north_america/description'
     C_44_NORTH_AMERICA_NAME = '#arenas:44_north_america/name'
     C_44_NORTH_AMERICA_DESCRIPTION = '#arenas:44_north_america/description'
     C_45_NORTH_AMERICA_NAME = '#arenas:45_north_america/name'
@@ -93,3 +97,6 @@ class ARENAS(object):
     C_73_ASIA_KOREA_DESCRIPTION = '#arenas:73_asia_korea/description'
     C_85_WINTER_NAME = '#arenas:85_winter/name'
     C_85_WINTER_DESCRIPTION = '#arenas:85_winter/description'
+# okay decompyling res/scripts/client/gui/scaleform/locale/arenas.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:30 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:49 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/processors/module.py
 import BigWorld
 import itertools
 import AccountCommands
@@ -22,7 +24,7 @@ class ModuleProcessor(ItemProcessor):
     def __init__(self, item, opType, plugs = tuple()):
         """
         Ctor.
-
+        
         @param item: module to install
         @param opType: operation type
         @param plugs: plugins list
@@ -48,7 +50,7 @@ class ModuleTradeProcessor(ModuleProcessor):
     def __init__(self, item, count, opType, plugs = tuple()):
         """
         Ctor.
-
+        
         @param item: module to install
         @param count: buying count
         @param opType: operation type
@@ -75,7 +77,7 @@ class ModuleBuyer(ModuleTradeProcessor):
     def __init__(self, item, count, buyForCredits, conflictedEqs = None, install = False):
         """
         Ctor.
-
+        
         @param item: module to install
         @param count: buying count
         @param buyForCredits: buy gold item for credits
@@ -130,7 +132,7 @@ class ModuleSeller(ModuleTradeProcessor):
     def __init__(self, item, count):
         """
         Ctor.
-
+        
         @param item: module to install
         @param count: module buying count
         """
@@ -162,7 +164,7 @@ class ModuleInstallProcessor(ModuleProcessor, VehicleItemProcessor):
     def __init__(self, vehicle, item, itemType, slotIdx, install = True, conflictedEqs = None, plugs = tuple()):
         """
         Ctor.
-
+        
         @param vehicle: vehicle
         @param item: module to install
         @param slotIdx: vehicle equipment slot index to install
@@ -177,8 +179,7 @@ class ModuleInstallProcessor(ModuleProcessor, VehicleItemProcessor):
             ModuleProcessor.__init__(self, item=item, opType=opType, plugs=plugs)
             VehicleItemProcessor.__init__(self, vehicle=vehicle, module=item, allowableTypes=itemType)
             addPlugins = []
-            if install:
-                addPlugins += (plugins.CompatibilityInstallValidator(vehicle, item, slotIdx), plugins.MessageConfirmator('removeIncompatibleEqs', ctx={'name': "', '".join([ VehicleItem(descriptor=eq).name for eq in conflictedEqs ])}, isEnabled=bool(conflictedEqs)))
+            install and addPlugins += (plugins.CompatibilityInstallValidator(vehicle, item, slotIdx), plugins.MessageConfirmator('removeIncompatibleEqs', ctx={'name': "', '".join([ VehicleItem(descriptor=eq).name for eq in conflictedEqs ])}, isEnabled=bool(conflictedEqs)))
         else:
             addPlugins += (plugins.CompatibilityRemoveValidator(vehicle, item),)
         self.install = install
@@ -208,7 +209,7 @@ class OptDeviceInstaller(ModuleInstallProcessor):
     def __init__(self, vehicle, item, slotIdx, install = True, isUseGold = False, conflictedEqs = None):
         """
         Ctor.
-
+        
         @param vehicle: vehicle
         @param item: module to install
         @param slotIdx: vehicle equipment slot index to install
@@ -252,7 +253,7 @@ class EquipmentInstaller(ModuleInstallProcessor):
     def __init__(self, vehicle, item, slotIdx, install = True, conflictedEqs = None):
         """
         Ctor.
-
+        
         @param vehicle: vehicle
         @param item: equipment to install
         @param slotIdx: vehicle equipment slot index to install
@@ -281,7 +282,7 @@ class CommonModuleInstallProcessor(ModuleProcessor, VehicleItemProcessor):
     def __init__(self, vehicle, item, itemType, install = True, conflictedEqs = None, plugs = tuple()):
         """
         Ctor.
-
+        
         @param vehicle: vehicle
         @param item: equipment to install
         @param itemType: vehicle module type
@@ -329,7 +330,7 @@ class TurretInstaller(CommonModuleInstallProcessor):
     def __init__(self, vehicle, item, conflictedEqs = None):
         """
         Ctor.
-
+        
         @param vehicle: vehicle
         @param item: equipment to install
         @param conflictedEqs: conflicted items
@@ -365,7 +366,7 @@ class OtherModuleInstaller(CommonModuleInstallProcessor):
     def __init__(self, vehicle, item, conflictedEqs = None):
         """
         Ctor.
-
+        
         @param vehicle: vehicle
         @param item: equipment to install
         @param conflictedEqs: conflicted items
@@ -395,3 +396,6 @@ def getInstallerProcessor(vehicle, newComponentItem, slotIdx = 0, install = True
         return OtherModuleInstaller(vehicle, newComponentItem, conflictedEqs)
     else:
         return TurretInstaller(vehicle, newComponentItem, conflictedEqs)
+# okay decompyling res/scripts/client/gui/shared/gui_items/processors/module.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:50 EST

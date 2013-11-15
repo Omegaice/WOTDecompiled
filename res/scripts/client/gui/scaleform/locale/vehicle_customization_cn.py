@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:37 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/VEHICLE_CUSTOMIZATION_CN.py
 
 
 class VEHICLE_CUSTOMIZATION_CN(object):
@@ -111,6 +113,18 @@ class VEHICLE_CUSTOMIZATION_CN(object):
     INSCRIPTION_CHINA_INSCRIPTION_28 = '#vehicle_customization_cn:inscription/china/inscription_28'
     INSCRIPTION_CHINA_INSCRIPTION_29 = '#vehicle_customization_cn:inscription/china/inscription_29'
     INSCRIPTION_CHINA_INSCRIPTION_30 = '#vehicle_customization_cn:inscription/china/inscription_30'
-    INSCRIPTION_CHINA_INSCRIPTION_31 = '#vehicle_customization_cn:inscription/china/inscription_31'
     INSCRIPTION_CHINA_INSCRIPTION_32 = '#vehicle_customization_cn:inscription/china/inscription_32'
     INSCRIPTION_CHINA_INSCRIPTION_33 = '#vehicle_customization_cn:inscription/china/inscription_33'
+    INSCRIPTION_JAPAN_INSCRIPTION_01 = '#vehicle_customization_cn:inscription/japan/inscription_01'
+    INSCRIPTION_JAPAN_INSCRIPTION_02 = '#vehicle_customization_cn:inscription/japan/inscription_02'
+    INSCRIPTION_JAPAN_INSCRIPTION_03 = '#vehicle_customization_cn:inscription/japan/inscription_03'
+    INSCRIPTION_JAPAN_INSCRIPTION_04 = '#vehicle_customization_cn:inscription/japan/inscription_04'
+    INSCRIPTION_JAPAN_INSCRIPTION_05 = '#vehicle_customization_cn:inscription/japan/inscription_05'
+    INSCRIPTION_JAPAN_INSCRIPTION_06 = '#vehicle_customization_cn:inscription/japan/inscription_06'
+    INSCRIPTION_JAPAN_INSCRIPTION_07 = '#vehicle_customization_cn:inscription/japan/inscription_07'
+    INSCRIPTION_JAPAN_INSCRIPTION_08 = '#vehicle_customization_cn:inscription/japan/inscription_08'
+    INSCRIPTION_JAPAN_INSCRIPTION_09 = '#vehicle_customization_cn:inscription/japan/inscription_09'
+    INSCRIPTION_JAPAN_INSCRIPTION_10 = '#vehicle_customization_cn:inscription/japan/inscription_10'
+# okay decompyling res/scripts/client/gui/scaleform/locale/vehicle_customization_cn.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:37 EST

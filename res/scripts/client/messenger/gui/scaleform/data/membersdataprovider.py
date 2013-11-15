@@ -1,3 +1,6 @@
+# 2013.11.15 11:27:13 EST
+# Embedded file name: scripts/client/messenger/gui/Scaleform/data/MembersDataProvider.py
+from gui.LobbyContext import g_lobbyContext
 from gui.Scaleform.framework.entities.DAAPIDataProvider import DAAPIDataProvider
 from messenger import g_settings
 from messenger.m_constants import USER_GUI_TYPE
@@ -34,7 +37,7 @@ class MembersDataProvider(DAAPIDataProvider):
                 himself = False
                 color = getColor(USER_GUI_TYPE.OTHER)
             self.__list.append({'uid': dbID,
-             'userName': member.getName(),
+             'userName': member.getFullName(),
              'color': color,
              'chatRoster': roster,
              'himself': himself,
@@ -47,3 +50,6 @@ class MembersDataProvider(DAAPIDataProvider):
          'chatRoster': 0,
          'himself': False,
          'isPlayerSpeaking': False}
+# okay decompyling res/scripts/client/messenger/gui/scaleform/data/membersdataprovider.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:13 EST

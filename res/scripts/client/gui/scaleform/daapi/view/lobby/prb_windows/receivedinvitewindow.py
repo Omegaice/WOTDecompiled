@@ -1,12 +1,14 @@
-from gui.Scaleform.daapi.view.lobby.prb_windows import invite_post_actions
+# 2013.11.15 11:26:09 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/ReceivedInviteWindow.py
+from gui.shared import actions
 from gui.Scaleform.daapi.view.meta.ReceivedInviteWindowMeta import ReceivedInviteWindowMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.framework.entities.View import View
 from gui.prb_control.formatters.invites import PrbInviteInfo
-from gui.prb_control.prb_helpers import prbInvitesProperty, PrbListener
+from gui.prb_control.prb_helpers import prbInvitesProperty, GlobalListener
 __author__ = 'd_savitski'
 
-class ReceivedInviteWindow(View, WindowViewMeta, PrbListener, ReceivedInviteWindowMeta):
+class ReceivedInviteWindow(View, WindowViewMeta, GlobalListener, ReceivedInviteWindowMeta):
 
     def __init__(self, ctx):
         super(ReceivedInviteWindow, self).__init__()
@@ -18,14 +20,14 @@ class ReceivedInviteWindow(View, WindowViewMeta, PrbListener, ReceivedInviteWind
 
     def acceptInvite(self):
         postActions = []
-        if self.prbFunctional.isConfirmToChange():
-            postActions.append(invite_post_actions.LeavePrebattle())
+        if self.prbDispatcher.hasModalEntity():
+            postActions.append(actions.LeavePrbModalEntity())
         inviteID = self._inviteInfo.getID()
         invite, _ = self.prbInvites.getReceivedInvite(inviteID)
         if invite.anotherPeriphery:
-            postActions.append(invite_post_actions.DisconnectFromPeriphery())
-            postActions.append(invite_post_actions.ConnectToPeriphery(invite.peripheryID))
-            postActions.append(invite_post_actions.PrbInvitesInit())
+            postActions.append(actions.DisconnectFromPeriphery())
+            postActions.append(actions.ConnectToPeriphery(invite.peripheryID))
+            postActions.append(actions.PrbInvitesInit())
         self.prbInvites.acceptInvite(inviteID, postActions=postActions)
         self.onWindowClose()
 
@@ -45,16 +47,34 @@ class ReceivedInviteWindow(View, WindowViewMeta, PrbListener, ReceivedInviteWind
     def onPrbFunctionalFinished(self):
         self.__updateReceivedInfo()
 
+    def onTeamStatesReceived(self, functional, team1State, team2State):
+        self.__updateReceivedInfo()
+
+    def onIntroUnitFunctionalInited(self):
+        self.__updateReceivedInfo()
+
+    def onIntroUnitFunctionalFinished(self):
+        self.__updateReceivedInfo()
+
+    def onUnitFunctionalInited(self):
+        self.__updateReceivedInfo()
+
+    def onUnitFunctionalFinished(self):
+        self.__updateReceivedInfo()
+
+    def onUnitStateChanged(self, state, timeLeft):
+        self.__updateReceivedInfo()
+
     def _populate(self):
         super(ReceivedInviteWindow, self)._populate()
-        self.startPrbGlobalListening()
+        self.startGlobalListening()
         self.prbInvites.onReceivedInviteListModified += self.__invitesListModified
         self.as_setTitleS(self._inviteInfo.getTitle())
         self.__updateReceivedInfo()
 
     def _dispose(self):
         self._inviteInfo = None
-        self.stopPrbGlobalListening()
+        self.stopGlobalListening()
         self.prbInvites.onReceivedInviteListModified -= self.__invitesListModified
         super(ReceivedInviteWindow, self)._dispose()
         return
@@ -69,3 +89,6 @@ class ReceivedInviteWindow(View, WindowViewMeta, PrbListener, ReceivedInviteWind
             return
         if len(changed) > 0 and inviteID in changed:
             self.__updateReceivedInfo()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/receivedinvitewindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:09 EST

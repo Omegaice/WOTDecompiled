@@ -1,8 +1,10 @@
+# 2013.11.15 11:26:57 EST
+# Embedded file name: scripts/client/gui/shared/utils/gui_items.py
 import BigWorld, pickle, nations
 from types import IntType
 from AccountCommands import LOCK_REASON
 from account_shared import LayoutIterator
-from gui.shared.utils import ItemsParameters, CLIP_VEHICLES_PROP_NAME, CLIP_VEHICLES_CD_PROP_NAME, GUN_NORMAL, GUN_CAN_BE_CLIP, GUN_CLIP
+from gui.shared.utils import ItemsParameters, CLIP_VEHICLES_CD_PROP_NAME
 from items.vehicles import VehicleDescr, getDictDescr, getDefaultAmmoForGun, VEHICLE_CLASS_TAGS
 from items import ITEM_TYPE_NAMES, ITEM_TYPE_INDICES, getTypeInfoByName
 from helpers.i18n import makeString
@@ -96,6 +98,11 @@ class FittingItem(object):
     @property
     def isSpecial(self):
         return bool(self.descriptor.type.tags & frozenset(('special',)))
+
+    @property
+    def isDisabledInRoaming(self):
+        from gui import game_control
+        return bool(self.tags & frozenset(('disabledInRoaming',))) and game_control.g_instance.roaming.isInRoaming()
 
     @property
     def unicName(self):
@@ -1084,8 +1091,12 @@ class InventoryVehicle(InventoryItem):
     def getState(self):
         if self.lock == LOCK_REASON.ON_ARENA:
             return 'battle'
+        if self.lock in (LOCK_REASON.PREBATTLE, LOCK_REASON.UNIT):
+            return 'inPrebattle'
         if self.lock:
             return 'locked'
+        if self.isDisabledInRoaming:
+            return 'serverRestriction'
         ms = self.modelState
         if ms == 'undamaged':
             if self.repairCost > 0:
@@ -1098,7 +1109,7 @@ class InventoryVehicle(InventoryItem):
 
     def getStateLevel(self):
         state = self.getState()
-        if state in ('crewNotFull', 'damaged', 'exploded', 'destroyed'):
+        if state in ('crewNotFull', 'damaged', 'exploded', 'destroyed', 'serverRestriction'):
             return InventoryVehicle.STATE_LEVEL.CRITICAL
         if state in ('undamaged',):
             return InventoryVehicle.STATE_LEVEL.INFO
@@ -1593,8 +1604,9 @@ class InventoryTankman(InventoryItem):
     @process
     def replacePassport(self, firstNameID, lastNameID, iconID, isFemale, callback):
         from gui.shared.utils.requesters import StatsRequester
+        from gui.shared import g_itemsCache
         passportCost = yield StatsRequester().getPassportChangeCost()
-        gold = yield StatsRequester().getGold()
+        gold = g_itemsCache.items.stats.gold
 
         def replacePassportResponse(code):
             if code >= 0:
@@ -1813,3 +1825,6 @@ def getVehicleEliteState(vehicle, eliteVehicles, unlocks):
 def isVehicleObserver(vehTypeCompDescr):
     item_type_id, nation_id, item_id_within_nation = vehicles.parseIntCompactDescr(vehTypeCompDescr)
     return 'observer' in vehicles.g_cache.vehicle(nation_id, item_id_within_nation).tags
+# okay decompyling res/scripts/client/gui/shared/utils/gui_items.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:00 EST

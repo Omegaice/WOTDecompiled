@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:14 EST
+# Embedded file name: scripts/client/messenger/gui/Scaleform/view/ContactsWindow.py
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.framework.entities.View import View
@@ -10,6 +12,7 @@ from messenger.gui.Scaleform.meta.ContactsWindowMeta import ContactsWindowMeta
 from messenger.m_constants import PROTO_TYPE
 from messenger.proto import proto_getter
 from messenger.proto.interfaces import ISearchHandler
+from gui import game_control
 
 @stored_window(DATA_TYPE.UNIQUE_WINDOW, TARGET_ID.CHAT_MANAGEMENT)
 
@@ -65,6 +68,10 @@ class ContactsWindow(View, WindowViewMeta, ContactsWindowMeta, ISearchHandler):
     def onWindowClose(self):
         self.destroy()
 
+    def isEnabledInRoaming(self, uid):
+        roamingCtrl = game_control.g_instance.roaming
+        return not roamingCtrl.isInRoaming() and not roamingCtrl.isPlayerInRoaming(uid)
+
     def getSearchLimitLabel(self):
         return i18n.makeString(MESSENGER.DIALOGS_SEARCHCONTACT_LABELS_RESULT, self._searchDP.processor.getSearchResultLimit())
 
@@ -88,3 +95,6 @@ class ContactsWindow(View, WindowViewMeta, ContactsWindowMeta, ISearchHandler):
     def addToIgnored(self, uid, name):
         LOG_DEBUG('addToIgnored: ', uid)
         self.proto.users.addIgnored(uid, name)
+# okay decompyling res/scripts/client/messenger/gui/scaleform/view/contactswindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:14 EST

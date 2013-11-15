@@ -1,4 +1,6 @@
-
+# 2013.11.15 11:26:35 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/SYSTEM_MESSAGES.py
+from debug_utils import LOG_WARNING
 
 class SYSTEM_MESSAGES(object):
     REPAIR_SUCCESS = '#system_messages:repair/success'
@@ -13,14 +15,11 @@ class SYSTEM_MESSAGES(object):
     CHARGE_INVENTORY_ERROR = '#system_messages:charge/inventory_error'
     CHARGE_SUCCESS_SAVE = '#system_messages:charge/success_save'
     CHARGE_SERVER_ERROR_SAVE = '#system_messages:charge/server_error_save'
-    EXCHANGE_SUCCESS = '#system_messages:exchange/success'
-    EXCHANGE_SERVER_ERROR = '#system_messages:exchange/server_error'
-    EXCHANGEXP_SUCCESS = '#system_messages:exchangeXP/success'
-    EXCHANGEXP_SERVER_ERROR = '#system_messages:exchangeXP/server_error'
     PREMIUM_CONTINUESUCCESS = '#system_messages:premium/continueSuccess'
     PREMIUM_BUYINGSUCCESS = '#system_messages:premium/buyingSuccess'
     PREMIUM_SERVER_ERROR = '#system_messages:premium/server_error'
     PREMIUM_NOT_ENOUGH_GOLD = '#system_messages:premium/not_enough_gold'
+    PREMIUM_WALLET_NOT_AVAILABLE = '#system_messages:premium/wallet_not_available'
     UPGRADETANKMAN_SUCCESS = '#system_messages:upgradeTankman/success'
     UPGRADETANKMAN_SERVER_ERROR = '#system_messages:upgradeTankman/server_error'
     ARENA_START_ERRORS_JOIN_TIME_OUT = '#system_messages:arena_start_errors/join/TIME_OUT'
@@ -53,6 +52,7 @@ class SYSTEM_MESSAGES(object):
     PREBATTLE_KICK_REASON_CREATOR_LEFT = '#system_messages:prebattle/kick/reason/CREATOR_LEFT'
     PREBATTLE_KICK_REASON_PLAYERKICK = '#system_messages:prebattle/kick/reason/PLAYERKICK'
     PREBATTLE_KICK_REASON_TIMEOUT = '#system_messages:prebattle/kick/reason/TIMEOUT'
+    SESSION_TRACKER_KICK = '#system_messages:session_tracker_kick'
     PREBATTLE_VEHICLEINVALID_LIMITS_LEVEL = '#system_messages:prebattle/vehicleInvalid/limits/level'
     PREBATTLE_VEHICLEINVALID_LIMITS_CLASSLEVEL = '#system_messages:prebattle/vehicleInvalid/limits/classLevel'
     PREBATTLE_VEHICLEINVALID_LIMITS_VEHICLES = '#system_messages:prebattle/vehicleInvalid/limits/vehicles'
@@ -67,6 +67,7 @@ class SYSTEM_MESSAGES(object):
     PREBATTLE_TEAMINVALID_LIMIT_TOTALLEVEL = '#system_messages:prebattle/teamInvalid/limit/totalLevel'
     PREBATTLE_TEAMINVALID_LIMITS_VEHICLES = '#system_messages:prebattle/teamInvalid/limits/vehicles'
     PREBATTLE_TEAMINVALID_LIMITS_LEVEL = '#system_messages:prebattle/teamInvalid/limits/level'
+    PREBATTLE_HASLOCKEDSTATE = '#system_messages:prebattle/hasLockedState'
     ARENA_START_ERRORS_KICK_ARENA_CREATION_FAILURE = '#system_messages:arena_start_errors/kick/ARENA_CREATION_FAILURE'
     ARENA_START_ERRORS_KICK_AVATAR_CREATION_FAILURE = '#system_messages:arena_start_errors/kick/AVATAR_CREATION_FAILURE'
     ARENA_START_ERRORS_KICK_VEHICLE_CREATION_FAILURE = '#system_messages:arena_start_errors/kick/VEHICLE_CREATION_FAILURE'
@@ -158,7 +159,6 @@ class SYSTEM_MESSAGES(object):
     MEMORY_CRITICAL_TEX_WAS_LOWERED_TO_MEDIUM = '#system_messages:memory_critical/tex_was_lowered_to_medium'
     MEMORY_CRITICAL_TEX_WAS_LOWERED_TO_LOW = '#system_messages:memory_critical/tex_was_lowered_to_low'
     MEMORY_CRITICAL_TEX_WAS_LOWERED_TO_MIN = '#system_messages:memory_critical/tex_was_lowered_to_min'
-    EXCHANGEVEHICLESXP_SERVER_ERROR = '#system_messages:exchangeVehiclesXP/server_error'
     TRADINGERROR_TOO_MANY_OUT_OFFERS = '#system_messages:tradingError/TOO_MANY_OUT_OFFERS'
     TRADINGERROR_NOT_ALLOWED = '#system_messages:tradingError/NOT_ALLOWED'
     TRADINGERROR_NO_WARES = '#system_messages:tradingError/NO_WARES'
@@ -211,6 +211,7 @@ class SYSTEM_MESSAGES(object):
     ACTIONACHIEVEMENT_TITLE = '#system_messages:actionAchievement/title'
     ACTIONACHIEVEMENTS_TITLE = '#system_messages:actionAchievements/title'
     TRAINING_ERROR_SWAPTEAMS = '#system_messages:training/error/swapTeams'
+    TRAINING_ERROR_DOACTION = '#system_messages:training/error/doAction'
     GAMESESSIONCONTROL_KOREA_SESSIONTIME = '#system_messages:gameSessionControl/korea/sessionTime'
     GAMESESSIONCONTROL_KOREA_TIMETILLMIDNIGHT = '#system_messages:gameSessionControl/korea/timeTillMidnight'
     GAMESESSIONCONTROL_KOREA_PLAYTIMELEFT = '#system_messages:gameSessionControl/korea/playTimeLeft'
@@ -236,6 +237,7 @@ class SYSTEM_MESSAGES(object):
     RECRUIT_WINDOW_FINANCIAL_SUCCESS = '#system_messages:recruit_window/financial_success'
     RECRUIT_WINDOW_NOT_ENOUGH_CREDITS = '#system_messages:recruit_window/not_enough_credits'
     RECRUIT_WINDOW_NOT_ENOUGH_GOLD = '#system_messages:recruit_window/not_enough_gold'
+    RECRUIT_WINDOW_WALLET_NOT_AVAILABLE = '#system_messages:recruit_window/wallet_not_available'
     RECRUIT_WINDOW_FREE_TANKMEN_LIMIT = '#system_messages:recruit_window/free_tankmen_limit'
     RECRUIT_WINDOW_NOT_ENOUGH_SPACE = '#system_messages:recruit_window/not_enough_space'
     EQUIP_TANKMAN_SUCCESS = '#system_messages:equip_tankman/success'
@@ -248,6 +250,24 @@ class SYSTEM_MESSAGES(object):
     REEQUIP_TANKMAN_INVALID_VEHICLE = '#system_messages:reequip_tankman/invalid_vehicle'
     REEQUIP_TANKMAN_VEHICLE_NEED_REPAIR = '#system_messages:reequip_tankman/vehicle_need_repair'
     REEQUIP_TANKMAN_VEHICLE_LOCKED = '#system_messages:reequip_tankman/vehicle_locked'
+    BUY_AND_EQUIP_TANKMAN_SUCCESS = '#system_messages:buy_and_equip_tankman/success'
+    BUY_AND_EQUIP_TANKMAN_FINANCIAL_SUCCESS = '#system_messages:buy_and_equip_tankman/financial_success'
+    BUY_AND_EQUIP_TANKMAN_SERVER_ERROR = '#system_messages:buy_and_equip_tankman/server_error'
+    BUY_AND_EQUIP_TANKMAN_INVALID_VEHICLE = '#system_messages:buy_and_equip_tankman/invalid_vehicle'
+    BUY_AND_EQUIP_TANKMAN_VEHICLE_LOCKED = '#system_messages:buy_and_equip_tankman/vehicle_locked'
+    BUY_AND_EQUIP_TANKMAN_NOT_ENOUGH_CREDITS = '#system_messages:buy_and_equip_tankman/not_enough_credits'
+    BUY_AND_EQUIP_TANKMAN_NOT_ENOUGH_GOLD = '#system_messages:buy_and_equip_tankman/not_enough_gold'
+    BUY_AND_EQUIP_TANKMAN_WALLET_NOT_AVAILABLE = '#system_messages:buy_and_equip_tankman/wallet_not_available'
+    BUY_AND_EQUIP_TANKMAN_FREE_TANKMEN_LIMIT = '#system_messages:buy_and_equip_tankman/free_tankmen_limit'
+    BUY_AND_REEQUIP_TANKMAN_SUCCESS = '#system_messages:buy_and_reequip_tankman/success'
+    BUY_AND_REEQUIP_TANKMAN_FINANCIAL_SUCCESS = '#system_messages:buy_and_reequip_tankman/financial_success'
+    BUY_AND_REEQUIP_TANKMAN_SERVER_ERROR = '#system_messages:buy_and_reequip_tankman/server_error'
+    BUY_AND_REEQUIP_TANKMAN_INVALID_VEHICLE = '#system_messages:buy_and_reequip_tankman/invalid_vehicle'
+    BUY_AND_REEQUIP_TANKMAN_VEHICLE_LOCKED = '#system_messages:buy_and_reequip_tankman/vehicle_locked'
+    BUY_AND_REEQUIP_TANKMAN_NOT_ENOUGH_CREDITS = '#system_messages:buy_and_reequip_tankman/not_enough_credits'
+    BUY_AND_REEQUIP_TANKMAN_NOT_ENOUGH_GOLD = '#system_messages:buy_and_reequip_tankman/not_enough_gold'
+    BUY_AND_REEQUIP_TANKMAN_WALLET_NOT_AVAILABLE = '#system_messages:buy_and_reequip_tankman/wallet_not_available'
+    BUY_AND_REEQUIP_TANKMAN_FREE_TANKMEN_LIMIT = '#system_messages:buy_and_reequip_tankman/free_tankmen_limit'
     DISMISS_TANKMAN_SUCCESS = '#system_messages:dismiss_tankman/success'
     DISMISS_TANKMAN_SERVER_ERROR = '#system_messages:dismiss_tankman/server_error'
     DISMISS_TANKMAN_INVALID_VEHICLE = '#system_messages:dismiss_tankman/invalid_vehicle'
@@ -300,7 +320,10 @@ class SYSTEM_MESSAGES(object):
     VEHICLE_BUY_SERVER_ERROR_CENTERDOWN = '#system_messages:vehicle_buy/server_error_centerDown'
     VEHICLE_BUY_NOT_ENOUGH_CREDITS = '#system_messages:vehicle_buy/not_enough_credits'
     VEHICLE_BUY_NOT_ENOUGH_GOLD = '#system_messages:vehicle_buy/not_enough_gold'
+    VEHICLE_BUY_WALLET_NOT_AVAILABLE = '#system_messages:vehicle_buy/wallet_not_available'
     VEHICLE_SLOT_BUY_SUCCESS = '#system_messages:vehicle_slot_buy/success'
+    VEHICLE_SLOT_BUY_NOT_ENOUGH_GOLD = '#system_messages:vehicle_slot_buy/not_enough_gold'
+    VEHICLE_SLOT_BUY_WALLET_NOT_AVAILABLE = '#system_messages:vehicle_slot_buy/wallet_not_available'
     VEHICLE_SLOT_BUY_SERVER_ERROR = '#system_messages:vehicle_slot_buy/server_error'
     VEHICLE_SELL_SUCCESS = '#system_messages:vehicle_sell/success'
     VEHICLE_SELL_SUCCESS_DISMANTLING = '#system_messages:vehicle_sell/success_dismantling'
@@ -310,6 +333,7 @@ class SYSTEM_MESSAGES(object):
     VEHICLE_SELL_VEHICLE_LOCKED = '#system_messages:vehicle_sell/vehicle_locked'
     VEHICLE_SELL_NOT_ENOUGH_CREDITS = '#system_messages:vehicle_sell/not_enough_credits'
     VEHICLE_SELL_NOT_ENOUGH_GOLD = '#system_messages:vehicle_sell/not_enough_gold'
+    VEHICLE_SELL_WALLET_NOT_AVAILABLE = '#system_messages:vehicle_sell/wallet_not_available'
     VEHICLE_SELL_VEHICLE_SELL_LIMIT = '#system_messages:vehicle_sell/vehicle_sell_limit'
     VEHICLE_SELL_NOT_ENOUGH_SPACE = '#system_messages:vehicle_sell/not_enough_space'
     VEHICLE_TMENXP_ACCELERATOR_SUCCESSFALSE = '#system_messages:vehicle_tmenxp_accelerator/successFalse'
@@ -322,22 +346,26 @@ class SYSTEM_MESSAGES(object):
     BUY_TANKMEN_BERTHS_SERVER_ERROR = '#system_messages:buy_tankmen_berths/server_error'
     BUY_TANKMEN_BERTHS_NOT_ENOUGH_CREDITS = '#system_messages:buy_tankmen_berths/not_enough_credits'
     BUY_TANKMEN_BERTHS_NOT_ENOUGH_GOLD = '#system_messages:buy_tankmen_berths/not_enough_gold'
+    BUY_TANKMEN_BERTHS_WALLET_NOT_AVAILABLE = '#system_messages:buy_tankmen_berths/wallet_not_available'
     SHELL_BUY_SUCCESS = '#system_messages:shell_buy/success'
     SHELL_BUY_INVALID_MODULE = '#system_messages:shell_buy/invalid_module'
     SHELL_BUY_NOT_ENOUGH_CREDITS = '#system_messages:shell_buy/not_enough_credits'
     SHELL_BUY_NOT_ENOUGH_GOLD = '#system_messages:shell_buy/not_enough_gold'
+    SHELL_BUY_WALLET_NOT_AVAILABLE = '#system_messages:shell_buy/wallet_not_available'
     SHELL_BUY_SERVER_ERROR = '#system_messages:shell_buy/server_error'
     SHELL_BUY_SERVER_ERROR_CENTERDOWN = '#system_messages:shell_buy/server_error_centerDown'
     MODULE_BUY_SUCCESS = '#system_messages:module_buy/success'
     MODULE_BUY_INVALID_MODULE = '#system_messages:module_buy/invalid_module'
     MODULE_BUY_NOT_ENOUGH_CREDITS = '#system_messages:module_buy/not_enough_credits'
     MODULE_BUY_NOT_ENOUGH_GOLD = '#system_messages:module_buy/not_enough_gold'
+    MODULE_BUY_WALLET_NOT_AVAILABLE = '#system_messages:module_buy/wallet_not_available'
     MODULE_BUY_SERVER_ERROR = '#system_messages:module_buy/server_error'
     MODULE_BUY_SERVER_ERROR_CENTERDOWN = '#system_messages:module_buy/server_error_centerDown'
     ARTEFACT_BUY_SUCCESS = '#system_messages:artefact_buy/success'
     ARTEFACT_BUY_INVALID_MODULE = '#system_messages:artefact_buy/invalid_module'
     ARTEFACT_BUY_NOT_ENOUGH_CREDITS = '#system_messages:artefact_buy/not_enough_credits'
     ARTEFACT_BUY_NOT_ENOUGH_GOLD = '#system_messages:artefact_buy/not_enough_gold'
+    ARTEFACT_BUY_WALLET_NOT_AVAILABLE = '#system_messages:artefact_buy/wallet_not_available'
     ARTEFACT_BUY_SERVER_ERROR = '#system_messages:artefact_buy/server_error'
     ARTEFACT_BUY_SERVER_ERROR_CENTERDOWN = '#system_messages:artefact_buy/server_error_centerDown'
     SHELL_SELL_SUCCESS = '#system_messages:shell_sell/success'
@@ -396,8 +424,10 @@ class SYSTEM_MESSAGES(object):
     LAYOUT_APPLY_WRONG_ARG_VALUE = '#system_messages:layout_apply/WRONG_ARG_VALUE'
     LAYOUT_APPLY_SHELLS_NO_CREDITS = '#system_messages:layout_apply/SHELLS_NO_CREDITS'
     LAYOUT_APPLY_SHELLS_NO_GOLD = '#system_messages:layout_apply/SHELLS_NO_GOLD'
+    LAYOUT_APPLY_SHELLS_NO_WALLET_SESSION = '#system_messages:layout_apply/SHELLS_NO_WALLET_SESSION'
     LAYOUT_APPLY_EQS_NO_CREDITS = '#system_messages:layout_apply/EQS_NO_CREDITS'
     LAYOUT_APPLY_EQS_NO_GOLD = '#system_messages:layout_apply/EQS_NO_GOLD'
+    LAYOUT_APPLY_EQS_NO_WALLET_SESSION = '#system_messages:layout_apply/EQS_NO_WALLET_SESSION'
     LAYOUT_APPLY_NOT_RESEARCHED_ITEM = '#system_messages:layout_apply/NOT_RESEARCHED_ITEM'
     LAYOUT_APPLY_BUYING_GOLD_EQS_FOR_CREDITS_DISABLED = '#system_messages:layout_apply/BUYING_GOLD_EQS_FOR_CREDITS_DISABLED'
     LAYOUT_APPLY_BUYING_GOLD_SHELLS_FOR_CREDITS_DISABLED = '#system_messages:layout_apply/BUYING_GOLD_SHELLS_FOR_CREDITS_DISABLED'
@@ -407,6 +437,7 @@ class SYSTEM_MESSAGES(object):
     LAYOUT_APPLY_CANNOT_EQUIP_SHELLS__MAXAMMO_LIMIT_EXCEEDED_ = '#system_messages:layout_apply/Cannot equip shells (maxAmmo limit exceeded)'
     LAYOUT_APPLY_CANNOT_EQUIP_EQUIPMENT = '#system_messages:layout_apply/Cannot equip equipment'
     LAYOUT_APPLY_COMPONENT_IS_NOT_IN_SHOP = '#system_messages:layout_apply/Component is not in shop'
+    LAYOUT_APPLY_WALLET_NOT_AVAILABLE = '#system_messages:layout_apply/wallet_not_available'
     PREBATTLE_REQUEST_ISINCOOLDOWN = '#system_messages:prebattle/request/isInCoolDown'
     PREBATTLE_REQUEST_NAME_CHANGE_SETTINGS = '#system_messages:prebattle/request/name/CHANGE_SETTINGS'
     PREBATTLE_REQUEST_NAME_CHANGE_ARENA_VOIP = '#system_messages:prebattle/request/name/CHANGE_ARENA_VOIP'
@@ -415,6 +446,88 @@ class SYSTEM_MESSAGES(object):
     PREBATTLE_REQUEST_NAME_SET_PLAYER_STATE = '#system_messages:prebattle/request/name/SET_PLAYER_STATE'
     PREBATTLE_REQUEST_NAME_SEND_INVITE = '#system_messages:prebattle/request/name/SEND_INVITE'
     PREBATTLE_REQUEST_NAME_PREBATTLES_LIST = '#system_messages:prebattle/request/name/PREBATTLES_LIST'
+    PREBATTLE_REQUEST_NAME_CHANGE_UNIT_STATE = '#system_messages:prebattle/request/name/CHANGE_UNIT_STATE'
+    PREBATTLE_REQUEST_NAME_UNITS_LIST = '#system_messages:prebattle/request/name/UNITS_LIST'
+    EXCHANGE_SUCCESS = '#system_messages:exchange/success'
+    EXCHANGE_NOT_ENOUGH_GOLD = '#system_messages:exchange/not_enough_gold'
+    EXCHANGE_WALLET_NOT_AVAILABLE = '#system_messages:exchange/wallet_not_available'
+    EXCHANGE_SERVER_ERROR = '#system_messages:exchange/server_error'
+    EXCHANGEXP_SUCCESS = '#system_messages:exchangeXP/success'
+    EXCHANGEXP_NOT_ENOUGH_GOLD = '#system_messages:exchangeXP/not_enough_gold'
+    EXCHANGEXP_WALLET_NOT_AVAILABLE = '#system_messages:exchangeXP/wallet_not_available'
+    EXCHANGEXP_SERVER_ERROR = '#system_messages:exchangeXP/server_error'
+    WALLET_AVAILABLE = '#system_messages:wallet/available'
+    WALLET_AVAILABLE_GOLD = '#system_messages:wallet/available_gold'
+    WALLET_AVAILABLE_FREEXP = '#system_messages:wallet/available_freexp'
+    WALLET_NOT_AVAILABLE = '#system_messages:wallet/not_available'
+    WALLET_NOT_AVAILABLE_GOLD = '#system_messages:wallet/not_available_gold'
+    WALLET_NOT_AVAILABLE_FREEXP = '#system_messages:wallet/not_available_freexp'
+    UNIT_ERRORS_ALREADY_JOINED_UNIT = '#system_messages:unit/errors/ALREADY_JOINED_UNIT'
+    UNIT_ERRORS_UNIT_MGR_ENTITY_CREATION_FAIL = '#system_messages:unit/errors/UNIT_MGR_ENTITY_CREATION_FAIL'
+    UNIT_ERRORS_UNIT_ADD_FAIL = '#system_messages:unit/errors/UNIT_ADD_FAIL'
+    UNIT_ERRORS_CANT_FIND_UNIT_MGR = '#system_messages:unit/errors/CANT_FIND_UNIT_MGR'
+    UNIT_ERRORS_ADD_PLAYER_FAIL = '#system_messages:unit/errors/ADD_PLAYER_FAIL'
+    UNIT_ERRORS_NO_UNIT_MGR = '#system_messages:unit/errors/NO_UNIT_MGR'
+    UNIT_ERRORS_WRONG_UNIT_REQUISITES = '#system_messages:unit/errors/WRONG_UNIT_REQUISITES'
+    UNIT_ERRORS_REMOVE_PLAYER_FAIL = '#system_messages:unit/errors/REMOVE_PLAYER_FAIL'
+    UNIT_ERRORS_GET_VEHICLE_FAIL = '#system_messages:unit/errors/GET_VEHICLE_FAIL'
+    UNIT_ERRORS_FAIL_UNIT_METHOD = '#system_messages:unit/errors/FAIL_UNIT_METHOD'
+    UNIT_ERRORS_BAD_SLOT_IDX = '#system_messages:unit/errors/BAD_SLOT_IDX'
+    UNIT_ERRORS_INSUFFICIENT_ROLE = '#system_messages:unit/errors/INSUFFICIENT_ROLE'
+    UNIT_ERRORS_NO_UNIT = '#system_messages:unit/errors/NO_UNIT'
+    UNIT_ERRORS_JOIN_CTX_LOCK = '#system_messages:unit/errors/JOIN_CTX_LOCK'
+    UNIT_ERRORS_CANT_INVITE = '#system_messages:unit/errors/CANT_INVITE'
+    UNIT_ERRORS_NOT_READY = '#system_messages:unit/errors/NOT_READY'
+    UNIT_ERRORS_NOT_IN_QUEUE = '#system_messages:unit/errors/NOT_IN_QUEUE'
+    UNIT_ERRORS_NOT_IDLE = '#system_messages:unit/errors/NOT_IDLE'
+    UNIT_ERRORS_NOT_IN_SEARCH = '#system_messages:unit/errors/NOT_IN_SEARCH'
+    UNIT_ERRORS_BAD_JOINING_ACC = '#system_messages:unit/errors/BAD_JOINING_ACC'
+    UNIT_ERRORS_PLAYER_IGNORED = '#system_messages:unit/errors/PLAYER_IGNORED'
+    UNIT_ERRORS_NOT_INVITED = '#system_messages:unit/errors/NOT_INVITED'
+    UNIT_ERRORS_GET_READY_VEHICLE_FAIL = '#system_messages:unit/errors/GET_READY_VEHICLE_FAIL'
+    UNIT_ERRORS_COOLDOWN = '#system_messages:unit/errors/COOLDOWN'
+    UNIT_ERRORS_BAD_POINTS_SUM = '#system_messages:unit/errors/BAD_POINTS_SUM'
+    UNIT_WARNINGS_KICKED_CANDIDATE = '#system_messages:unit/warnings/KICKED_CANDIDATE'
+    UNIT_WARNINGS_KICKED_PLAYER = '#system_messages:unit/warnings/KICKED_PLAYER'
+    UNIT_WARNINGS_UNIT_ASSEMBLER_TIMEOUT = '#system_messages:unit/warnings/UNIT_ASSEMBLER_TIMEOUT'
+    UNIT_WARNINGS_KICKED_FROM_UNIT_ASSEMBLER = '#system_messages:unit/warnings/KICKED_FROM_UNIT_ASSEMBLER'
+    UNIT_WARNINGS_INVITE_REMOVED = '#system_messages:unit/warnings/INVITE_REMOVED'
+    UNIT_WARNINGS_ALREADY_INVITED = '#system_messages:unit/warnings/ALREADY_INVITED'
+    UNIT_INFO_OFFLINESTATUS = '#system_messages:unit/info/offlineStatus'
+    UNIT_INFO_ONLINESTATUS = '#system_messages:unit/info/onlineStatus'
+    UNITBROWSER_ERRORS_BAD_ACCEPT_CONTEXT = '#system_messages:unitBrowser/errors/BAD_ACCEPT_CONTEXT'
+    UNIT_ERRORS_ENUM = (UNIT_ERRORS_ALREADY_JOINED_UNIT,
+     UNIT_ERRORS_UNIT_MGR_ENTITY_CREATION_FAIL,
+     UNIT_ERRORS_UNIT_ADD_FAIL,
+     UNIT_ERRORS_CANT_FIND_UNIT_MGR,
+     UNIT_ERRORS_ADD_PLAYER_FAIL,
+     UNIT_ERRORS_NO_UNIT_MGR,
+     UNIT_ERRORS_WRONG_UNIT_REQUISITES,
+     UNIT_ERRORS_REMOVE_PLAYER_FAIL,
+     UNIT_ERRORS_GET_VEHICLE_FAIL,
+     UNIT_ERRORS_FAIL_UNIT_METHOD,
+     UNIT_ERRORS_BAD_SLOT_IDX,
+     UNIT_ERRORS_INSUFFICIENT_ROLE,
+     UNIT_ERRORS_NO_UNIT,
+     UNIT_ERRORS_JOIN_CTX_LOCK,
+     UNIT_ERRORS_CANT_INVITE,
+     UNIT_ERRORS_NOT_READY,
+     UNIT_ERRORS_NOT_IN_QUEUE,
+     UNIT_ERRORS_NOT_IDLE,
+     UNIT_ERRORS_NOT_IN_SEARCH,
+     UNIT_ERRORS_BAD_JOINING_ACC,
+     UNIT_ERRORS_PLAYER_IGNORED,
+     UNIT_ERRORS_NOT_INVITED,
+     UNIT_ERRORS_GET_READY_VEHICLE_FAIL,
+     UNIT_ERRORS_COOLDOWN,
+     UNIT_ERRORS_BAD_POINTS_SUM)
+    UNITBROWSER_ERRORS_ENUM = UNITBROWSER_ERRORS_BAD_ACCEPT_CONTEXT
+    UNIT_WARNINGS_ENUM = (UNIT_WARNINGS_KICKED_CANDIDATE,
+     UNIT_WARNINGS_KICKED_PLAYER,
+     UNIT_WARNINGS_UNIT_ASSEMBLER_TIMEOUT,
+     UNIT_WARNINGS_KICKED_FROM_UNIT_ASSEMBLER,
+     UNIT_WARNINGS_INVITE_REMOVED,
+     UNIT_WARNINGS_ALREADY_INVITED)
     CUSTOMIZATION_VEHICLE_ENUM = (CUSTOMIZATION_VEHICLE_LOCKED,
      CUSTOMIZATION_VEHICLE_DAMAGED,
      CUSTOMIZATION_VEHICLE_DESTROYED,
@@ -431,14 +544,11 @@ class SYSTEM_MESSAGES(object):
      CHARGE_INVENTORY_ERROR,
      CHARGE_SUCCESS_SAVE,
      CHARGE_SERVER_ERROR_SAVE,
-     EXCHANGE_SUCCESS,
-     EXCHANGE_SERVER_ERROR,
-     EXCHANGEXP_SUCCESS,
-     EXCHANGEXP_SERVER_ERROR,
      PREMIUM_CONTINUESUCCESS,
      PREMIUM_BUYINGSUCCESS,
      PREMIUM_SERVER_ERROR,
      PREMIUM_NOT_ENOUGH_GOLD,
+     PREMIUM_WALLET_NOT_AVAILABLE,
      UPGRADETANKMAN_SUCCESS,
      UPGRADETANKMAN_SERVER_ERROR,
      ARENA_START_ERRORS_JOIN_TIME_OUT,
@@ -471,6 +581,7 @@ class SYSTEM_MESSAGES(object):
      PREBATTLE_KICK_REASON_CREATOR_LEFT,
      PREBATTLE_KICK_REASON_PLAYERKICK,
      PREBATTLE_KICK_REASON_TIMEOUT,
+     SESSION_TRACKER_KICK,
      PREBATTLE_VEHICLEINVALID_LIMITS_LEVEL,
      PREBATTLE_VEHICLEINVALID_LIMITS_CLASSLEVEL,
      PREBATTLE_VEHICLEINVALID_LIMITS_VEHICLES,
@@ -485,6 +596,7 @@ class SYSTEM_MESSAGES(object):
      PREBATTLE_TEAMINVALID_LIMIT_TOTALLEVEL,
      PREBATTLE_TEAMINVALID_LIMITS_VEHICLES,
      PREBATTLE_TEAMINVALID_LIMITS_LEVEL,
+     PREBATTLE_HASLOCKEDSTATE,
      ARENA_START_ERRORS_KICK_ARENA_CREATION_FAILURE,
      ARENA_START_ERRORS_KICK_AVATAR_CREATION_FAILURE,
      ARENA_START_ERRORS_KICK_VEHICLE_CREATION_FAILURE,
@@ -576,7 +688,6 @@ class SYSTEM_MESSAGES(object):
      MEMORY_CRITICAL_TEX_WAS_LOWERED_TO_MEDIUM,
      MEMORY_CRITICAL_TEX_WAS_LOWERED_TO_LOW,
      MEMORY_CRITICAL_TEX_WAS_LOWERED_TO_MIN,
-     EXCHANGEVEHICLESXP_SERVER_ERROR,
      TRADINGERROR_TOO_MANY_OUT_OFFERS,
      TRADINGERROR_NOT_ALLOWED,
      TRADINGERROR_NO_WARES,
@@ -625,6 +736,7 @@ class SYSTEM_MESSAGES(object):
      ACTIONACHIEVEMENT_TITLE,
      ACTIONACHIEVEMENTS_TITLE,
      TRAINING_ERROR_SWAPTEAMS,
+     TRAINING_ERROR_DOACTION,
      GAMESESSIONCONTROL_KOREA_SESSIONTIME,
      GAMESESSIONCONTROL_KOREA_TIMETILLMIDNIGHT,
      GAMESESSIONCONTROL_KOREA_PLAYTIMELEFT,
@@ -650,6 +762,7 @@ class SYSTEM_MESSAGES(object):
      RECRUIT_WINDOW_FINANCIAL_SUCCESS,
      RECRUIT_WINDOW_NOT_ENOUGH_CREDITS,
      RECRUIT_WINDOW_NOT_ENOUGH_GOLD,
+     RECRUIT_WINDOW_WALLET_NOT_AVAILABLE,
      RECRUIT_WINDOW_FREE_TANKMEN_LIMIT,
      RECRUIT_WINDOW_NOT_ENOUGH_SPACE,
      EQUIP_TANKMAN_SUCCESS,
@@ -662,6 +775,24 @@ class SYSTEM_MESSAGES(object):
      REEQUIP_TANKMAN_INVALID_VEHICLE,
      REEQUIP_TANKMAN_VEHICLE_NEED_REPAIR,
      REEQUIP_TANKMAN_VEHICLE_LOCKED,
+     BUY_AND_EQUIP_TANKMAN_SUCCESS,
+     BUY_AND_EQUIP_TANKMAN_FINANCIAL_SUCCESS,
+     BUY_AND_EQUIP_TANKMAN_SERVER_ERROR,
+     BUY_AND_EQUIP_TANKMAN_INVALID_VEHICLE,
+     BUY_AND_EQUIP_TANKMAN_VEHICLE_LOCKED,
+     BUY_AND_EQUIP_TANKMAN_NOT_ENOUGH_CREDITS,
+     BUY_AND_EQUIP_TANKMAN_NOT_ENOUGH_GOLD,
+     BUY_AND_EQUIP_TANKMAN_WALLET_NOT_AVAILABLE,
+     BUY_AND_EQUIP_TANKMAN_FREE_TANKMEN_LIMIT,
+     BUY_AND_REEQUIP_TANKMAN_SUCCESS,
+     BUY_AND_REEQUIP_TANKMAN_FINANCIAL_SUCCESS,
+     BUY_AND_REEQUIP_TANKMAN_SERVER_ERROR,
+     BUY_AND_REEQUIP_TANKMAN_INVALID_VEHICLE,
+     BUY_AND_REEQUIP_TANKMAN_VEHICLE_LOCKED,
+     BUY_AND_REEQUIP_TANKMAN_NOT_ENOUGH_CREDITS,
+     BUY_AND_REEQUIP_TANKMAN_NOT_ENOUGH_GOLD,
+     BUY_AND_REEQUIP_TANKMAN_WALLET_NOT_AVAILABLE,
+     BUY_AND_REEQUIP_TANKMAN_FREE_TANKMEN_LIMIT,
      DISMISS_TANKMAN_SUCCESS,
      DISMISS_TANKMAN_SERVER_ERROR,
      DISMISS_TANKMAN_INVALID_VEHICLE,
@@ -714,7 +845,10 @@ class SYSTEM_MESSAGES(object):
      VEHICLE_BUY_SERVER_ERROR_CENTERDOWN,
      VEHICLE_BUY_NOT_ENOUGH_CREDITS,
      VEHICLE_BUY_NOT_ENOUGH_GOLD,
+     VEHICLE_BUY_WALLET_NOT_AVAILABLE,
      VEHICLE_SLOT_BUY_SUCCESS,
+     VEHICLE_SLOT_BUY_NOT_ENOUGH_GOLD,
+     VEHICLE_SLOT_BUY_WALLET_NOT_AVAILABLE,
      VEHICLE_SLOT_BUY_SERVER_ERROR,
      VEHICLE_SELL_SUCCESS,
      VEHICLE_SELL_SUCCESS_DISMANTLING,
@@ -724,6 +858,7 @@ class SYSTEM_MESSAGES(object):
      VEHICLE_SELL_VEHICLE_LOCKED,
      VEHICLE_SELL_NOT_ENOUGH_CREDITS,
      VEHICLE_SELL_NOT_ENOUGH_GOLD,
+     VEHICLE_SELL_WALLET_NOT_AVAILABLE,
      VEHICLE_SELL_VEHICLE_SELL_LIMIT,
      VEHICLE_SELL_NOT_ENOUGH_SPACE,
      VEHICLE_TMENXP_ACCELERATOR_SUCCESSFALSE,
@@ -736,22 +871,26 @@ class SYSTEM_MESSAGES(object):
      BUY_TANKMEN_BERTHS_SERVER_ERROR,
      BUY_TANKMEN_BERTHS_NOT_ENOUGH_CREDITS,
      BUY_TANKMEN_BERTHS_NOT_ENOUGH_GOLD,
+     BUY_TANKMEN_BERTHS_WALLET_NOT_AVAILABLE,
      SHELL_BUY_SUCCESS,
      SHELL_BUY_INVALID_MODULE,
      SHELL_BUY_NOT_ENOUGH_CREDITS,
      SHELL_BUY_NOT_ENOUGH_GOLD,
+     SHELL_BUY_WALLET_NOT_AVAILABLE,
      SHELL_BUY_SERVER_ERROR,
      SHELL_BUY_SERVER_ERROR_CENTERDOWN,
      MODULE_BUY_SUCCESS,
      MODULE_BUY_INVALID_MODULE,
      MODULE_BUY_NOT_ENOUGH_CREDITS,
      MODULE_BUY_NOT_ENOUGH_GOLD,
+     MODULE_BUY_WALLET_NOT_AVAILABLE,
      MODULE_BUY_SERVER_ERROR,
      MODULE_BUY_SERVER_ERROR_CENTERDOWN,
      ARTEFACT_BUY_SUCCESS,
      ARTEFACT_BUY_INVALID_MODULE,
      ARTEFACT_BUY_NOT_ENOUGH_CREDITS,
      ARTEFACT_BUY_NOT_ENOUGH_GOLD,
+     ARTEFACT_BUY_WALLET_NOT_AVAILABLE,
      ARTEFACT_BUY_SERVER_ERROR,
      ARTEFACT_BUY_SERVER_ERROR_CENTERDOWN,
      SHELL_SELL_SUCCESS,
@@ -810,8 +949,10 @@ class SYSTEM_MESSAGES(object):
      LAYOUT_APPLY_WRONG_ARG_VALUE,
      LAYOUT_APPLY_SHELLS_NO_CREDITS,
      LAYOUT_APPLY_SHELLS_NO_GOLD,
+     LAYOUT_APPLY_SHELLS_NO_WALLET_SESSION,
      LAYOUT_APPLY_EQS_NO_CREDITS,
      LAYOUT_APPLY_EQS_NO_GOLD,
+     LAYOUT_APPLY_EQS_NO_WALLET_SESSION,
      LAYOUT_APPLY_NOT_RESEARCHED_ITEM,
      LAYOUT_APPLY_BUYING_GOLD_EQS_FOR_CREDITS_DISABLED,
      LAYOUT_APPLY_BUYING_GOLD_SHELLS_FOR_CREDITS_DISABLED,
@@ -821,6 +962,7 @@ class SYSTEM_MESSAGES(object):
      LAYOUT_APPLY_CANNOT_EQUIP_SHELLS__MAXAMMO_LIMIT_EXCEEDED_,
      LAYOUT_APPLY_CANNOT_EQUIP_EQUIPMENT,
      LAYOUT_APPLY_COMPONENT_IS_NOT_IN_SHOP,
+     LAYOUT_APPLY_WALLET_NOT_AVAILABLE,
      PREBATTLE_REQUEST_ISINCOOLDOWN,
      PREBATTLE_REQUEST_NAME_CHANGE_SETTINGS,
      PREBATTLE_REQUEST_NAME_CHANGE_ARENA_VOIP,
@@ -828,7 +970,84 @@ class SYSTEM_MESSAGES(object):
      PREBATTLE_REQUEST_NAME_SET_TEAM_STATE,
      PREBATTLE_REQUEST_NAME_SET_PLAYER_STATE,
      PREBATTLE_REQUEST_NAME_SEND_INVITE,
-     PREBATTLE_REQUEST_NAME_PREBATTLES_LIST)
+     PREBATTLE_REQUEST_NAME_PREBATTLES_LIST,
+     PREBATTLE_REQUEST_NAME_CHANGE_UNIT_STATE,
+     PREBATTLE_REQUEST_NAME_UNITS_LIST,
+     EXCHANGE_SUCCESS,
+     EXCHANGE_NOT_ENOUGH_GOLD,
+     EXCHANGE_WALLET_NOT_AVAILABLE,
+     EXCHANGE_SERVER_ERROR,
+     EXCHANGEXP_SUCCESS,
+     EXCHANGEXP_NOT_ENOUGH_GOLD,
+     EXCHANGEXP_WALLET_NOT_AVAILABLE,
+     EXCHANGEXP_SERVER_ERROR,
+     WALLET_AVAILABLE,
+     WALLET_AVAILABLE_GOLD,
+     WALLET_AVAILABLE_FREEXP,
+     WALLET_NOT_AVAILABLE,
+     WALLET_NOT_AVAILABLE_GOLD,
+     WALLET_NOT_AVAILABLE_FREEXP,
+     UNIT_ERRORS_ALREADY_JOINED_UNIT,
+     UNIT_ERRORS_UNIT_MGR_ENTITY_CREATION_FAIL,
+     UNIT_ERRORS_UNIT_ADD_FAIL,
+     UNIT_ERRORS_CANT_FIND_UNIT_MGR,
+     UNIT_ERRORS_ADD_PLAYER_FAIL,
+     UNIT_ERRORS_NO_UNIT_MGR,
+     UNIT_ERRORS_WRONG_UNIT_REQUISITES,
+     UNIT_ERRORS_REMOVE_PLAYER_FAIL,
+     UNIT_ERRORS_GET_VEHICLE_FAIL,
+     UNIT_ERRORS_FAIL_UNIT_METHOD,
+     UNIT_ERRORS_BAD_SLOT_IDX,
+     UNIT_ERRORS_INSUFFICIENT_ROLE,
+     UNIT_ERRORS_NO_UNIT,
+     UNIT_ERRORS_JOIN_CTX_LOCK,
+     UNIT_ERRORS_CANT_INVITE,
+     UNIT_ERRORS_NOT_READY,
+     UNIT_ERRORS_NOT_IN_QUEUE,
+     UNIT_ERRORS_NOT_IDLE,
+     UNIT_ERRORS_NOT_IN_SEARCH,
+     UNIT_ERRORS_BAD_JOINING_ACC,
+     UNIT_ERRORS_PLAYER_IGNORED,
+     UNIT_ERRORS_NOT_INVITED,
+     UNIT_ERRORS_GET_READY_VEHICLE_FAIL,
+     UNIT_ERRORS_COOLDOWN,
+     UNIT_ERRORS_BAD_POINTS_SUM,
+     UNIT_WARNINGS_KICKED_CANDIDATE,
+     UNIT_WARNINGS_KICKED_PLAYER,
+     UNIT_WARNINGS_UNIT_ASSEMBLER_TIMEOUT,
+     UNIT_WARNINGS_KICKED_FROM_UNIT_ASSEMBLER,
+     UNIT_WARNINGS_INVITE_REMOVED,
+     UNIT_WARNINGS_ALREADY_INVITED,
+     UNIT_INFO_OFFLINESTATUS,
+     UNIT_INFO_ONLINESTATUS,
+     UNITBROWSER_ERRORS_BAD_ACCEPT_CONTEXT)
+
+    @staticmethod
+    def unit_errors(key):
+        outcome = '#system_messages:unit/errors/%s' % key
+        if outcome not in SYSTEM_MESSAGES.UNIT_ERRORS_ENUM:
+            LOG_WARNING('locale key "' + outcome + '" was not found')
+            return None
+        else:
+            return outcome
+
+    @staticmethod
+    def unitbrowser_errors(key):
+        outcome = '#system_messages:unitBrowser/errors/%s' % key
+        if outcome not in SYSTEM_MESSAGES.UNITBROWSER_ERRORS_ENUM:
+            LOG_WARNING('locale key "' + outcome + '" was not found')
+            return None
+        else:
+            return outcome
+
+    @staticmethod
+    def unit_warnings(key):
+        outcome = '#system_messages:unit/warnings/%s' % key
+        if outcome not in SYSTEM_MESSAGES.UNIT_WARNINGS_ENUM:
+            LOG_WARNING('locale key "' + outcome + '" was not found')
+            return None
+        else:
+            return outcome
 
     @staticmethod
     def customization_vehicle(key):
@@ -843,3 +1062,6 @@ class SYSTEM_MESSAGES(object):
         if outcome not in SYSTEM_MESSAGES.all_ENUM:
             raise Exception, 'locale key "' + outcome + '" was not found'
         return outcome
+# okay decompyling res/scripts/client/gui/scaleform/locale/system_messages.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:37 EST

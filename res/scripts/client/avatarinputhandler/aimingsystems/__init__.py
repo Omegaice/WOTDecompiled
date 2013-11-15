@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:18 EST
+# Embedded file name: scripts/client/AvatarInputHandler/AimingSystems/__init__.py
 import BigWorld
 import Math
 from Math import Vector3, Matrix
@@ -55,6 +57,14 @@ def getPlayerTurretMats(turretYaw = 0.0, gunPitch = 0.0):
 
 def getPlayerGunMat(turretYaw = 0.0, gunPitch = 0.0):
     return getPlayerTurretMats(turretYaw, gunPitch)[1]
+
+
+def getTurretYawGunPitch(vehTypeDescr, vehicleMatrix, targetPos, compensateGravity = False):
+    turretOffs = vehTypeDescr.hull['turretPositions'][0] + vehTypeDescr.chassis['hullPosition']
+    gunOffs = vehTypeDescr.turret['gunPosition']
+    speed = vehTypeDescr.shot['speed']
+    gravity = vehTypeDescr.shot['gravity'] if not compensateGravity else 0.0
+    return BigWorld.wg_getShotAngles(turretOffs, gunOffs, vehicleMatrix, speed, gravity, 0.0, 0.0, targetPos, False)
 
 
 def getDesiredShotPoint(start, dir, onlyOnGround = False, isStrategicMode = False):
@@ -117,3 +127,6 @@ def __collideStaticOnly(startPoint, endPoint):
     if testRes is not None:
         res = (testRes[0], None)
     return res
+# okay decompyling res/scripts/client/avatarinputhandler/aimingsystems/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:18 EST

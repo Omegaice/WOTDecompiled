@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:35 EST
+# Embedded file name: scripts/common/items/artefacts.py
 from types import IntType
 import items, nations
 from items import _xml, vehicles
@@ -56,10 +58,6 @@ class OptionalDevice(object):
             self.userString = i18n.makeString(section.readString('userString'))
             self.description = i18n.makeString(section.readString('description'))
             self.icon = _xml.readIcon(xmlCtx, section, 'icon')
-        price = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            self.price = price
-            self.showInShop = not section.readBool('notInShop', False)
         if IS_CELLAPP or not section.has_key('vehicleFilter'):
             self.__filter = None
         else:
@@ -234,10 +232,6 @@ class Equipment(object):
             self.userString = i18n.makeString(section.readString('userString'))
             self.description = i18n.makeString(section.readString('description'))
             self.icon = _xml.readIcon(xmlCtx, section, 'icon')
-        price = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            self.price = price
-            self.showInShop = not section.readBool('notInShop', False)
         if IS_CELLAPP or not section.has_key('vehicleFilter'):
             self.__vehicleFilter = None
         else:
@@ -439,3 +433,6 @@ def _readWeight(xmlCtx, section):
 
 
 _readTags = vehicles._readTags
+# okay decompyling res/scripts/common/items/artefacts.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:36 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:10 EST
+# Embedded file name: scripts/client/messenger/ext/player_helpers.py
 import BigWorld
 import account_helpers
 from adisp import process
@@ -118,3 +120,6 @@ class CurrentPlayerHelper(object):
         user = self.usersStorage.getUser(getPlayerDatabaseID())
         if user:
             user.update(clanAbbrev=self.playerCtx.getClanAbbrev())
+# okay decompyling res/scripts/client/messenger/ext/player_helpers.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:10 EST

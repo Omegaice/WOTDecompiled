@@ -1,16 +1,18 @@
+# 2013.11.15 11:25:42 EST
+# Embedded file name: scripts/client/gui/prb_control/functional/squad.py
 import BigWorld
 from account_helpers import gameplay_ctx
 from constants import JOIN_FAILURE, REQUEST_COOLDOWN
-from debug_utils import LOG_ERROR
+from debug_utils import LOG_ERROR, LOG_DEBUG
 from gui import DialogsInterface, prb_control, SystemMessages
 from gui.Scaleform.daapi.view.dialogs import I18nConfirmDialogMeta
 from gui.prb_control import events_dispatcher, context, getPrebattleRosters, info
 from gui.prb_control.formatters import messages
+from gui.prb_control.functional.decorators import vehicleAmmoCheck
 from gui.prb_control.functional.default import PrbEntry, PrbFunctional
 from gui.prb_control.info import PlayerPrbInfo
-from gui.prb_control.prb_helpers import vehicleAmmoCheck
-from gui.prb_control.restrictions.permissions import SquadPermissions
-from gui.prb_control.settings import PREBATTLE_ROSTER, PREBATTLE_REQUEST
+from gui.prb_control.restrictions.permissions import SquadPrbPermissions
+from gui.prb_control.settings import PREBATTLE_ROSTER, REQUEST_TYPE
 from gui.prb_control.settings import PREBATTLE_ACTION_NAME
 from gui.shared import g_eventBus, EVENT_BUS_SCOPE
 from gui.shared.events import ChannelCarouselEvent
@@ -22,7 +24,7 @@ class SquadEntry(PrbEntry):
         if action.actionName == PREBATTLE_ACTION_NAME.SQUAD:
             ctx = context.SquadSettingsCtx(waitingID='prebattle/create')
             if dispatcher is not None:
-                if dispatcher._setPrbCtx(ctx):
+                if dispatcher._setRequestCtx(ctx):
                     self.create(ctx)
             else:
                 LOG_ERROR('Prebattle dispatcher is required')
@@ -34,14 +36,14 @@ class SquadEntry(PrbEntry):
             LOG_ERROR('Invalid context to create squad', ctx)
             if callback:
                 callback(False)
-        elif info.isRequestInCoolDown(PREBATTLE_REQUEST.CREATE):
+        elif info.isRequestInCoolDown(REQUEST_TYPE.CREATE):
             SystemMessages.pushMessage(messages.getJoinFailureMessage(JOIN_FAILURE.COOLDOWN), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
         elif prb_control.getClientPrebattle() is None or ctx.isForced():
             ctx.startProcessing(callback=callback)
             BigWorld.player().prb_createSquad()
-            info.setRequestCoolDown(PREBATTLE_REQUEST.CREATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_CREATION)
+            info.setRequestCoolDown(REQUEST_TYPE.CREATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_CREATION)
         else:
             LOG_ERROR('First, player has to confirm exit from the current prebattle', prb_control.getPrebattleType())
             if callback:
@@ -57,24 +59,36 @@ class SquadEntry(PrbEntry):
 class SquadFunctional(PrbFunctional):
 
     def __init__(self, settings):
-        requests = {PREBATTLE_REQUEST.SET_TEAM_STATE: self.setTeamState,
-         PREBATTLE_REQUEST.SET_PLAYER_STATE: self.setPlayerState,
-         PREBATTLE_REQUEST.KICK: self.kickPlayer,
-         PREBATTLE_REQUEST.SEND_INVITE: self.sendInvites}
-        super(SquadFunctional, self).__init__(settings, permClass=SquadPermissions, requestHandlers=requests)
+        requests = {REQUEST_TYPE.SET_TEAM_STATE: self.setTeamState,
+         REQUEST_TYPE.SET_PLAYER_STATE: self.setPlayerState,
+         REQUEST_TYPE.KICK: self.kickPlayer,
+         REQUEST_TYPE.SEND_INVITE: self.sendInvites}
+        super(SquadFunctional, self).__init__(settings, permClass=SquadPrbPermissions, requestHandlers=requests)
         self.__doTeamReady = False
 
     def init(self, clientPrb = None, ctx = None):
         super(SquadFunctional, self).init(clientPrb=clientPrb)
         isInvitesOpen = False
         if ctx is not None:
-            isInvitesOpen = ctx.getRequestType() is PREBATTLE_REQUEST.CREATE
+            isInvitesOpen = ctx.getRequestType() is REQUEST_TYPE.CREATE
+        if self.getPlayerInfo().isReady() and self.getTeamState(team=1).isInQueue():
+            events_dispatcher.loadBattleQueue()
+        else:
+            events_dispatcher.loadHangar()
         events_dispatcher.loadSquad(isInvitesOpen=isInvitesOpen)
         g_eventBus.addListener(ChannelCarouselEvent.CAROUSEL_INITED, self.__handleCarouselInited, scope=EVENT_BUS_SCOPE.LOBBY)
         return
 
+    def canPlayerDoAction(self):
+        if self.getTeamState().isInQueue():
+            return (False, '')
+        return (True, '')
+
+    def isGUIProcessed(self):
+        return True
+
     def fini(self, clientPrb = None, woEvents = False):
-        super(SquadFunctional, self).fini(clientPrb=clientPrb)
+        super(SquadFunctional, self).fini(clientPrb=clientPrb, woEvents=woEvents)
         if not woEvents:
             events_dispatcher.unloadSquad()
         else:
@@ -142,6 +156,7 @@ class SquadFunctional(PrbFunctional):
 
     def prb_onTeamStatesReceived(self):
         super(SquadFunctional, self).prb_onTeamStatesReceived()
+        events_dispatcher.updateUI()
         if self.getPlayerInfo().isReady() or self.isCreator():
             if self.getTeamState(team=1).isInQueue():
                 events_dispatcher.loadBattleQueue()
@@ -165,3 +180,6 @@ class SquadFunctional(PrbFunctional):
 
     def __handleCarouselInited(self, _):
         events_dispatcher.addSquadToCarousel()
+# okay decompyling res/scripts/client/gui/prb_control/functional/squad.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:43 EST

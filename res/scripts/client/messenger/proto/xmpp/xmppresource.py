@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:17 EST
+# Embedded file name: scripts/client/messenger/proto/xmpp/XmppResource.py
 __author__ = 'd_dichkovsky'
 
 class XmppResource:
@@ -49,3 +51,6 @@ class XmppResource:
     @presence.setter
     def presence(self, value):
         self.__presence = value
+# okay decompyling res/scripts/client/messenger/proto/xmpp/xmppresource.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:17 EST

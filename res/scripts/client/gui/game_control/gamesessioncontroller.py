@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:35 EST
+# Embedded file name: scripts/client/gui/game_control/GameSessionController.py
 import BigWorld, Event, account_shared, time, constants
 from adisp import process
 from helpers import time_utils
@@ -18,6 +20,7 @@ class GameSessionController(object):
         self.__stats = None
         self.__notifyCallback = None
         self.__banCallback = None
+        self.__lastBanMsg = None
         self.isAdult = True
         self.isPlayTimeBlock = False
         self.__midnightBlockTime = None
@@ -131,6 +134,10 @@ class GameSessionController(object):
         serverTimeStruct = time.gmtime(time_utils._g_instance.serverRegionalTime)
         return serverTimeStruct.tm_hour * 60 * 60 + serverTimeStruct.tm_min * 60 + serverTimeStruct.tm_sec
 
+    @property
+    def lastBanMsg(self):
+        return self.__lastBanMsg
+
     def _getDailyPlayHours(self):
         """
         Returns value of this day playing time in seconds.
@@ -181,5 +188,10 @@ class GameSessionController(object):
     def __onBanNotifyHandler(self):
         """ Ban notification event handler """
         LOG_DEBUG('GameSessionController:__onBanNotifyHandler')
-        self.onTimeTillBan(self.isPlayTimeBlock, time.strftime('%H:%M', time.gmtime(time.time() + self.PLAY_TIME_LEFT_NOTIFY)))
+        banTime = time.strftime('%H:%M', time.gmtime(time.time() + self.PLAY_TIME_LEFT_NOTIFY))
+        self.__lastBanMsg = (self.isPlayTimeBlock, banTime)
+        self.onTimeTillBan(*self.__lastBanMsg)
         self.__banCallback = BigWorld.callback(self.DAY_DURATION, self.__onBanNotifyHandler)
+# okay decompyling res/scripts/client/gui/game_control/gamesessioncontroller.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:35 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:22 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/trainings/TrainingSettingsWindow.py
 import ArenaType
 from adisp import process
 from gui.Scaleform.daapi.view.lobby.trainings import formatters
@@ -7,7 +9,7 @@ from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION
 from gui.Scaleform.framework.entities.View import View
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.daapi.view.meta.TrainingWindowMeta import TrainingWindowMeta
-from gui.prb_control.settings import PREBATTLE_REQUEST
+from gui.prb_control.settings import REQUEST_TYPE
 from helpers import i18n
 
 class ArenasCache(object):
@@ -71,14 +73,17 @@ class TrainingSettingsWindow(View, WindowViewMeta, TrainingWindowMeta):
          'timeout': self.__settingsCtx.getRoundLen() / 60,
          'arena': self.__settingsCtx.getArenaTypeID(),
          'privacy': not self.__settingsCtx.isOpened(),
-         'create': self.__settingsCtx.getRequestType() is PREBATTLE_REQUEST.CREATE}
+         'create': self.__settingsCtx.getRequestType() is REQUEST_TYPE.CREATE}
 
     def updateTrainingRoom(self, arena, roundLength, isPrivate, comment):
         self.__settingsCtx.setArenaTypeID(arena)
         self.__settingsCtx.setRoundLen(roundLength * 60)
         self.__settingsCtx.setOpened(not isPrivate)
         self.__settingsCtx.setComment(comment)
-        if self.__settingsCtx.getRequestType() is PREBATTLE_REQUEST.CREATE:
+        if self.__settingsCtx.getRequestType() is REQUEST_TYPE.CREATE:
             self.__createTrainingRoom()
         else:
             self.__changeTrainingRoom()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/trainings/trainingsettingswindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:22 EST

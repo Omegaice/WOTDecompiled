@@ -1,7 +1,10 @@
+# 2013.11.15 11:26:07 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/invite_post_actions.py
 import BigWorld
 from ConnectionManager import connectionManager
 from adisp import process
 from debug_utils import LOG_DEBUG, LOG_ERROR
+from gui.LobbyContext import g_lobbyContext
 from gui.Scaleform.Waiting import Waiting
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.framework import AppRef, VIEW_TYPE
@@ -70,12 +73,7 @@ class ConnectToPeriphery(Action, AppRef):
         super(ConnectToPeriphery, self).__init__()
         self.__host = g_preDefinedHosts.periphery(peripheryID)
         self.__endTime = None
-        invitesManager = g_prbLoader.getInvitesManager()
-        if invitesManager:
-            self.__credentials = invitesManager.getCredentials()
-        else:
-            LOG_ERROR('Connect action. Invites manager not found')
-            self.__credentials = None
+        self.__credentials = g_lobbyContext.getCredentials()
         return
 
     def isInstantaneous(self):
@@ -166,3 +164,6 @@ class PrbInvitesInit(Action):
             LOG_ERROR('Invites manager not found')
         self._completed = True
         self._running = False
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/invite_post_actions.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:08 EST

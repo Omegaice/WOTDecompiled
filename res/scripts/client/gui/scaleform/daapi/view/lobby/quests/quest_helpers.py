@@ -1,8 +1,10 @@
+# 2013.11.15 11:26:11 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/quests/quest_helpers.py
 import time
 import BigWorld
+from external_strings_utils import truncate_utf8
 from account_helpers.AccountSettings import AccountSettings
 from helpers import i18n, int2roman
-from debug_utils import LOG_DEBUG
 from gui import makeHtmlString
 from gui.shared import events, g_eventBus, g_itemsCache
 from gui.shared.utils import CONST_CONTAINER
@@ -11,6 +13,7 @@ _ONE_HOUR = 3600
 _ONE_DAY = 24 * _ONE_HOUR
 FINISH_TIME_LEFT_TO_SHOW = _ONE_DAY
 START_TIME_LIMIT = 5 * _ONE_DAY
+_MAX_NAME_LENGTH = 50
 _PROGRESS_TOOLTIP_MAX_ITEMS = 4
 
 class QUEST_STATUS(CONST_CONTAINER):
@@ -36,8 +39,9 @@ def getTimerMsg(q):
         if startTimeLeft > START_TIME_LIMIT:
             fmt = _getDateTimeString(q.getStartTime())
         elif START_TIME_LIMIT >= startTimeLeft > _ONE_DAY:
-            gmtime = time.gmtime(q.getStartTimeLeft() - _ONE_DAY)
-            fmt = time.strftime(i18n.makeString('#quests:item/timer/tillStart/days'), gmtime)
+            gmtime = time.gmtime(q.getStartTimeLeft())
+            days = int(time.struct_time(gmtime).tm_mday)
+            fmt = i18n.makeString('#quests:item/timer/tillStart/days') % days
         elif _ONE_DAY >= startTimeLeft > _ONE_HOUR:
             fmt = time.strftime(i18n.makeString('#quests:item/timer/tillStart/hours'), gmtime)
         else:
@@ -54,15 +58,15 @@ def getTimerMsg(q):
 
 
 def getQuestStatus(q):
-    if not q.isAvailable():
-        return QUEST_STATUS.NOT_AVAILABLE
     if q.isCompleted():
         return QUEST_STATUS.COMPLETED
+    if not q.isAvailable():
+        return QUEST_STATUS.NOT_AVAILABLE
     return QUEST_STATUS.NONE
 
 
 def getBonusCount(q):
-    if not q.isCompleted() and q.isAvailable() and (q.getBonusLimit() is None or q.getBonusLimit() > 1):
+    if not q.isCompleted() and (q.getBonusLimit() is None or q.getBonusLimit() > 1):
         return q.getBonusCount()
     else:
         return -1
@@ -128,7 +132,7 @@ def getQuestProgress(q, quests = None):
      '',
      PROGRESS_BAR_TYPE.NONE,
      None)
-    if not q.isAvailable() or q.isCompleted():
+    if q.isCompleted():
         return result
     elif q.isStrategic():
         subtasks = tuple((st for st in makeQuestGroup(q, quests) if st.getID() != q.getID()))
@@ -143,6 +147,7 @@ def getQuestProgress(q, quests = None):
     if p is not None:
         groupBy = q.getCumulativeGroup()
         groupByKey, current, total, label, nearestProgs = p
+        progressType = PROGRESS_BAR_TYPE.NONE if current == 0 and total == 0 else PROGRESS_BAR_TYPE.SIMPLE
         tooltip = None
         if groupBy is not None and groupByKey is not None:
             name, names = ('', '')
@@ -171,7 +176,7 @@ def getQuestProgress(q, quests = None):
         return (current,
          total,
          label,
-         PROGRESS_BAR_TYPE.SIMPLE,
+         progressType,
          tooltip)
     else:
         return result
@@ -213,7 +218,6 @@ def packSubQuest(q, quests = None):
 
 
 def packQuest(q, quests = None, linkUp = False, linkDown = False, noProgressInfo = False, noProgressTooltip = False):
-    visited = AccountSettings.getSettings('quests').get('visited', [])
     status = getQuestStatus(q)
     bonusCount = getBonusCount(q)
     qProgCur, qProgTot, qProgLabl, qProgbarType, tooltip = getQuestProgress(q, quests)
@@ -228,7 +232,7 @@ def packQuest(q, quests = None, linkUp = False, linkDown = False, noProgressInfo
     if noProgressTooltip:
         tooltip = None
     return {'questID': q.getID(),
-     'isNew': q.getID() not in visited and not q.isCompleted() and q.isAvailable(),
+     'isNew': isNewQuest(q, AccountSettings.getSettings('quests')),
      'status': status,
      'IGR': q.isIGR(),
      'taskType': q.getUserType(),
@@ -275,21 +279,42 @@ def packQuestDetails(q, quests = None):
      'nextTasks': nextTasks}
 
 
+def isNewQuest(quest, storedSettings):
+    if quest.isAvailable():
+        setting = 'visited'
+    else:
+        setting = 'naVisited'
+    return quest.getID() not in storedSettings[setting] and not quest.isCompleted() and not quest.isOutOfDate()
+
+
 def getNewQuests(quests):
-    visited = AccountSettings.getSettings('quests').get('visited', [])
-    return filter(lambda q: q.getID() not in visited and not q.isCompleted() and q.isAvailable(), quests.itervalues())
+    storedSettings = AccountSettings.getSettings('quests')
+    return filter(lambda q: isNewQuest(q, storedSettings), quests.itervalues())
 
 
 def visitQuestsGUI(quest):
     if quest is None:
         return
     else:
-        quests = {quest.getID: quest}
         s = dict(AccountSettings.getSettings('quests'))
-        active = set((q.getID() for q in quests.itervalues() if not q.isCompleted() and q.isAvailable()))
-        completed = set((q.getID() for q in quests.itervalues() if q.isCompleted()))
-        s['visited'] = tuple(set(s['visited']).difference(completed) | active)
+        settings = ['naVisited']
+        if quest.isAvailable():
+            settings.append('visited')
+        for setting in settings:
+            s[setting] = tuple(set(s[setting]) | set([quest.getID()]))
+
         s['lastVisitTime'] = time.time()
         AccountSettings.setSettings('quests', s)
-        g_eventBus.handleEvent(events.LobbySimpleEvent(events.LobbySimpleEvent.QUEST_VISITED, {'questID': quest.getID()}))
+        g_eventBus.handleEvent(events.LobbySimpleEvent(events.LobbySimpleEvent.QUESTS_UPDATED))
         return
+
+
+def updateQuestSettings(quests):
+    s = dict(AccountSettings.getSettings('quests'))
+    completed = set((q.getID() for q in quests.itervalues() if q.isCompleted()))
+    s['visited'] = tuple(set(s.get('visited', [])).difference(completed))
+    s['naVisited'] = tuple(set(s.get('naVisited', [])).difference(completed))
+    AccountSettings.setSettings('quests', s)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/quests/quest_helpers.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:12 EST

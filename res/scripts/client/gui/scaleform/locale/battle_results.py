@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:30 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/BATTLE_RESULTS.py
 
 
 class BATTLE_RESULTS(object):
@@ -172,3 +174,6 @@ class BATTLE_RESULTS(object):
         if outcome not in BATTLE_RESULTS.COMMON_TOOLTIP_ENUM:
             raise Exception, 'locale key "' + outcome + '" was not found'
         return outcome
+# okay decompyling res/scripts/client/gui/scaleform/locale/battle_results.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:30 EST

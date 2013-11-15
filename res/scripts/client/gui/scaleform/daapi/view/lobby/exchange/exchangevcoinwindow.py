@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:01 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/exchange/ExchangeVcoinWindow.py
 import BigWorld
 from debug_utils import LOG_WARNING
 from gui.ClientUpdateManager import g_clientUpdateManager
@@ -75,3 +77,6 @@ class ExchangeVcoinWindow(ExchangeVcoinWindowMeta, BaseExchangeWindow):
         VcoinUpdateBalanceRequester.g_instance.onEbankUpdateBalanceComplete -= self.onUpdateBalanceCompleteHandler
         VcoinGetBalanceRequester.g_instance.onEbankGetBalanceComplete -= self.eBankGetBalanceHandler
         super(ExchangeVcoinWindow, self)._dispose()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/exchange/exchangevcoinwindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:01 EST

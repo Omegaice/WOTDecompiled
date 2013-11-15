@@ -1,6 +1,8 @@
+# 2013.11.15 11:26:48 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/dossier/factories.py
 import weakref
 import nations
-from dossiers.achievements import ACHIEVEMENT_TYPE
+from dossiers2.ui.achievements import ACHIEVEMENT_TYPE
 from gui.shared.utils import dossiers_utils
 from gui.shared.gui_items.dossier import achievements
 
@@ -12,17 +14,14 @@ class _AchieveFactory(object):
         self.dossier = weakref.proxy(dossier)
 
     def isInDossier(self):
-        return self.achieveClass.isInDossier(self.name, self._getDossierDescr())
+        return self.achieveClass.isInDossier(self.name, self.dossier)
 
     def create(self, itemsRequester = None):
-        return self.achieveClass(self.name, self._getDossierDescr(), itemsRequester)
+        return self.achieveClass(self.name, self.dossier, itemsRequester)
 
     @classmethod
     def get(cls, achieveClass):
         return lambda name, dossier: cls(achieveClass, name, dossier)
-
-    def _getDossierDescr(self):
-        return self.dossier.dossier
 
 
 class _CustomAchieveFactory(_AchieveFactory):
@@ -31,7 +30,7 @@ class _CustomAchieveFactory(_AchieveFactory):
         super(_CustomAchieveFactory, self).__init__(achieveClass, name, dossier)
 
     def create(self, itemsRequester = None):
-        return self.achieveClass(self._getDossierDescr(), itemsRequester)
+        return self.achieveClass(self.dossier, itemsRequester)
 
     @classmethod
     def get(cls, achieveClass):
@@ -44,7 +43,7 @@ class _SequenceAchieveFactory(_AchieveFactory):
         super(_SequenceAchieveFactory, self).__init__(achieveClass, name, dossier)
 
     def create(self, ir = None):
-        return dict(((rareID, self.achieveClass(rareID, self._getDossierDescr(), ir)) for rareID in self._getDossierDescr()['rareAchievements']))
+        return dict(((rareID, self.achieveClass(rareID, self.dossier, ir)) for rareID in self.dossier.getRecord('rareAchievements')))
 
     @classmethod
     def get(cls, achieveClass):
@@ -61,7 +60,7 @@ class _NationAchieveFactory(_AchieveFactory):
         self.nationID = nationID
 
     def create(self, itemsRequester = None):
-        return self.achieveClass(self.nationID, self._getDossierDescr(), self.dossier.isCurrentUser, itemsRequester)
+        return self.achieveClass(self.nationID, self.dossier, self.dossier.isCurrentUser, itemsRequester)
 
     @classmethod
     def get(cls, achieveClass, nationID = -1):
@@ -98,3 +97,6 @@ def getAchievementFactory(name, dossier):
         if achieveType is not None and achieveType in _ACHIEVEMENTS_BY_TYPE:
             return _ACHIEVEMENTS_BY_TYPE[achieveType](name, dossier)
         return _AchieveFactory(achievements.RegularAchievement, name, dossier)
+# okay decompyling res/scripts/client/gui/shared/gui_items/dossier/factories.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:48 EST

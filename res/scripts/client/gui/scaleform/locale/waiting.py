@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:37 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/WAITING.py
 
 
 class WAITING(object):
@@ -106,6 +108,8 @@ class WAITING(object):
     PREBATTLE_CHANGE_SETTINGS = '#waiting:prebattle/change_settings'
     PREBATTLE_LEAVE = '#waiting:prebattle/leave'
     PREBATTLE_KICK = '#waiting:prebattle/kick'
+    PREBATTLE_AUTO_SEARCH = '#waiting:prebattle/auto_search'
+    PREBATTLE_BATTLE_QUEUE = '#waiting:prebattle/battle_queue'
     MESSAGE_ENUM = (MESSAGE_QUEUE,
      MESSAGE_AUTOLOGIN,
      MESSAGE_ANOTHER_PERIPHERY,
@@ -131,3 +135,6 @@ class WAITING(object):
         if outcome not in WAITING.TITLES_ENUM:
             raise Exception, 'locale key "' + outcome + '" was not found'
         return outcome
+# okay decompyling res/scripts/client/gui/scaleform/locale/waiting.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:38 EST

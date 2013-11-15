@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:29 EST
+# Embedded file name: scripts/client/gui/Scaleform/framework/WaitingView.py
 import Keys
 from gui import InputHandler
 from gui.Scaleform.framework.entities.View import View
@@ -29,3 +31,6 @@ class WaitingView(WaitingViewMeta, View):
 
     def setCallback(self, value):
         self.__callback = value
+# okay decompyling res/scripts/client/gui/scaleform/framework/waitingview.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:29 EST

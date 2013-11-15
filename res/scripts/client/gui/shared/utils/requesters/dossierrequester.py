@@ -1,8 +1,10 @@
+# 2013.11.15 11:27:04 EST
+# Embedded file name: scripts/client/gui/shared/utils/requesters/DossierRequester.py
 import time
 from functools import partial
 import BigWorld
 import constants
-import dossiers
+import dossiers2
 import AccountCommands
 from adisp import async
 from debug_utils import LOG_ERROR
@@ -37,15 +39,14 @@ class UserDossier(object):
     __lastResponseTime = 0
     __request = None
 
-    def __init__(self, userName):
-        self.userName = userName
-        self.__cache = {'databaseID': 0L,
+    def __init__(self, databaseID):
+        self.__cache = {'databaseID': int(databaseID),
          'account': None,
          'vehicles': {},
          'clan': None,
          'hidden': False,
          'available': True,
-         'rating': 0}
+         'rating': None}
         return
 
     def __setLastResponseTime(self):
@@ -71,13 +72,13 @@ class UserDossier(object):
         def proxyCallback(value):
             if value is not None and len(value) > 1:
                 self.__cache['databaseID'] = value[0]
-                self.__cache['account'] = dossiers.getAccountDossierDescr(value[1])
+                self.__cache['account'] = dossiers2.getAccountDossierDescr(value[1])
                 self.__cache['clan'] = value[2]
                 self.__cache['rating'] = value[3]
             callback(self.__cache['account'])
             return
 
-        self.__queue.append(lambda : BigWorld.player().requestPlayerInfo(self.userName, partial(lambda c, code, databaseID, dossier, clanID, clanInfo, gRating: self.__processValueResponse(c, code, (databaseID,
+        self.__queue.append(lambda : BigWorld.player().requestPlayerInfo(self.__cache['databaseID'], partial(lambda c, code, databaseID, dossier, clanID, clanInfo, gRating: self.__processValueResponse(c, code, (databaseID,
          dossier,
          (clanID, clanInfo),
          gRating)), proxyCallback)))
@@ -86,7 +87,7 @@ class UserDossier(object):
     def __requestAccountDossier(self, callback):
 
         def proxyCallback(dossier):
-            self.__cache['account'] = dossiers.getAccountDossierDescr(dossier)
+            self.__cache['account'] = dossiers2.getAccountDossierDescr(dossier)
             callback(self.__cache['account'])
 
         self.__queue.append(lambda : BigWorld.player().requestAccountDossier(self.__cache['databaseID'], partial(lambda c, code, dossier: self.__processValueResponse(c, code, dossier), proxyCallback)))
@@ -95,7 +96,7 @@ class UserDossier(object):
     def __requestVehicleDossier(self, vehCompDescr, callback):
 
         def proxyCallback(dossier):
-            self.__cache['vehicles'][vehCompDescr] = dossiers.getVehicleDossierDescr(dossier)
+            self.__cache['vehicles'][vehCompDescr] = dossiers2.getVehicleDossierDescr(dossier)
             callback(self.__cache['vehicles'][vehCompDescr])
 
         self.__queue.append(lambda : BigWorld.player().requestVehicleDossier(self.__cache['databaseID'], vehCompDescr, partial(lambda c, code, dossier: self.__processValueResponse(c, code, dossier), proxyCallback)))
@@ -107,7 +108,7 @@ class UserDossier(object):
             self.__cache['clan'] = value
             callback(self.__cache['clan'])
 
-        self.__queue.append(lambda : BigWorld.player().requestPlayerClanInfo(self.userName, partial(lambda c, code, str, clanDBID, clanInfo: self.__processValueResponse(c, code, (clanDBID, clanInfo)), callback)))
+        self.__queue.append(lambda : BigWorld.player().requestPlayerClanInfo(self.__cache['databaseID'], partial(lambda c, code, str, clanDBID, clanInfo: self.__processValueResponse(c, code, (clanDBID, clanInfo)), callback)))
         self.__processQueue()
 
     def __processValueResponse(self, callback, code, value):
@@ -155,7 +156,7 @@ class UserDossier(object):
         if not self.isValid:
             callback(None)
         if self.__cache.get('rating') is None:
-            self.__requestPlayerInfo(callback)
+            self.__requestPlayerInfo(lambda accDossier: callback(self.__cache['rating']))
             return
         else:
             callback(self.__cache['rating'])
@@ -207,14 +208,18 @@ class DossierRequester(RequesterAbstract):
         """
         return self.getCacheValue((constants.DOSSIER_TYPE.VEHICLE, vehTypeCompDescr), (0, ''))[1]
 
-    def getUserDossierRequester(self, userName):
-        return self.__users.setdefault(userName, UserDossier(userName))
+    def getUserDossierRequester(self, databaseID):
+        databaseID = int(databaseID)
+        return self.__users.setdefault(databaseID, UserDossier(databaseID))
 
-    def closeUserDossier(self, userName):
-        if userName in self.__users:
-            del self.__users[userName]
+    def closeUserDossier(self, databaseID):
+        if databaseID in self.__users:
+            del self.__users[databaseID]
 
     def onCenterIsLongDisconnected(self, isLongDisconnected):
         if isLongDisconnected:
             return
         self.__users = dict(filter(lambda item: item[1].isAvailable, self.__users.iteritems()))
+# okay decompyling res/scripts/client/gui/shared/utils/requesters/dossierrequester.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:04 EST

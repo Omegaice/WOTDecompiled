@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:56 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/DismissTankmanDialog.py
 from adisp import process
 from gui import makeHtmlString
 from gui.Scaleform.locale.DIALOGS import DIALOGS
@@ -21,7 +23,10 @@ class DismissTankmanDialog(DismissTankmanDialogMeta, SimpleDialog):
 
     def _populate(self):
         super(DismissTankmanDialog, self)._populate()
-        self.as_enabledButtonS(False)
+        if len(self.tankman.skills) > 0 or self.tankman.roleLevel >= 100:
+            self.as_enabledButtonS(False)
+        else:
+            self.as_enabledButtonS(True)
         self.__prepareTankmanData()
 
     @process
@@ -34,14 +39,17 @@ class DismissTankmanDialog(DismissTankmanDialogMeta, SimpleDialog):
         skills_count = list(tankmen.ACTIVE_SKILLS)
         availableSkillsCount = len(skills_count) - len(self.tankman.skills)
         if self.tankman.roleLevel == tankmen.MAX_SKILL_LEVEL and availableSkillsCount:
-            hasNewSkills = self.tankman.descriptor.lastSkillLevel == tankmen.MAX_SKILL_LEVEL or not len(self.tankman.skills)
-            self.as_tankManS({'money': (items.stats.credits, items.stats.gold),
-             'tankman': g_itemSerializer.pack(self.tankman),
-             'dropSkillsCost': dropSkillsCost,
-             'hasNewSkills': hasNewSkills,
-             'defaultSavingMode': 0})
-            self.controlNumber = len(self.tankman.skills) < 1 and str(self.tankman.roleLevel)
-            question = makeHtmlString('html_templates:lobby/dialogs', 'dismissTankmanMain', {'roleLevel': str(self.tankman.roleLevel)})
+            if not self.tankman.descriptor.lastSkillLevel == tankmen.MAX_SKILL_LEVEL:
+                hasNewSkills = not len(self.tankman.skills)
+                self.as_tankManS({'money': (items.stats.credits, items.stats.gold),
+                 'tankman': g_itemSerializer.pack(self.tankman),
+                 'dropSkillsCost': dropSkillsCost,
+                 'hasNewSkills': hasNewSkills,
+                 'defaultSavingMode': 0})
+                question = len(self.tankman.skills) < 1 and self.tankman.roleLevel < 100 and i18n.makeString(DIALOGS.DISMISSTANKMAN_MESSAGE)
+            else:
+                self.controlNumber = str(self.tankman.roleLevel)
+                question = makeHtmlString('html_templates:lobby/dialogs', 'dismissTankmanMain', {'roleLevel': str(self.tankman.roleLevel)})
         else:
             if self.tankman.skills[-1].isPerk:
                 skillType = DIALOGS.PROTECTEDDISMISSTANKMAN_ADDITIONALMESSAGE_ISPERK
@@ -66,3 +74,6 @@ class DismissTankmanDialog(DismissTankmanDialogMeta, SimpleDialog):
         self.tankman = None
         self._meta = None
         return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/dialogs/dismisstankmandialog.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:56 EST

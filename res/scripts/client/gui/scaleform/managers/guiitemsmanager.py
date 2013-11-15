@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:39 EST
+# Embedded file name: scripts/client/gui/Scaleform/managers/GuiItemsManager.py
 import weakref
 import pickle
 from debug_utils import LOG_DEBUG, LOG_WARNING
@@ -137,6 +139,18 @@ class VehicleWrapper(ItemWrapper):
 
 class _Dossier(ItemWrapper):
 
+    def getattr(self, attrName):
+        stats = self.item.getTotalStats()
+        if hasattr(stats, attrName):
+            return getattr(self, attrName)
+        return super(_Dossier, self).getattr(attrName)
+
+    def call(self, methodName, *args):
+        stats = self.item.getTotalStats()
+        if hasattr(stats, methodName):
+            return getattr(stats, methodName)(*args)
+        return super(_Dossier, self).call(methodName, *args)
+
     def getAchievements(self, isInDossier = True):
         dcd = pickle.dumps(self.item.dossier.makeCompDescr())
         result = []
@@ -172,7 +186,7 @@ class _Dossier(ItemWrapper):
          'dossierCompDescr': dossierCompDescr,
          'rareIconId': rareID,
          'isRare': isRare,
-         'isActive': achieve.isActive,
+         'isDone': achieve.isDone,
          'lvlUpTotalValue': achieve.lvlUpTotalValue,
          'lvlUpValue': achieve.lvlUpValue,
          'isDossierForCurrentUser': self.itemID is None,
@@ -180,7 +194,7 @@ class _Dossier(ItemWrapper):
          'userName': achieve.userName,
          'icon': achieve.icon,
          'dossierType': self._getDossierType(),
-         'isInDossier': achieve.isInDossier(achieve.name, self.item.dossier)}
+         'isInDossier': achieve.isInDossier(achieve.name, self.item)}
 
 
 class AccountDossierWrapper(_Dossier):
@@ -193,7 +207,8 @@ class AccountDossierWrapper(_Dossier):
 
     def getTechniqueListVehicles(self):
         result = []
-        for intCD, (battlesCount, wins, markOfMastery, avgXP) in self.item.getVehicles().iteritems():
+        for intCD, (battlesCount, wins, markOfMastery, xp) in self.item.getTotalStats().getVehicles().iteritems():
+            avgXP = xp / battlesCount if battlesCount else 0
             vehicle = g_itemsCache.items.getItemByCD(intCD)
             if vehicle is not None:
                 result.append({'id': intCD,
@@ -214,8 +229,19 @@ class AccountDossierWrapper(_Dossier):
 
         return result
 
+    def getMaxFrags(self):
+        stats = self.item.getTotalStats()
+        return (stats.getMaxFrags(), stats.getMaxFragsVehicle())
+
+    def getMaxXP(self):
+        stats = self.item.getTotalStats()
+        return (stats.getMaxXp(), stats.getMaxXpVehicle())
+
     def getVehicles(self):
-        return dict(((str(k), v) for k, v in self.item.getVehicles().iteritems()))
+        return dict(((str(k), v) for k, v in self.item.getTotalStats().getVehicles().iteritems()))
+
+    def getMarksOfMastery(self):
+        return self.item.getTotalStats().getMarkOfMastery()
 
     def _getDossierType(self):
         return GUI_ITEM_TYPE.ACCOUNT_DOSSIER
@@ -225,6 +251,12 @@ class VehicleDossierWrapper(_Dossier):
 
     def __init__(self, items, itemID):
         super(VehicleDossierWrapper, self).__init__(items, GUI_ITEM_TYPE.VEHICLE_DOSSIER, itemID)
+
+    def getMaxVehicleFrags(self):
+        return self.item.getTotalStats().getMaxFrags()
+
+    def getMaxVehicleXP(self):
+        return self.item.getTotalStats().getMaxXp()
 
     def _getItem(self, items, itemID):
         return items.getVehicleDossier(*itemID)
@@ -304,3 +336,6 @@ class GuiItemsManager(GuiItemsManagerMeta):
 
     def _callItemMethod(self, itemTypeIdx, itemID, methodName, kargs):
         return self.__getWrapper(itemTypeIdx, itemID).call(methodName, *kargs)
+# okay decompyling res/scripts/client/gui/scaleform/managers/guiitemsmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:39 EST

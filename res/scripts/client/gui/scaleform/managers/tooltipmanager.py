@@ -1,11 +1,15 @@
+# 2013.11.15 11:26:39 EST
+# Embedded file name: scripts/client/gui/Scaleform/managers/ToolTipManager.py
 import pickle
 import ResMgr
 import BigWorld
 import sys
-import dossiers
+import dossiers2
 import gui
 import constants
+from gui.Scaleform.daapi.view.lobby.cyberSport import getUnitRosterData
 from gui.Scaleform.locale.MENU import MENU
+from gui.prb_control.dispatcher import g_prbLoader
 from gui.shared.gui_items import GUI_ITEM_TYPE
 import nations
 from gui.Scaleform.daapi.view.lobby.techtree.custom_items import _convert4ToolTip, _makeShopVehicle
@@ -19,16 +23,16 @@ from gui.shared.utils import ParametersCache, ItemsParameters, dossiers_utils, R
 from gui.shared import g_itemsCache, g_questsCache
 from gui.shared.utils.requesters import StatsRequester, Requester, ShopRequester
 from gui.shared.utils.gui_items import ShopItem, InventoryVehicle, VehicleItem, _ICONS_MASK, getItemByCompact
-from gui.shared.utils.functions import stripShortDescrTags, getShortDescr, isModuleFitVehicle
+from gui.shared.utils.functions import stripShortDescrTags, getShortDescr, isModuleFitVehicle, getModuleGoldStatus
 from gui.shared.utils.dossiers_utils import getAchievementType, getAchievementSection, ACHIEVEMENTS_NEXT_LEVEL_VALUES
 from gui.shared.utils.RareAchievementsCache import g_rareAchievesCache
-from items import ITEM_TYPE_NAMES, vehicles, artefacts, ITEM_TYPE_INDICES
+from items import ITEM_TYPE_NAMES, vehicles
 from items.tankmen import getSkillsConfig, MAX_SKILL_LEVEL, PERKS, SKILLS_BY_ROLES, COMMANDER_ADDITION_RATIO
 from gui.ClientUpdateManager import g_clientUpdateManager
-from dossiers.achievements import ACHIEVEMENTS
+from dossiers2.custom.config import RECORD_CONFIGS
+from dossiers2.ui.achievements import ACHIEVEMENTS, ACHIEVEMENT_TYPE
 from debug_utils import LOG_ERROR, LOG_DEBUG, LOG_CURRENT_EXCEPTION
 from helpers import i18n
-from dossiers.achievements import ACHIEVEMENT_TYPE
 from gui import game_control
 
 class ToolTipManager(object):
@@ -70,6 +74,7 @@ class ToolTipManager(object):
         SHELL = 'shell'
         EFFICIENCY = 'efficiency'
         IGR = 'igr'
+        CYBER_SPORT = 'cyberSport'
 
     class TOOLTIP_COMPONENT:
         TECH_MAIN = 'technical_maintenance'
@@ -80,7 +85,9 @@ class ToolTipManager(object):
         CAROUSEL = 'carousel'
         RESEARCH = 'research'
         PROFILE = 'profile'
+        PROFILE_VEHICLE = 'profileVehicle'
         FINAL_STATISTIC = 'FinalStatistic'
+        CYBER_SPORT_UNIT = 'CyberSportUnit'
 
     DEFAUL_DAILY_XP_FACTOR = 2
 
@@ -173,14 +180,16 @@ class ToolTipManager(object):
         """
         @return: (isAvailable, unlockPrice, notEnoughXpCount)
         """
-        freeXP = g_itemsCache.items.stats.freeXP
+        freeXP = g_itemsCache.items.stats.actualFreeXP
         item_type_id, _, _ = vehicles.parseIntCompactDescr(compactDescr)
         pricesDict = self.__getUnlockPrices(compactDescr)
 
         def getUnlockProps(isAvailable, vehCompDescr):
             unlockPrice = pricesDict.get(vehCompDescr, 0)
             pVehXp = self.__xpVehicles.get(vehCompDescr, 0)
-            return (isAvailable, unlockPrice, unlockPrice - pVehXp - freeXP)
+            need = unlockPrice - pVehXp
+            needWithFreeXP = need - freeXP
+            return (isAvailable, unlockPrice, min(need, needWithFreeXP))
 
         if item_type_id == vehicles._VEHICLE:
             g_techTreeDP.load()
@@ -227,7 +236,11 @@ class ToolTipManager(object):
 
     def __getMoney(self):
         stats = g_itemsCache.items.stats
-        return (stats.credits, stats.gold)
+        return stats.money
+
+    def __getActualMoney(self):
+        stats = g_itemsCache.items.stats
+        return stats.actualMoney
 
     @process
     def onShopUpdate(self, *args):
@@ -263,12 +276,12 @@ class ToolTipManager(object):
             if cost > 0:
                 result.append(unlockPriceStat)
         if buyPrice:
-            price, _ = self.__shop.getItems(ITEM_TYPE_INDICES[vehicle.itemTypeName], *vehicle.descriptor.type.id)
+            price, _, _ = self.__shop.getItem(vehicle.descriptor.type.compactDescr)
             if price is None:
                 price = (0, 0)
             buyPriceStat = ['buy_price', price[1 if vehicle.isPremium else 0]]
             if not isInInventory and (isNextToUnlock or isUnlocked):
-                money = self.__getMoney()
+                money = self.__getActualMoney()
                 if vehicle.isPremium:
                     need = price[1] - money[1]
                 else:
@@ -307,15 +320,15 @@ class ToolTipManager(object):
         result.append([])
         if crew:
             currentCrewSize = 0
-            if isinstance(vehicle, InventoryVehicle):
-                currentCrewSize = len([ x for x in vehicle.crew if x is not None ])
+            if vehicle.isInInventory:
+                currentCrewSize = len([ x for _, x in vehicle.crew if x is not None ])
             result[-1].append({'label': 'crew',
              'current': currentCrewSize,
              'total': len(vehicle.descriptor.type.crewRoles)})
         if eqs:
             result[-1].append({'label': 'equipments',
-             'current': len([ x for x in vehicle.equipments if x ]),
-             'total': len(vehicle.equipments)})
+             'current': len([ x for x in vehicle.eqs if x ]),
+             'total': len(vehicle.eqs)})
         if devices:
             result[-1].append({'label': 'devices',
              'current': len([ x for x in vehicle.descriptor.optionalDevices if x ]),
@@ -326,17 +339,17 @@ class ToolTipManager(object):
         if isinstance(vehicle, ShopItem):
             isUnlocked = vehicle.descriptor.type.compactDescr in self.__unlocks
             isInInventory = vehicle.descriptor.type.compactDescr in [ v.descriptor.type.compactDescr for v in self.__inventoryVehicles.values() ]
-            money = self.__getMoney()
+            credits, gold = self.__getMoney()
             msg = None
             level = InventoryVehicle.STATE_LEVEL.WARNING
             if not isUnlocked:
                 msg = 'notUnlocked'
             elif isInInventory:
                 msg = 'inHangar'
-            elif money[0] < vehicle.priceOrder[0]:
+            elif credits < vehicle.priceOrder[0]:
                 msg = 'notEnoughCredits'
                 level = InventoryVehicle.STATE_LEVEL.CRITICAL
-            elif money[1] < vehicle.priceOrder[1]:
+            elif gold < vehicle.priceOrder[1]:
                 msg = 'notEnoughGold'
                 level = InventoryVehicle.STATE_LEVEL.CRITICAL
             if msg is not None:
@@ -345,10 +358,13 @@ class ToolTipManager(object):
                  'text': text,
                  'level': level}
             return
+        state = vehicle.getState()
+        if state == 'serverRestriction':
+            return
+        header, text = self.__getComplexStatus('#tooltips:vehicleStatus/%s' % state)
+        if header is None and text is None:
+            return
         else:
-            header, text = self.__getComplexStatus('#tooltips:vehicleStatus/%s' % vehicle.getState())
-            if header is None and text is None:
-                return
             return {'header': header,
              'text': text,
              'level': vehicle.getStateLevel()}
@@ -390,7 +406,8 @@ class ToolTipManager(object):
     def __getVehicleLocksBlock(self, vehicle):
         clanDamageLock = self.__vehicleTypeLock.get(vehicle.descriptor.type.compactDescr, {}).get(1, None)
         clanNewbeLock = self.__globalVehicleLocks.get(1, None)
-        return {'CLAN': clanDamageLock or clanNewbeLock}
+        return {'CLAN': clanDamageLock or clanNewbeLock,
+         'ROAMING': vehicle.isDisabledInRoaming}
 
     def getCarouselVehicleData(self, vehicleID):
         vehicle = self.__inventoryVehicles.get(vehicleID)
@@ -399,6 +416,7 @@ class ToolTipManager(object):
         else:
             vd = vehicle.descriptor
             vcd = vd.type.compactDescr
+            newStyleVehicle = g_itemsCache.items.getItemByCD(vcd)
             return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.VEHICLE, self.TOOLTIP_COMPONENT.CAROUSEL, {'name': vehicle.name,
              'type': vehicle.type,
              'isElite': len(vd.type.unlocksDescrs) == 0 or vcd in self.__eliteVehicles,
@@ -407,7 +425,7 @@ class ToolTipManager(object):
              'level': vehicle.level,
              'status': self.__getVehicleStatusBlock(vehicle),
              'stats': self.__getVehicleStatsBlock(vehicle, unlockPrice=False, buyPrice=False, sellPrice=True),
-             'params': self.__getVehicleParamsBlock(vehicle, params=gui.GUI_SETTINGS.technicalInfo),
+             'params': self.__getVehicleParamsBlock(newStyleVehicle, params=gui.GUI_SETTINGS.technicalInfo),
              'locks': self.__getVehicleLocksBlock(vehicle)})
 
     def getTechTreeVehicleData(self, node, parentCD):
@@ -425,6 +443,7 @@ class ToolTipManager(object):
 
         vd = vehicle.descriptor
         vcd = vd.type.compactDescr
+        newStyleVehicle = g_itemsCache.items.getItemByCD(vcd)
         vehicleXP = self.__xpVehicles.get(vcd, 0)
         return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.VEHICLE, self.TOOLTIP_COMPONENT.SHOP, {'name': vehicle.name,
          'type': vehicle.type,
@@ -433,7 +452,7 @@ class ToolTipManager(object):
          'isPremium': vehicle.isPremium,
          'level': vehicle.level,
          'stats': self.__getVehicleStatsBlock(vehicle, xp=vehicleXP > 0, dayliXP=False, unlockPrice=True, sellPrice=False, parentCD=parentCD, techTreeNode=node),
-         'params': self.__getVehicleParamsBlock(vehicle, eqs=False, devices=False, params=gui.GUI_SETTINGS.technicalInfo),
+         'params': self.__getVehicleParamsBlock(newStyleVehicle, eqs=False, devices=False, params=gui.GUI_SETTINGS.technicalInfo),
          'locks': self.__getVehicleLocksBlock(vehicle)})
 
     def getInventoryVehicleData(self, compact):
@@ -446,6 +465,7 @@ class ToolTipManager(object):
                 return
             vd = vehicle.descriptor
             vcd = vd.type.compactDescr
+            newStyleVehicle = g_itemsCache.items.getItemByCD(vcd)
             return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.VEHICLE, self.TOOLTIP_COMPONENT.INVENTORY, {'name': vehicle.name,
              'type': vehicle.type,
              'isElite': len(vd.type.unlocksDescrs) == 0 or vcd in self.__eliteVehicles,
@@ -454,7 +474,7 @@ class ToolTipManager(object):
              'level': vehicle.level,
              'status': self.__getVehicleStatusBlock(vehicle),
              'stats': self.__getVehicleStatsBlock(vehicle, unlockPrice=False, buyPrice=False),
-             'params': self.__getVehicleParamsBlock(vehicle, params=gui.GUI_SETTINGS.technicalInfo),
+             'params': self.__getVehicleParamsBlock(newStyleVehicle, params=gui.GUI_SETTINGS.technicalInfo),
              'locks': self.__getVehicleLocksBlock(vehicle)})
 
     def getShopVehicleData(self, compact):
@@ -465,6 +485,7 @@ class ToolTipManager(object):
             vd = vehicle.descriptor
             vcd = vd.type.compactDescr
             isUnlocked = vcd in self.__unlocks
+            newStyleVehicle = g_itemsCache.items.getItemByCD(vcd)
             return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.VEHICLE, self.TOOLTIP_COMPONENT.SHOP, {'name': vehicle.name,
              'type': vehicle.type,
              'isElite': len(vehicle.descriptor.type.unlocksDescrs) == 0 or vehicle.descriptor.type.compactDescr in self.__eliteVehicles,
@@ -472,7 +493,7 @@ class ToolTipManager(object):
              'isPremium': vehicle.isPremium,
              'level': vehicle.level,
              'stats': self.__getVehicleStatsBlock(vehicle, xp=False, dayliXP=False, unlockPrice=not isUnlocked, sellPrice=False),
-             'params': self.__getVehicleParamsBlock(vehicle, eqs=False, devices=False, params=gui.GUI_SETTINGS.technicalInfo)})
+             'params': self.__getVehicleParamsBlock(newStyleVehicle, eqs=False, devices=False, params=gui.GUI_SETTINGS.technicalInfo)})
 
     def isVehicleElite(self, vehicle):
         return len(vehicle.descriptor.type.unlocksDescrs) == 0 or vehicle.descriptor.type.compactDescr in self.__eliteVehicles
@@ -523,7 +544,7 @@ class ToolTipManager(object):
                     result[-1].append([recordName, recordValue])
             if type == 'series':
                 recordName = ACHIEVEMENTS[name]['record']
-                result[-1].append([recordName, dossier[recordName]])
+                result[-1].append([recordName, dossier['achievements'][recordName]])
             handler = dossiers_utils.ACTIVITY_HANDLERS.get(name, lambda *args: (True, None, 0))
             _, vehiclesList, fullVehListLen = handler(name, dossier, self.__unlocks)
             listTitle = 'vehicles'
@@ -539,18 +560,18 @@ class ToolTipManager(object):
         result = dict()
         type = getAchievementType(name)
         if type == 'class':
-            result['classParams'] = dossiers.RECORD_CONFIGS.get(name)
+            result['classParams'] = RECORD_CONFIGS.get(name)
         return result
 
     def __getDossier(self, dossierType, dossierCompDescr):
         if dossierCompDescr is None:
             return
         elif dossierType == GUI_ITEM_TYPE.ACCOUNT_DOSSIER:
-            return dossiers.getAccountDossierDescr(pickle.loads(dossierCompDescr))
+            return dossiers2.getAccountDossierDescr(pickle.loads(dossierCompDescr))
         elif dossierType == GUI_ITEM_TYPE.VEHICLE_DOSSIER:
-            return dossiers.getVehicleDossierDescr(pickle.loads(dossierCompDescr))
+            return dossiers2.getVehicleDossierDescr(pickle.loads(dossierCompDescr))
         elif dossierType == GUI_ITEM_TYPE.TANKMAN_DOSSIER:
-            return dossiers.getTankmanDossierDescr(pickle.loads(dossierCompDescr))
+            return dossiers2.getTankmanDossierDescr(pickle.loads(dossierCompDescr))
         else:
             return
 
@@ -568,7 +589,8 @@ class ToolTipManager(object):
     def getGlobalRatingData(self):
         key = 'globalRating'
         return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.ACHIEVEMENT, self.TOOLTIP_COMPONENT.PROFILE, {'name': makeString('#achievements:%s' % key),
-         'descr': dossiers_utils.getMedalDescription(key)})
+         'descr': dossiers_utils.getMedalDescription(key),
+         'isInDossier': True})
 
     def getAchievmentData(self, doosierType, dossierCompDescr, achieveName, isRare, isVehicleList):
         if isRare:
@@ -578,26 +600,34 @@ class ToolTipManager(object):
 
     def getBattleResultsAchievementData(self, name, rank = 0):
         type = getAchievementType(name)
+        value = 0
         iconFileName = name
         if type == 'class':
+            value = rank
             iconFileName = '%s%d' % (iconFileName, rank)
         return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.ACHIEVEMENT, self.TOOLTIP_COMPONENT.PROFILE, {'name': self.__getAchievementsUserName(name, rank),
-         'icon': '../maps/icons/achievement/%s.png' % iconFileName,
+         'icon': '../maps/icons/achievement/big/%s.png' % iconFileName,
          'type': type,
          'section': getAchievementSection(name),
-         'descr': dossiers_utils.getMedalDescription(name),
-         'value': rank,
-         'heroInfo': dossiers_utils.getMedalHeroInfo(name),
+         'descr': dossiers_utils.getMedalDescription(name, rank),
+         'value': value,
+         'historyDescr': dossiers_utils.getMedalHeroInfo(name),
          'inactive': False,
          'params': [[]],
-         'stats': self.__getAchievementStats(name)})
+         'stats': self.__getAchievementStats(name),
+         'isInDossier': True,
+         'condition': dossiers_utils.getMedalCondition(name),
+         'records': {'current': None,
+                     'nearest': None}})
 
-    def getProfileAchievementData(self, dossierType, dossierCompDescr, name, isVehicleList = True):
+    def getProfileAchievementData(self, dossierType, dossierCompDescr, name, isCurrentUserDossier = True):
+        records = {'current': None,
+         'nearest': None}
         dossier = self.__getDossier(dossierType, dossierCompDescr)
         type = getAchievementType(name)
         achieveRank = 0
         try:
-            achieveRank = dossier[name]
+            achieveRank = dossier['achievements'][name]
         except Exception:
             pass
 
@@ -609,32 +639,60 @@ class ToolTipManager(object):
             isInactive = not isActive
         iconFileName = name
         if dossier is not None and type == 'class':
-            iconFileName = '%s%d' % (iconFileName, dossier[name])
-        return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.ACHIEVEMENT, self.TOOLTIP_COMPONENT.PROFILE, {'name': userName,
-         'icon': '../maps/icons/achievement/%s.png' % iconFileName,
+            iconFileName = '%s%d' % (iconFileName, dossier['achievements'][name] or 4)
+        value = dossiers_utils.getMedalValue(name, dossier)
+        if dossier is not None and dossierType == GUI_ITEM_TYPE.ACCOUNT_DOSSIER:
+            if isCurrentUserDossier:
+                wereInBattle = type == 'series' and dossier['a15x15Cut'] and set(dossier['a15x15Cut'].keys())
+                vehicleRecords = set()
+                for vehCD in wereInBattle:
+                    vehicleDossier = g_itemsCache.items.getVehicleDossier(vehCD)
+                    vehicleValue = dossiers_utils.getMedalValue(name, vehicleDossier.dossier)
+                    if vehicleValue:
+                        vehicle = g_itemsCache.items.getItemByCD(vehCD)
+                        vehicleRecords.add((vehicle.userName, vehicleValue))
+                        if vehicleValue == value:
+                            records['current'] = vehicle.userName
+
+                records['nearest'] = sorted(vehicleRecords, key=lambda x: x[1], reverse=True)[:3]
+        return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.ACHIEVEMENT, self.__getAchievementComponentType(dossierType), {'name': userName,
+         'icon': '../maps/icons/achievement/big/%s.png' % iconFileName,
          'type': type,
          'section': getAchievementSection(name),
          'descr': dossiers_utils.getMedalDescription(name),
-         'value': dossiers_utils.getMedalValue(name, dossier),
-         'heroInfo': dossiers_utils.getMedalHeroInfo(name),
+         'value': value,
+         'historyDescr': dossiers_utils.getMedalHeroInfo(name),
          'inactive': isInactive,
-         'params': self.__getAchievementParams(dossier, name, isVehicleList),
-         'stats': self.__getAchievementStats(name)})
+         'params': self.__getAchievementParams(dossier, name, isCurrentUserDossier),
+         'stats': self.__getAchievementStats(name),
+         'isInDossier': dossiers_utils.isInDossier(name, dossier),
+         'condition': dossiers_utils.getMedalCondition(name),
+         'records': records})
 
     def getProfileRareAchievementData(self, dossierType, dossierCompDescr, achieveName):
         rareID = 0
         if achieveName.startswith('rare'):
             rareID = int(achieveName.replace('rare', ''))
-        return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.ACHIEVEMENT, self.TOOLTIP_COMPONENT.PROFILE, {'name': g_rareAchievesCache.getTitle(int(rareID)),
+        return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.ACHIEVEMENT, self.__getAchievementComponentType(dossierType), {'name': g_rareAchievesCache.getTitle(int(rareID)),
          'icon': None,
          'type': str(rareID),
          'section': 'action',
          'descr': g_rareAchievesCache.getDescription(int(rareID)),
          'value': None,
-         'heroInfo': '',
+         'historyDescr': '',
          'inactive': False,
          'params': None,
-         'stats': None})
+         'stats': None,
+         'isInDossier': True,
+         'condition': '',
+         'records': {'current': None,
+                     'nearest': None}})
+
+    def __getAchievementComponentType(self, dossierType):
+        if dossierType == GUI_ITEM_TYPE.VEHICLE_DOSSIER:
+            return self.TOOLTIP_COMPONENT.PROFILE_VEHICLE
+        else:
+            return self.TOOLTIP_COMPONENT.PROFILE
 
     def __getGuiItemDossier(self, dossierType, dossierID):
         if dossierType == GUI_ITEM_TYPE.ACCOUNT_DOSSIER:
@@ -670,10 +728,14 @@ class ToolTipManager(object):
              'section': achieve.getSection(),
              'descr': descr,
              'value': None,
-             'heroInfo': '',
+             'historyDescr': '',
              'inactive': False,
              'params': None,
-             'stats': None})
+             'stats': None,
+             'isInDossier': True,
+             'condition': '',
+             'records': {'current': None,
+                         'nearest': None}})
 
     def __getModuleParams(self, module, vehicle = None, params = True):
         result = list()
@@ -740,7 +802,7 @@ class ToolTipManager(object):
             if researchNode is not None:
                 isShowBuyPrice = not isAutoUnlock
             if isShowBuyPrice:
-                price, _ = self.__shop.getItems(ITEM_TYPE_INDICES[module.itemTypeName], module.nation, module.compactDescr)
+                price, _, _ = self.__shop.getItem(module.compactDescr)
                 forGold = price[0] == 0
                 rootInInv = False
                 if vehicle is not None:
@@ -752,13 +814,14 @@ class ToolTipManager(object):
                             showNeeded = not isInInventory
                         else:
                             isModuleUnlocked = module.compactDescr in self.__unlocks
-                            isModuleInInventory = g_itemsCache.items.getItemByCD(module.compactDescr) is not None
+                            isModuleInInventory = g_itemsCache.items.getItemByCD(module.compactDescr).isInInventory
                             showNeeded = not isModuleInInventory and isModuleUnlocked
+                        credits, gold = self.__getActualMoney()
                         if isEqOrDev or showNeeded:
                             if forGold:
-                                need = price[1] - self.__getMoney()[1]
+                                need = price[1] - gold
                             else:
-                                need = price[0] - self.__getMoney()[0]
+                                need = price[0] - credits
                             if need > 0:
                                 buyPriceStat.append(need)
                         result.append(buyPriceStat)
@@ -766,7 +829,7 @@ class ToolTipManager(object):
                             result.append(['textDelimiter/or', ''])
                             price = self.__shop.exchangeRateForShellsAndEqs * module.priceOrder[1]
                             buyPriceActionStat = ['buy_price_action', price]
-                            need = price - self.__getMoney()[0]
+                            need = price - credits
                             if need > 0:
                                 buyPriceActionStat.append(need)
                             result.append(buyPriceActionStat)
@@ -938,8 +1001,10 @@ class ToolTipManager(object):
 
             onUse = checkLocalization('%s/onUse' % module.descriptor['name'])
             always = checkLocalization('%s/always' % module.descriptor['name'])
+            restriction = checkLocalization('%s/restriction' % module.descriptor['name'])
             return {'onUse': onUse[1] if onUse[0] else '',
-             'always': always[1] if always[0] else ''}
+             'always': always[1] if always[0] else '',
+             'restriction': restriction[1] if restriction[0] else ''}
         else:
             return None
 
@@ -1151,7 +1216,7 @@ class ToolTipManager(object):
         if buyPrice:
 
             def getNeedValue(forGold, value):
-                return value - self.__getMoney()[1 if forGold else 0]
+                return value - self.__getActualMoney()[1 if forGold else 0]
 
             buyPriceValue = ['buy_price', shell.priceOrder[1] if shell.priceOrder[1] else shell.priceOrder[0]]
             need = getNeedValue(shell.priceOrder[1] > 0, buyPriceValue[1])
@@ -1193,11 +1258,9 @@ class ToolTipManager(object):
             price = self.__getMoney()
             status = None
             statusLvl = InventoryVehicle.STATE_LEVEL.WARNING
-            if price[0] < priceOrder[0]:
-                status = '#tooltips:moduleFits/credit_error'
-                statusLvl = InventoryVehicle.STATE_LEVEL.CRITICAL
-            elif price[1] < priceOrder[1]:
-                status = '#tooltips:moduleFits/gold_error'
+            couldBeBought, menu, tooltip = getModuleGoldStatus(priceOrder, price)
+            if not couldBeBought:
+                status = tooltip
                 statusLvl = InventoryVehicle.STATE_LEVEL.CRITICAL
             statusHeader, statusText = self.__getComplexStatus(status)
             return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.SHELL, self.TOOLTIP_COMPONENT.HANGAR, {'name': shell.name,
@@ -1213,15 +1276,27 @@ class ToolTipManager(object):
     def getTechMainShellData(self, compact, buyPrice, inventoryCount = 0, vehicleCount = 0):
         shell = getItemByCompact(compact)
         if not shell:
-            return None
+            return
         else:
             vehicle = self.__inventoryVehicles.get(g_currentVehicle.invID)
+            priceOrder = shell.priceOrder
+            price = self.__getMoney()
+            status = None
+            statusLvl = InventoryVehicle.STATE_LEVEL.WARNING
+            couldBeBought, menu, tooltip = getModuleGoldStatus(priceOrder, price)
+            if not couldBeBought:
+                status = tooltip
+                statusLvl = InventoryVehicle.STATE_LEVEL.CRITICAL
+            statusHeader, statusText = self.__getComplexStatus(status)
             return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.SHELL, self.TOOLTIP_COMPONENT.HANGAR, {'name': shell.name,
              'type': shell.type,
              'gold': buyPrice[1] != 0,
              'icon': '../maps/icons/ammopanel/ammo/%s' % shell.descriptor['icon'][0],
              'stats': self.__getShellStats(shell, inventoryCount=inventoryCount),
-             'params': self.__getShellParams(shell, vehicle, vehicleCount=vehicleCount)})
+             'params': self.__getShellParams(shell, vehicle, vehicleCount=vehicleCount),
+             'status': {'header': statusHeader,
+                        'text': statusText,
+                        'level': statusLvl}})
 
     def getShopShellData(self, compact, inventoryCount = 0):
         shell = getItemByCompact(compact)
@@ -1232,11 +1307,9 @@ class ToolTipManager(object):
             price = self.__getMoney()
             status = None
             statusLvl = InventoryVehicle.STATE_LEVEL.WARNING
-            if price[0] < priceOrder[0]:
-                status = '#tooltips:moduleFits/credit_error'
-                statusLvl = InventoryVehicle.STATE_LEVEL.CRITICAL
-            elif price[1] < priceOrder[1]:
-                status = '#tooltips:moduleFits/gold_error'
+            couldBeBought, menu, tooltip = getModuleGoldStatus(priceOrder, price)
+            if not couldBeBought:
+                status = tooltip
                 statusLvl = InventoryVehicle.STATE_LEVEL.CRITICAL
             statusHeader, statusText = self.__getComplexStatus(status)
             return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.SHELL, self.TOOLTIP_COMPONENT.SHOP, {'name': shell.name,
@@ -1315,9 +1388,9 @@ class ToolTipManager(object):
         if vehicle is not None and nativeVehicle.type.id != vehicle.descriptor.type.id:
             if vehicle.isPremium and vehicle.type in nativeVehicle.type.tags:
                 header = makeString('#tooltips:tankman/status/wrongPremiumVehicle/header')
-                text = makeString('#tooltips:tankman/status/wrongPremiumVehicle/text') % {'vehicle': vehicle.shortName}
+                text = makeString('#tooltips:tankman/status/wrongPremiumVehicle/text') % {'vehicle': vehicle.shortUserName}
             else:
-                header = makeString('#tooltips:tankman/status/wrongVehicle/header') % {'vehicle': vehicle.shortName}
+                header = makeString('#tooltips:tankman/status/wrongVehicle/header') % {'vehicle': vehicle.shortUserName}
                 text = makeString('#tooltips:tankman/status/wrongVehicle/text')
         elif len(inactiveRoles):
 
@@ -1336,9 +1409,10 @@ class ToolTipManager(object):
             return
         else:
             specVehicleDescr = tankman.vehicle
-            currentVehicle = self.__inventoryVehicles.get(tankman.vehicleID)
             if isCurrentVehicle:
-                currentVehicle = self.__inventoryVehicles.get(g_currentVehicle.invID)
+                currentVehicle = g_currentVehicle.item
+            else:
+                currentVehicle = g_itemsCache.items.getVehicle(tankman.vehicleID)
             newSkillsCount, lastNewSkillLevel = tankman.newSkillCount
             currentVehicleContourIcon = None
             efficiencyRoleLevel = tankman.roleLevel
@@ -1348,22 +1422,20 @@ class ToolTipManager(object):
             if currentVehicle is not None:
                 efficiencyRoleLevel = tankman.efficiencyRoleLevel(currentVehicle.descriptor)
                 commanderBonus = 0
-                eqsCache = dict([ (e['compactDescr'], e) for _, e in vehicles.g_cache.equipments().iteritems() ])
-                for compactDescr in currentVehicle.equipments:
-                    eq = eqsCache.get(compactDescr)
-                    if eq is not None and isinstance(eq, artefacts.Stimulator):
-                        efficiencyRoleLevel += eq['crewLevelIncrease']
+                for eq in currentVehicle.eqs:
+                    if eq is not None and eq.isStimulator:
+                        efficiencyRoleLevel += eq.crewLevelIncrease
 
                 currentVehicleContourIcon = _ICONS_MASK % {'type': 'vehicle',
                  'subtype': 'contour/',
                  'unicName': currentVehicle.descriptor.type.name.replace(':', '-')}
                 for i in range(len(currentVehicle.crew)):
-                    tankmanID = currentVehicle.crew[i]
-                    t = self.__tankmen.get(tankmanID)
-                    if tankmanID is None or 'brotherhood' not in t.skills or t.skills.index('brotherhood') == len(t.skills) - 1 and t.lastSkillLevel != MAX_SKILL_LEVEL:
+                    t = currentVehicle.crew[i][1]
+                    brotherhoodSkill = t.skillsMap.get('brotherhood') if t is not None else None
+                    if t is None or brotherhoodSkill is None or not brotherhoodSkill.isActive:
                         brotherhoodBonus = 0
-                    if tankmanID is not None and currentVehicle.descriptor.type.crewRoles[i][0] == 'commander':
-                        commanderBonus = round((t.efficiencyRoleLevel(currentVehicle.descriptor) + brotherhoodBonus) / COMMANDER_ADDITION_RATIO)
+                    if t is not None and currentVehicle.descriptor.type.crewRoles[i][0] == 'commander':
+                        commanderBonus = round((t.efficiencyRoleLevel + brotherhoodBonus) / COMMANDER_ADDITION_RATIO)
 
                 roleBonus = commanderBonus if tankman.descriptor.role != 'commander' else 0
                 rolePenalty = efficiencyRoleLevel - tankman.roleLevel
@@ -1377,15 +1449,15 @@ class ToolTipManager(object):
              'roleLevelBrothers': brotherhoodBonus,
              'vehicleType': tankman.vehicleType,
              'vehicleName': specVehicleDescr.type.userString,
-             'currentVehicleName': currentVehicle.descriptor.type.userString if currentVehicle else '',
-             'currentVehicleType': currentVehicle.vehicleType if currentVehicle else '',
+             'currentVehicleName': currentVehicle.descriptor.type.userString if currentVehicle is not None else '',
+             'currentVehicleType': currentVehicle.type if currentVehicle is not None else '',
              'isInTank': tankman.isInTank,
              'iconRole': tankman.iconRole,
              'nation': tankman.nation,
              'skills': self.__getTankmanSkills(tankman, currentVehicle),
              'newSkillsCount': newSkillsCount,
              'vehicleContour': currentVehicleContourIcon,
-             'isCurrentVehiclePremium': currentVehicle.isPremium if currentVehicle else False,
+             'isCurrentVehiclePremium': currentVehicle.isPremium if currentVehicle is not None else False,
              'status': self.__getTankmanStatus(tankman, currentVehicle)})
 
     def getEfficiencyParam(self, kind, vals):
@@ -1394,7 +1466,6 @@ class ToolTipManager(object):
     def getIgrInfo(self):
         qLabels = []
         qProgress = []
-        quests = []
         if game_control.g_instance.igr.getRoomType() == constants.IGR_TYPE.PREMIUM:
             quests = g_questsCache.getQuests()
             for q in quests.itervalues():
@@ -1413,8 +1484,64 @@ class ToolTipManager(object):
         template = gui.g_htmlTemplates['html_templates:lobby/tooltips']['igr_quest']
         descriptionTemplate = 'igr_description' if len(qLabels) == 0 else 'igr_description_with_quests'
         igrPercent = (game_control.g_instance.igr.getXPFactor() - 1) * 100
-        return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.IGR, self.TOOLTIP_COMPONENT.HANGAR, {'title': gui.makeHtmlString('html_templates:lobby/tooltips', 'igr_title', {'msg': makeString('#tooltips:igr/title')}),
+        return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.IGR, self.TOOLTIP_COMPONENT.HANGAR, {'title': gui.makeHtmlString('html_templates:lobby/tooltips', 'igr_title', {}),
          'description': gui.makeHtmlString('html_templates:lobby/tooltips', descriptionTemplate, {'igrValue': '{0}%'.format(BigWorld.wg_getIntegralFormat(igrPercent))}),
          'quests': map(lambda i: i.format(**template.ctx), qLabels),
          'progressHeader': gui.makeHtmlString('html_templates:lobby/tooltips', 'igr_progress_header', {}),
          'progress': qProgress})
+
+    def getCyberSportSlot(self, index, unitIdx = None):
+        if unitIdx is not None:
+            unitIdx = int(unitIdx)
+        dispatcher = g_prbLoader.getDispatcher()
+        if dispatcher is not None:
+            functional = dispatcher.getUnitFunctional()
+            return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.CYBER_SPORT, self.TOOLTIP_COMPONENT.CYBER_SPORT_UNIT, getUnitRosterData(functional, unitIdx, index))
+        else:
+            return
+
+    def getCyberSportSlotSelected(self, index, unitIdx = None):
+        if unitIdx is not None:
+            unitIdx = int(unitIdx)
+        dispatcher = g_prbLoader.getDispatcher()
+        if dispatcher is not None:
+            functional = dispatcher.getUnitFunctional()
+            try:
+                _, unit = functional.getUnit(unitIdx)
+            except ValueError:
+                LOG_ERROR('Unit is not exists')
+                return {}
+
+            playerID = unit._members[index]['playerID']
+            return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.CYBER_SPORT, self.TOOLTIP_COMPONENT.CYBER_SPORT_UNIT, {'typeCompDescr': unit._vehicles[playerID]['vehTypeCompDescr']})
+        else:
+            return
+
+    def getCyberSportUnit(self, unitIdx = None):
+        if unitIdx is not None:
+            unitIdx = int(unitIdx)
+        dispatcher = g_prbLoader.getDispatcher()
+        if dispatcher is not None:
+            functional = dispatcher.getUnitFunctional()
+            data = getUnitRosterData(functional, unitIdx=unitIdx)
+            players = functional.getPlayers(unitIdx)
+            unitComment = functional.getComment(unitIdx=unitIdx)
+            commander = None
+            for dbId, playerInfo in players.iteritems():
+                if playerInfo.isCreator():
+                    commander = playerInfo
+                    break
+
+            data['unitComment'] = unitComment
+            if commander is not None:
+                data['commanderName'] = commander.getFullName()
+                data['commanderRating'] = commander.rating
+            else:
+                data['commanderName'] = ''
+                data['commanderRating'] = 0
+            return self.__getSerializedToolTipData(self.TOOLTIP_TYPE.CYBER_SPORT, self.TOOLTIP_COMPONENT.CYBER_SPORT_UNIT, data)
+        else:
+            return
+# okay decompyling res/scripts/client/gui/scaleform/managers/tooltipmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:43 EST

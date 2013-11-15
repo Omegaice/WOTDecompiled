@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:17 EST
+# Embedded file name: scripts/client/post_processing/__init__.py
 import BigWorld, Math, ResMgr, weakref
 import PostProcessing
 import Settings
@@ -252,3 +254,6 @@ class _FuncObj:
         else:
             LOG_CODEPOINT_WARNING('weak object has been already destroyed.')
         return
+# okay decompyling res/scripts/client/post_processing/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:18 EST

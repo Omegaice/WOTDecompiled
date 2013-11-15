@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:22 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/VehicleBuyWindow.py
 import BigWorld
 from gui.shared.gui_items.processors.vehicle import VehicleBuyer, VehicleSlotBuyer
 from account_helpers.AccountSettings import AccountSettings, VEHICLE_BUY_WINDOW_SETTINGS
@@ -88,3 +90,6 @@ class VehicleBuyWindow(View, VehicleBuyWindowMeta, AppRef, WindowViewMeta):
     def _dispose(self):
         g_clientUpdateManager.removeObjectCallbacks(self)
         super(VehicleBuyWindow, self)._dispose()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/vehiclebuywindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:22 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:16 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/SkillDropWindow.py
 import pickle
 from items import tankmen
 from gui import SystemMessages
@@ -41,7 +43,8 @@ class SkillDropWindow(View, SkillDropMeta, WindowViewMeta):
         self.__setData()
         g_clientUpdateManager.addCallbacks({'inventory.8.compDescr': self.onTankmanChanged,
          'stats.credits': self.onCreditsChange,
-         'stats.gold': self.onGoldChange})
+         'stats.gold': self.onGoldChange,
+         'cache.mayConsumeWalletResources': self.onGoldChange})
 
     def onTankmanChanged(self, data):
         if self.tmanInvID in data:
@@ -55,7 +58,7 @@ class SkillDropWindow(View, SkillDropMeta, WindowViewMeta):
         self.as_setCreditsS(credits)
 
     def onGoldChange(self, gold):
-        self.as_setGoldS(gold)
+        self.as_setGoldS(g_itemsCache.items.stats.gold)
 
     def onWindowClose(self):
         g_clientUpdateManager.removeObjectCallbacks(self)
@@ -89,3 +92,6 @@ class SkillDropWindow(View, SkillDropMeta, WindowViewMeta):
         if result.success:
             self.onWindowClose()
             self.fireEvent(events.SkillDropEvent(events.SkillDropEvent.SKILL_DROPPED_SUCCESSFULLY))
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/skilldropwindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:16 EST

@@ -1,14 +1,15 @@
+# 2013.11.15 11:26:05 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/messengerBar/NotificationInvitesButton.py
 import BigWorld
 from debug_utils import LOG_CURRENT_EXCEPTION
 from gui.Scaleform.daapi.view.meta.NotificationInvitesButtonMeta import NotificationInvitesButtonMeta
 from gui.Scaleform.framework import AppRef, VIEW_TYPE, g_entitiesFactories
 from gui.Scaleform.framework.managers.containers import POP_UP_CRITERIA
-from gui.prb_control.prb_helpers import InjectPrebattle, prbInvitesProperty
+from gui.prb_control.prb_helpers import prbInvitesProperty
 from gui.shared import events, EVENT_BUS_SCOPE
 __author__ = 'd_savitski'
 
 class NotificationInvitesButton(NotificationInvitesButtonMeta, AppRef):
-    __metaclass__ = InjectPrebattle
 
     def __init__(self):
         super(NotificationInvitesButton, self).__init__()
@@ -60,3 +61,6 @@ class NotificationInvitesButton(NotificationInvitesButtonMeta, AppRef):
 
     def __getWindow(self):
         return self.app.containerManager.getView(VIEW_TYPE.WINDOW, criteria={POP_UP_CRITERIA.VIEW_ALIAS: g_entitiesFactories.getAliasByEvent(events.ShowWindowEvent.SHOW_NOTIFICATION_INVITES_WINDOW)})
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/messengerbar/notificationinvitesbutton.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:06 EST

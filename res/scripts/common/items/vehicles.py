@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:37 EST
+# Embedded file name: scripts/common/items/vehicles.py
 from collections import namedtuple
 from math import radians, cos, pi
 from functools import partial
@@ -9,7 +11,7 @@ import nations, items
 from items import _xml
 from debug_utils import *
 from constants import IS_DEVELOPMENT, IS_CLIENT, IS_CELLAPP, IS_BASEAPP, IS_WEB, ITEM_DEFS_PATH
-from constants import DEFAULT_GUN_PITCH_LIMITS_TRANSITION, SELL_PRICE_MODIF
+from constants import DEFAULT_GUN_PITCH_LIMITS_TRANSITION
 if not IS_CELLAPP:
     if IS_CLIENT:
         from ModelHitTester import ModelHitTester
@@ -81,14 +83,29 @@ if not IS_CELLAPP:
      'continueTraceIfNoHit'])
     _defMaterialInfo = MaterialInfo(0, 0, None, 0.0, False, False, False, False, False, 0, 0.0, 0.0, False)
 
-    def init(preloadEverything):
+    def init(preloadEverything, pricesToCollect):
         global g_list
         global g_cache
+        global _g_prices
         if IS_CLIENT or IS_CELLAPP:
             import vehicle_extras
+        _g_prices = pricesToCollect
+        if pricesToCollect is not None:
+            pricesToCollect['itemPrices'] = {}
+            pricesToCollect['notInShopItems'] = set()
+            pricesToCollect['vehiclesToSellForGold'] = set()
+            pricesToCollect['vehicleSellPriceFactors'] = {}
+            pricesToCollect['vehicleCamouflagePriceFactors'] = {}
+            pricesToCollect['vehicleHornPriceFactors'] = {}
+            pricesToCollect['hornPrices'] = {}
+            pricesToCollect['camouflagePriceFactors'] = [ {} for x in nations.NAMES ]
+            pricesToCollect['notInShopCamouflages'] = [ set() for x in nations.NAMES ]
+            pricesToCollect['inscriptionGroupPriceFactors'] = [ {} for x in nations.NAMES ]
+            pricesToCollect['notInShopInscriptionGroups'] = [ set() for x in nations.NAMES ]
+            pricesToCollect['playerEmblemGroupPriceFactors'] = {}
+            pricesToCollect['notInShopPlayerEmblemGroups'] = set()
         g_list = VehicleList()
         g_cache = Cache()
-        preloadEverything = True
         if preloadEverything:
             g_cache.optionalDevices()
             g_cache.equipments()
@@ -99,6 +116,9 @@ if not IS_CELLAPP:
                 for vehicleTypeID in g_list.getList(nationID).iterkeys():
                     g_cache.vehicle(nationID, vehicleTypeID)
 
+            _g_prices = None
+        return
+
 
     def reload():
         import vehicle_extras
@@ -106,7 +126,7 @@ if not IS_CELLAPP:
         from sys import modules
         import __builtin__
         __builtin__.reload(modules[reload.__module__])
-        init(False)
+        init(True)
 
 
     class VehicleDescr(object):
@@ -120,7 +140,7 @@ if not IS_CELLAPP:
                     nationID, vehicleTypeID = g_list.getIDsByName(typeName)
                 type = g_cache.vehicle(nationID, vehicleTypeID)
                 turretDescr = type.turrets[0][0]
-                header = items.ITEM_TYPE_INDICES['vehicle'] + (nationID << 4)
+                header = items.ITEM_TYPES.vehicle + (nationID << 4)
                 compactDescr = struct.pack('<2B6HB', header, vehicleTypeID, type.chassis[0]['id'][1], type.engines[0]['id'][1], type.fuelTanks[0]['id'][1], type.radios[0]['id'][1], turretDescr['id'][1], turretDescr['guns'][0]['id'][1], 0)
             self.__initFromCompactDescr(compactDescr)
             return
@@ -174,7 +194,7 @@ if not IS_CELLAPP:
                 durationDays = 0
                 p[position]
             else:
-                descr = g_cache.customization(self.type.id[0])['camouflages'][camouflageID]
+                descr = g_cache.customization(self.type.customizationNationID)['camouflages'][camouflageID]
                 if position is None:
                     position = descr['kind']
                 elif position != descr['kind']:
@@ -221,7 +241,7 @@ if not IS_CELLAPP:
                 color = 0
             else:
                 if inscriptionID is not None:
-                    customization = g_cache.customization(self.type.id[0])
+                    customization = g_cache.customization(self.type.customizationNationID)
                     customization['inscriptions'][inscriptionID]
                     customization['inscriptionColors'][color]
                 startTime = int(startTime / 60) * 60
@@ -455,76 +475,55 @@ if not IS_CELLAPP:
         def makeCompactDescr(self):
             type = self.type
             pack = struct.pack
-            header = items.ITEM_TYPE_INDICES['vehicle'] + (type.id[0] << 4)
-            vehicleTypeID = type.id[1]
-            chassisID = self.chassis['id'][1]
-            engineID = self.engine['id'][1]
-            fuelTankID = self.fuelTank['id'][1]
-            radioID = self.radio['id'][1]
-            cd = pack('<2B4H', header, vehicleTypeID, chassisID, engineID, fuelTankID, radioID)
+            components = pack('<4H', self.chassis['id'][1], self.engine['id'][1], self.fuelTank['id'][1], self.radio['id'][1])
             for n in xrange(len(type.turrets)):
                 turretDescr, gunDescr = self.turrets[n]
-                cd += pack('<2H', turretDescr['id'][1], gunDescr['id'][1])
+                components += pack('<2H', turretDescr['id'][1], gunDescr['id'][1])
 
             optionalDevices = ''
-            optionalDevicesMask = 0
-            if not len(self.optionalDevices) == NUM_OPTIONAL_DEVICE_SLOTS:
-                raise AssertionError
-                for device in self.optionalDevices:
-                    optionalDevicesMask <<= 1
-                    if device is not None:
-                        optionalDevices = pack('<H', device.id[1]) + optionalDevices
-                        optionalDevicesMask |= 1
+            optionalDeviceSlots = 0
+            raise len(self.optionalDevices) == NUM_OPTIONAL_DEVICE_SLOTS or AssertionError
+            for device in self.optionalDevices:
+                optionalDeviceSlots <<= 1
+                if device is not None:
+                    optionalDevices = pack('<H', device.id[1]) + optionalDevices
+                    optionalDeviceSlots |= 1
 
-                emblemPositions = 0
-                emblems = ''
-                for idx, item in enumerate(self.playerEmblems):
-                    if item[0] is not None and item[0] != type.defaultPlayerEmblemID:
-                        emblemPositions |= 1 << idx
-                        emblems += _packIDAndDuration(*item)
+            emblemPositions = 0
+            emblems = ''
+            for idx, item in enumerate(self.playerEmblems):
+                if item[0] is not None and item[0] != type.defaultPlayerEmblemID:
+                    emblemPositions |= 1 << idx
+                    emblems += _packIDAndDuration(*item)
 
-                for idx, item in enumerate(self.playerInscriptions):
-                    if item[0] is not None:
-                        emblemPositions |= 1 << idx + 4
-                        emblems += _packIDAndDuration(item[0], item[1], item[2]) + chr(item[3])
+            inscriptions = ''
+            for idx, item in enumerate(self.playerInscriptions):
+                if item[0] is not None:
+                    emblemPositions |= 1 << idx + 4
+                    inscriptions += _packIDAndDuration(item[0], item[1], item[2]) + chr(item[3])
 
-                camouflages = ''
-                for item in self.camouflages:
-                    if item[0] is not None:
-                        camouflages += _packIDAndDuration(*item)
+            camouflages = ''
+            for item in self.camouflages:
+                if item[0] is not None:
+                    camouflages += _packIDAndDuration(*item)
 
-                flags = 0
-                flags |= optionalDevicesMask
-                if emblemPositions:
-                    flags |= 32
-                if self.__hornID is not None:
-                    flags |= 64
-                if camouflages:
-                    flags |= 128
-                cd += chr(flags) + optionalDevices
-                if emblemPositions:
-                    cd += chr(emblemPositions) + emblems
-                if self.__hornID is not None:
-                    cd += chr(self.__hornID)
-                if camouflages:
-                    cd += camouflages
-            return cd
+            return _combineVehicleCompactDescr(type, components, optionalDeviceSlots, optionalDevices, emblemPositions, emblems, inscriptions, camouflages, self.__hornID)
 
-        def getCost(self):
+        def getCost(self, itemPrices):
             type = self.type
-            cost = type.price
+            cost = itemPrices[type.compactDescr]
             for idx in xrange(len(self.turrets)):
                 turretDescr, gunDescr = self.turrets[idx]
-                cost = _summPriceDiff(cost, turretDescr['price'], type.turrets[idx][0]['price'])
-                cost = _summPriceDiff(cost, gunDescr['price'], turretDescr['guns'][0]['price'])
+                cost = _summPriceDiff(cost, itemPrices[turretDescr['compactDescr']], itemPrices[type.turrets[idx][0]['compactDescr']])
+                cost = _summPriceDiff(cost, itemPrices[gunDescr['compactDescr']], itemPrices[turretDescr['guns'][0]['compactDescr']])
 
-            cost = _summPriceDiff(cost, self.chassis['price'], type.chassis[0]['price'])
-            cost = _summPriceDiff(cost, self.engine['price'], type.engines[0]['price'])
-            cost = _summPriceDiff(cost, self.fuelTank['price'], type.fuelTanks[0]['price'])
-            cost = _summPriceDiff(cost, self.radio['price'], type.radios[0]['price'])
+            cost = _summPriceDiff(cost, itemPrices[self.chassis['compactDescr']], itemPrices[type.chassis[0]['compactDescr']])
+            cost = _summPriceDiff(cost, itemPrices[self.engine['compactDescr']], itemPrices[type.engines[0]['compactDescr']])
+            cost = _summPriceDiff(cost, itemPrices[self.fuelTank['compactDescr']], itemPrices[type.fuelTanks[0]['compactDescr']])
+            cost = _summPriceDiff(cost, itemPrices[self.radio['compactDescr']], itemPrices[type.radios[0]['compactDescr']])
             for device in self.optionalDevices:
                 if device is not None:
-                    cost = _summPriceDiff(cost, device.price, (0, 0))
+                    cost = _summPriceDiff(cost, itemPrices[device.compactDescr], (0, 0))
 
             return cost
 
@@ -697,106 +696,88 @@ if not IS_CELLAPP:
             return (prevGunDescr['compactDescr'],)
 
         def __initFromCompactDescr(self, compactDescr):
-            cd = compactDescr
             unpack = struct.unpack
             try:
-                header, vehicleTypeID, chassisID, engineID, fuelTankID, radioID = unpack('<2B4H', cd[:10])
-                if not header & 15 == items.ITEM_TYPE_INDICES['vehicle']:
-                    raise AssertionError
-                    cd = cd[10:]
-                    nationID = header >> 4 & 15
-                    type = g_cache.vehicle(nationID, vehicleTypeID)
-                    customization = g_cache.customization(nationID)
-                    self.type = type
-                    self.name = type.name
-                    self.level = type.level
-                    if IS_CLIENT or IS_CELLAPP:
-                        self.extras = type.extras
-                        self.extrasDict = type.extrasDict
-                    self.hull = type.hull
-                    self.chassis = _descrByID(type.chassis, chassisID)
-                    self.engine = _descrByID(type.engines, engineID)
-                    self.fuelTank = _descrByID(type.fuelTanks, fuelTankID)
-                    self.radio = _descrByID(type.radios, radioID)
-                    turrets = []
-                    for idx in xrange(len(type.turrets)):
-                        turretID, gunID = unpack('<2H', cd[:4])
-                        cd = cd[4:]
-                        turret = _descrByID(type.turrets[idx], turretID)
-                        turrets.append((turret, _descrByID(turret['guns'], gunID)))
+                type, components, optionalDeviceSlots, optionalDevices, emblemPositions, emblems, inscriptions, camouflages, horn = _splitVehicleCompactDescr(compactDescr)
+                custNationID = type.customizationNationID
+                customization = g_cache.customization(custNationID)
+                self.type = type
+                self.name = type.name
+                self.level = type.level
+                if IS_CLIENT or IS_CELLAPP:
+                    self.extras = type.extras
+                    self.extrasDict = type.extrasDict
+                chassisID, engineID, fuelTankID, radioID = unpack('<4H', components[:8])
+                self.hull = type.hull
+                self.chassis = _descrByID(type.chassis, chassisID)
+                self.engine = _descrByID(type.engines, engineID)
+                self.fuelTank = _descrByID(type.fuelTanks, fuelTankID)
+                self.radio = _descrByID(type.radios, radioID)
+                turrets = []
+                for idx in xrange(len(type.turrets)):
+                    turretID, gunID = unpack('<2H', components[8 + idx * 4:12 + idx * 4])
+                    turret = _descrByID(type.turrets[idx], turretID)
+                    turrets.append((turret, _descrByID(turret['guns'], gunID)))
 
-                    self.turrets = turrets
-                    self.activeTurretPosition = 0
-                    flags = ord(cd[0])
-                    cd = cd[1:]
-                    optionalDevicesMask = flags & 15
-                    self.optionalDevices = [ None for idx in xrange(NUM_OPTIONAL_DEVICE_SLOTS) ]
-                    idx = NUM_OPTIONAL_DEVICE_SLOTS - 1
-                    while optionalDevicesMask:
-                        if optionalDevicesMask & 1:
-                            self.optionalDevices[idx] = g_cache.optionalDevices()[unpack('<H', cd[:2])[0]]
-                            cd = cd[2:]
-                        optionalDevicesMask >>= 1
-                        idx -= 1
+                self.turrets = turrets
+                self.activeTurretPosition = 0
+                self.optionalDevices = [None] * NUM_OPTIONAL_DEVICE_SLOTS
+                idx = NUM_OPTIONAL_DEVICE_SLOTS - 1
+                while optionalDeviceSlots:
+                    if optionalDeviceSlots & 1:
+                        self.optionalDevices[idx] = g_cache.optionalDevices()[unpack('<H', optionalDevices[:2])[0]]
+                        optionalDevices = optionalDevices[2:]
+                    optionalDeviceSlots >>= 1
+                    idx -= 1
 
-                    if not flags & 32:
-                        self.playerEmblems = type._defEmblems
-                        self.playerInscriptions = _EMPTY_INSCRIPTIONS
-                    else:
-                        positions = ord(cd[0])
-                        cd = cd[1:]
-                        if not positions & 15:
-                            self.playerEmblems = type._defEmblems
-                        else:
-                            slots = [None,
-                             None,
-                             None,
-                             None]
-                            for idx in range(4):
-                                if positions & 1 << idx:
-                                    slots[idx] = _unpackIDAndDuration(cd[:6])
-                                    g_cache.playerEmblems()[1][slots[idx][0]]
-                                    cd = cd[6:]
-                                else:
-                                    slots[idx] = type._defEmblem
-
-                            self.playerEmblems = tuple(slots)
-                        if not positions & 240:
-                            self.playerInscriptions = _EMPTY_INSCRIPTIONS
-                        else:
-                            slots = [None,
-                             None,
-                             None,
-                             None]
-                            for idx in range(4):
-                                if positions & 1 << idx + 4:
-                                    slots[idx] = _unpackIDAndDuration(cd[:6]) + (ord(cd[6]),)
-                                    customization['inscriptions'][slots[idx][0]]
-                                    customization['inscriptionColors'][slots[idx][3]]
-                                    cd = cd[7:]
-                                else:
-                                    slots[idx] = _EMPTY_INSCRIPTION
-
-                            self.playerInscriptions = tuple(slots)
-                    self.__hornID = flags & 64 or None
+                if not emblemPositions & 15:
+                    self.playerEmblems = type._defEmblems
                 else:
-                    self.__hornID = ord(cd[0])
-                    cd = cd[1:]
-                    g_cache.horns()[self.__hornID]
-                self.camouflages = flags & 128 or _EMPTY_CAMOUFLAGES
-                if not not cd:
-                    raise AssertionError
+                    emblemCache = g_cache.playerEmblems()[1]
+                    slots = [None,
+                     None,
+                     None,
+                     None]
+                    for idx in _RANGE_4:
+                        if emblemPositions & 1 << idx:
+                            slots[idx] = _unpackIDAndDuration(emblems[:6])
+                            emblems = emblems[6:]
+                            emblemCache[slots[idx][0]]
+                        else:
+                            slots[idx] = type._defEmblem
+
+                    self.playerEmblems = tuple(slots)
+                if not emblemPositions & 240:
+                    self.playerInscriptions = _EMPTY_INSCRIPTIONS
+                else:
+                    slots = [None,
+                     None,
+                     None,
+                     None]
+                    for idx in _RANGE_4:
+                        if emblemPositions & 1 << idx + 4:
+                            slots[idx] = _unpackIDAndDuration(inscriptions[:6]) + (ord(inscriptions[6]),)
+                            inscriptions = inscriptions[7:]
+                            customization['inscriptions'][slots[idx][0]]
+                            customization['inscriptionColors'][slots[idx][3]]
+                        else:
+                            slots[idx] = _EMPTY_INSCRIPTION
+
+                    self.playerInscriptions = tuple(slots)
+                if not camouflages:
+                    self.camouflages = _EMPTY_CAMOUFLAGES
                 else:
                     slots = list(_EMPTY_CAMOUFLAGES)
-                    while cd:
-                        item = _unpackIDAndDuration(cd[:6])
-                        cd = cd[6:]
+                    while camouflages:
+                        item = _unpackIDAndDuration(camouflages[:6])
+                        camouflages = camouflages[6:]
                         idx = customization['camouflages'][item[0]]['kind']
                         if slots[idx][0] is not None:
-                            LOG_WARNING('Second camouflage of same kind', nationID, item[0], slots[idx][0])
+                            LOG_WARNING('Second camouflage of same kind', custNationID, item[0], slots[idx][0])
                         slots[idx] = item
 
                     self.camouflages = tuple(slots)
+                self.__hornID = horn
                 self.__updateAttributes()
             except Exception:
                 LOG_ERROR('(compact descriptor to XML mismatch?)', compactDescr)
@@ -933,6 +914,13 @@ if not IS_CELLAPP:
             xmlCtx = (None, xmlPath)
             self.tags = basicInfo['tags']
             self.level = basicInfo['level']
+            customizationNation = section.readString('customizationNation')
+            if not customizationNation:
+                self.customizationNationID = nationID
+            else:
+                self.customizationNationID = nations.INDICES.get(customizationNation)
+                if self.customizationNationID is None:
+                    _xml.raiseWrongXml(xmlCtx, 'customizationNation', 'unknown nation name:' + customizationNation)
             self.speedLimits = (KMH_TO_MS * _xml.readPositiveFloat(xmlCtx, section, 'speedLimits/forward'), KMH_TO_MS * _xml.readPositiveFloat(xmlCtx, section, 'speedLimits/backward'))
             self.repairCost = _xml.readNonNegativeFloat(xmlCtx, section, 'repairCost')
             if not IS_CLIENT or IS_DEVELOPMENT:
@@ -947,11 +935,6 @@ if not IS_CELLAPP:
                  'camouflageNetBonus': _xml.readFraction(xmlCtx, section, 'invisibility/camouflageNetBonus'),
                  'firePenalty': _xml.readFraction(xmlCtx, section, 'invisibility/firePenalty')}
             self.crewRoles = _readCrew(xmlCtx, section, 'crew')
-            if IS_BASEAPP or IS_WEB:
-                self.price = basicInfo['price']
-                self.showInShop = basicInfo['showInShop']
-                self.sellPriceFactor = basicInfo['sellPriceFactor']
-                self.sellForGold = basicInfo['sellForGold']
             commonConfig = g_cache.commonConfig
             if IS_CLIENT or IS_CELLAPP:
                 self.extras = commonConfig['extras']
@@ -992,8 +975,11 @@ if not IS_CELLAPP:
              self._defEmblem,
              self._defEmblem,
              self._defEmblem)
-            self.camouflagePriceFactor = _xml.readNonNegativeFloat(xmlCtx, section, 'camouflage/priceFactor')
-            self.hornPriceFactor, self.hornDistanceFactor, self.hornVolumeFactor = _readVehicleHorns(xmlCtx, section, 'horns')
+            hornPriceFactor, self.hornDistanceFactor, self.hornVolumeFactor = _readVehicleHorns(xmlCtx, section, 'horns')
+            pricesDest = _g_prices
+            if pricesDest is not None:
+                pricesDest['vehicleCamouflagePriceFactors'][self.compactDescr] = _xml.readNonNegativeFloat(xmlCtx, section, 'camouflage/priceFactor')
+                pricesDest['vehicleHornPriceFactors'][self.compactDescr] = hornPriceFactor
             unlocksDescrs = []
             self.unlocks = _readUnlocks(xmlCtx, section, 'unlocks', unlocksDescrs)
             self.hull = _readHull((xmlCtx, 'hull'), _xml.getSubsection(xmlCtx, section, 'hull'))
@@ -1110,7 +1096,6 @@ if not IS_CELLAPP:
             self.__customization = [ None for i in nations.NAMES ]
             self.__horns = None
             self.__playerEmblems = None
-            self.__playerIscriptions = None
             self.__shotEffects = None
             self.__shotEffectsIndexes = None
             self.__damageStickers = None
@@ -1122,165 +1107,6 @@ if not IS_CELLAPP:
 
         def clearPrereqs(self):
             pass
-
-        def getPriceCache(self):
-            cache = {}
-            horns = cache.setdefault('hornCost', {})
-            for hornID, descr in self.__horns.items():
-                horns[hornID] = descr['gold']
-
-            shop = cache.setdefault('items', {})
-            for nationIdx in xrange(len(nations.NAMES)):
-                nationShop = shop.setdefault(nationIdx, {})
-                vehPrices, extData = nationShop.setdefault(_VEHICLE, ({}, {}))
-                vehNotShown = extData.setdefault('notInShop', set())
-                sellPriceFactors = extData.setdefault('sellPriceFactors', {})
-                sellForGold = extData.setdefault('sellForGold', set())
-                for innationIdx, vehDescr in g_list.getList(nationIdx).iteritems():
-                    vehType = getVehicleType(vehDescr['compactDescr'])
-                    vehPrices[innationIdx] = (vehDescr['price'][0],
-                     vehDescr['price'][1],
-                     vehType.camouflagePriceFactor,
-                     vehType.hornPriceFactor)
-                    if not vehDescr['showInShop']:
-                        vehNotShown.add(innationIdx)
-                    if vehDescr['sellPriceFactor'] != SELL_PRICE_MODIF:
-                        sellPriceFactors[innationIdx] = vehDescr['sellPriceFactor']
-                    if vehDescr['sellForGold'] and vehDescr['price'][1]:
-                        sellForGold.add(innationIdx)
-
-                itemLists = {_CHASSIS: self.chassis(nationIdx),
-                 _TURRET: self.turrets(nationIdx),
-                 _GUN: self.guns(nationIdx),
-                 _ENGINE: self.engines(nationIdx),
-                 _FUEL_TANK: self.fuelTanks(nationIdx),
-                 _RADIO: self.radios(nationIdx),
-                 _SHELL: self.shells(nationIdx)}
-                self.__addItemListsToNationShop(itemLists, nationShop)
-
-            nationShop = shop.setdefault(nations.NONE_INDEX, {})
-            itemLists = {_EQUIPMENT: self.equipments(),
-             _OPTIONALDEVICE: self.optionalDevices()}
-            self.__addItemListsToNationShop(itemLists, nationShop)
-            customization = cache.setdefault('customization', {})
-            for nationIdx in xrange(len(nations.NAMES)):
-                nationCustomization = customization.setdefault(nationIdx, {})
-                camouflages = nationCustomization.setdefault('camouflages', {})
-                if self.__customization[nationIdx].has_key('camouflages'):
-                    for id, camouflage in self.__customization[nationIdx]['camouflages'].iteritems():
-                        camouflages[id] = camouflage['priceFactor']
-
-            emblems = cache.setdefault('playerEmblems', {})
-            groups = emblems.setdefault('groups', {})
-            for groupName, groupInfo in self.__playerEmblems[0].iteritems():
-                groups[groupName] = groupInfo[2]
-
-            return cache
-
-        def __addItemListsToNationShop(self, itemLists, nationShop):
-            for itemTypeIdx, descriptions in itemLists.iteritems():
-                itemPrices, extData = nationShop.setdefault(itemTypeIdx, ({}, {}))
-                itemNotShown = extData.setdefault('notInShop', set())
-                for descr in descriptions.itervalues():
-                    if descr.get('status', '') == 'empty':
-                        continue
-                    itemPrices[descr['compactDescr']] = descr['price']
-                    if not descr['showInShop']:
-                        itemNotShown.add(descr['compactDescr'])
-
-        def setPriceCache(self, cache):
-            horns = cache['hornCost']
-            for hornID, price in horns.items():
-                self.__horns[hornID]['gold'] = price
-
-            shop = cache['items']
-            for nationIdx, nationShop in shop.items():
-                LOG_DZ('Updating nation ', nationIdx)
-                if nationIdx == nations.NONE_INDEX:
-                    itemLists = {_EQUIPMENT: self.__equipments,
-                     _OPTIONALDEVICE: self.__optionalDevices}
-                    self.__updateItemListsFromNationShop(nationShop, itemLists)
-                    continue
-                LOG_DZ('Start updating vehicles, count=', len(nationShop[_VEHICLE][0]))
-                vehList = g_list._VehicleList__nations[nationIdx]
-                vehPrices, extData = nationShop[_VEHICLE]
-                vehNotShown = extData.get('notInShop', set())
-                sellPriceFactors = extData.get('sellPriceFactors', {})
-                sellForGoldSet = extData.get('sellForGold', set())
-                for inNationIdx, price in vehPrices.items():
-                    vehInfo = vehList[inNationIdx]
-                    vehType = getVehicleType(vehInfo['compactDescr'])
-                    showInShop = inNationIdx not in vehNotShown
-                    if price[1] != 0:
-                        sellForGold = inNationIdx in sellForGoldSet
-                        sellPriceFactor = sellPriceFactors.get(inNationIdx, SELL_PRICE_MODIF)
-                        vehInfo['price'] = vehType.price = (vehInfo['price'] != (price[0], price[1]) or vehInfo['showInShop'] != showInShop or vehType.camouflagePriceFactor != price[2] or vehType.hornPriceFactor != price[3] or vehInfo['sellPriceFactor'] != sellPriceFactor or vehInfo['sellForGold'] != sellForGold) and (price[0], price[1])
-                        vehInfo['showInShop'] = vehType.showInShop = showInShop
-                        vehInfo['sellPriceFactor'] = vehType.sellPriceFactor = sellPriceFactor
-                        vehInfo['sellForGold'] = vehType.sellForGold = sellForGold
-                        vehType.camouflagePriceFactor = price[2]
-                        vehType.hornPriceFactor = price[3]
-
-                count = 0
-                for itemType, items in nationShop.items():
-                    count += len(items[0]) if itemType != _VEHICLE else 0
-
-                LOG_DZ('Start updating items, count=', count)
-                itemLists = {_CHASSIS: self.__chassis[nationIdx],
-                 _TURRET: self.__turrets[nationIdx],
-                 _GUN: self.__guns[nationIdx],
-                 _ENGINE: self.__engines[nationIdx],
-                 _FUEL_TANK: self.__fuelTanks[nationIdx],
-                 _RADIO: self.__radios[nationIdx],
-                 _SHELL: self.__shells[nationIdx]}
-                self.__updateItemListsFromNationShop(nationShop, itemLists)
-
-            customization = cache.setdefault('customization', {})
-            for nationIdx, nationCustomization in cache['customization'].iteritems():
-                camouflages = self.__customization[nationIdx].get('camouflages', None)
-                if camouflages is None:
-                    continue
-                for id, priceFactor in nationCustomization['camouflages'].iteritems():
-                    camouflage = camouflages[id]
-                    if camouflage['priceFactor'] != priceFactor:
-                        camouflage['priceFactor'] = priceFactor
-
-            emblems = cache.setdefault('playerEmblems', {})
-            groups = emblems.setdefault('groups', {})
-            for groupName, priceFactor in groups.iteritems():
-                groupInfo = self.__playerEmblems[0].get(groupName, None)
-                if groupInfo is None:
-                    continue
-                if groupInfo[2] != priceFactor:
-                    LOG_DZ('Group of emblems updated: name=%s, priceFactor:%s->%s' % (groupName, groupInfo[2], priceFactor))
-                    emblemIDs, showInShop, _, userString = groupInfo
-                    self.__playerEmblems[0][groupName] = (emblemIDs,
-                     showInShop,
-                     priceFactor,
-                     userString)
-
-            return
-
-        def __updateItemListsFromNationShop(self, nationShop, itemLists):
-            for itemTypeIdx, items in itemLists.iteritems():
-                if items is None:
-                    continue
-                itemPrices, extData = nationShop[itemTypeIdx]
-                itemNotShown = extData.get('notInShop', {})
-                for inNationIdx, item in items.items():
-                    compDescr = item['compactDescr']
-                    price = itemPrices.get(compDescr, None)
-                    if price is None:
-                        continue
-                    showInShop = False if compDescr in itemNotShown else True
-                    if item['price'] != price or item['showInShop'] != showInShop:
-                        if itemTypeIdx == _EQUIPMENT or itemTypeIdx == _OPTIONALDEVICE:
-                            item.updatePrice(price, showInShop)
-                        else:
-                            item['price'] = price
-                            item['showInShop'] = showInShop
-
-            return
 
         def vehicle(self, nationID, vehicleTypeID):
             id = (nationID, vehicleTypeID)
@@ -1349,72 +1175,88 @@ if not IS_CELLAPP:
             return descr
 
         def horns(self):
-            if self.__horns is None:
-                self.__horns = _readHorns(_VEHICLE_TYPE_XML_PATH + 'common/horns.xml')
-            return self.__horns
+            descr = self.__horns
+            if descr is None:
+                descr = self.__horns = _readHorns(_VEHICLE_TYPE_XML_PATH + 'common/horns.xml')
+            return descr
 
         def playerEmblems(self):
-            if self.__playerEmblems is None:
-                self.__playerEmblems = _readPlayerEmblems(_VEHICLE_TYPE_XML_PATH + 'common/player_emblems.xml')
-            return self.__playerEmblems
+            descr = self.__playerEmblems
+            if descr is None:
+                descr = self.__playerEmblems = _readPlayerEmblems(_VEHICLE_TYPE_XML_PATH + 'common/player_emblems.xml')
+            return descr
 
         def optionalDevices(self):
-            if self.__optionalDevices is None:
+            descr = self.__optionalDevices
+            if descr is None:
                 from items import artefacts
                 self.__optionalDevices, self.__optionalDeviceIDs = _readArtefacts(_VEHICLE_TYPE_XML_PATH + 'common/optional_devices.xml')
-            return self.__optionalDevices
+                descr = self.__optionalDevices
+            return descr
 
         def optionalDeviceIDs(self):
-            if self.__optionalDeviceIDs is None:
+            descr = self.__optionalDeviceIDs
+            if descr is None:
                 from items import artefacts
                 self.__optionalDevices, self.__optionalDeviceIDs = _readArtefacts(_VEHICLE_TYPE_XML_PATH + 'common/optional_devices.xml')
-            return self.__optionalDeviceIDs
+                descr = self.__optionalDeviceIDs
+            return descr
 
         def equipments(self):
-            if self.__equipments is None:
+            descr = self.__equipments
+            if descr is None:
                 from items import artefacts
                 self.__equipments, self.__equipmentIDs = _readArtefacts(_VEHICLE_TYPE_XML_PATH + 'common/equipments.xml')
-            return self.__equipments
+                descr = self.__equipments
+            return descr
 
         def equipmentIDs(self):
-            if self.__equipmentIDs is None:
+            descr = self.__equipmentIDs
+            if descr is None:
                 from items import artefacts
                 self.__equipments, self.__equipmentIDs = _readArtefacts(_VEHICLE_TYPE_XML_PATH + 'common/equipments.xml')
-            return self.__equipmentIDs
+                descr = self.__equipmentIDs
+            return descr
 
         @property
         def shotEffects(self):
-            if self.__shotEffects is None:
+            descr = self.__shotEffects
+            if descr is None:
                 self.__shotEffectsIndexes, self.__shotEffects = _readShotEffectGroups(_VEHICLE_TYPE_XML_PATH + 'common/shot_effects.xml')
-            return self.__shotEffects
+                descr = self.__shotEffects
+            return descr
 
         @property
         def shotEffectsIndexes(self):
-            if self.__shotEffects is None:
+            descr = self.__shotEffectsIndexes
+            if descr is None:
                 self.__shotEffectsIndexes, self.__shotEffects = _readShotEffectGroups(_VEHICLE_TYPE_XML_PATH + 'common/shot_effects.xml')
-            return self.__shotEffectsIndexes
+                descr = self.__shotEffectsIndexes
+            return descr
 
         @property
         def damageStickers(self):
-            if self.__damageStickers is None:
-                self.__damageStickers = _readDamageStickers(_VEHICLE_TYPE_XML_PATH + 'common/damage_stickers.xml')
-            return self.__damageStickers
+            descr = self.__damageStickers
+            if descr is None:
+                descr = self.__damageStickers = _readDamageStickers(_VEHICLE_TYPE_XML_PATH + 'common/damage_stickers.xml')
+            return descr
 
         @property
         def commonConfig(self):
-            if self.__commonConfig is None:
+            descr = self.__commonConfig
+            if descr is None:
                 commonXmlPath = _VEHICLE_TYPE_XML_PATH + 'common/vehicle.xml'
                 commonXml = ResMgr.openSection(commonXmlPath)
                 if commonXml is None:
                     _xml.raiseWrongXml(None, commonXmlPath, 'can not open or read')
-                self.__commonConfig = _readCommonConfig((None, commonXmlPath), commonXml)
+                descr = self.__commonConfig = _readCommonConfig((None, commonXmlPath), commonXml)
                 hornCooldownParams = self.__commonConfig['miscParams']['hornCooldown']
                 HORN_COOLDOWN.WINDOW = hornCooldownParams['window']
                 HORN_COOLDOWN.CLIENT_WINDOW_EXPANSION = hornCooldownParams['clientWindowExpansion']
                 HORN_COOLDOWN.MAX_SIGNALS = hornCooldownParams['maxSignals']
                 commonXml = None
                 ResMgr.purge(commonXmlPath, True)
-            return self.__commonConfig
+            return descr
 
         @property
         def _vehicleEffects(self):
@@ -1499,6 +1341,12 @@ if not IS_CELLAPP:
         def __readVehicleList(self, nation, section, xmlPath):
             res = {}
             ids = {}
+            pricesDest = _g_prices
+            if pricesDest is not None:
+                if IS_CLIENT or IS_WEB:
+                    SELL_PRICE_FACTOR = 0.5
+                else:
+                    from server_constants import SELL_PRICE_FACTOR
             for vname, vsection in section.items():
                 ctx = (None, xmlPath + '/' + vname)
                 if vname in ids:
@@ -1506,10 +1354,11 @@ if not IS_CELLAPP:
                 id = _xml.readInt(ctx, vsection, 'id', 0, 255)
                 if id in res:
                     _xml.raiseWrongXml(ctx, 'id', 'is not unique')
+                compactDescr = makeIntCompactDescrByID('vehicle', nations.INDICES[nation], id)
                 ids[vname] = id
                 res[id] = {'name': nation + ':' + vname,
                  'id': id,
-                 'compactDescr': makeIntCompactDescrByID('vehicle', nations.INDICES[nation], id),
+                 'compactDescr': compactDescr,
                  'level': _readLevel(ctx, vsection)}
                 tags = _readTags(ctx, vsection, 'tags', 'vehicle')
                 if 1 != len(tags & VEHICLE_CLASS_TAGS):
@@ -1524,17 +1373,21 @@ if not IS_CELLAPP:
                 price = _xml.readPrice(ctx, vsection, 'price')
                 if price[1]:
                     res[id]['tags'] |= frozenset(('premium',))
-                if IS_BASEAPP or IS_WEB:
-                    res[id]['price'] = price
-                    res[id]['showInShop'] = not vsection.readBool('notInShop', False)
-                    res[id]['sellPriceFactor'] = vsection.readFloat('sellPriceFactor', SELL_PRICE_MODIF)
-                    res[id]['sellForGold'] = price[1] != 0 and vsection.readBool('sellForGold', False)
+                if pricesDest is not None:
+                    pricesDest['itemPrices'][compactDescr] = price
+                    if vsection.readBool('notInShop', False):
+                        pricesDest['notInShopItems'].add(compactDescr)
+                    sellPriceFactor = vsection.readFloat('sellPriceFactor', SELL_PRICE_FACTOR)
+                    if abs(sellPriceFactor - SELL_PRICE_FACTOR) > 0.001:
+                        pricesDest['vehicleSellPriceFactors'][compactDescr] = sellPriceFactor
+                    if price[1] and vsection.readBool('sellForGold', False):
+                        pricesDest['vehiclesToSellForGold'].add(compactDescr)
 
             return res
 
 
     def makeIntCompactDescrByID(itemTypeName, nationID, itemID):
-        header = items.ITEM_TYPE_INDICES[itemTypeName] + (nationID << 4)
+        header = items.ITEM_TYPES[itemTypeName] + (nationID << 4)
         return (itemID << 8) + header
 
 
@@ -1547,7 +1400,7 @@ if not IS_CELLAPP:
         return (header >> 4 & 15, vehicleTypeID)
 
 
-    __ITEM_TYPE_VEHICLE = items.ITEM_TYPE_INDICES['vehicle']
+    __ITEM_TYPE_VEHICLE = items.ITEM_TYPES.vehicle
 
     def getVehicleTypeCompactDescr(compactDescr):
         nationID, vehicleTypeID = parseVehicleCompactDescr(compactDescr)
@@ -1587,9 +1440,42 @@ if not IS_CELLAPP:
         return g_cache.vehicle(nationID, vehicleTypeID)
 
 
+    def stripCustomizationFromVehicleCompactDescr(compactDescr, stripEmblems = True, stripInscriptions = True, stripCamouflages = True):
+        type, components, optionalDevicesSlots, optionalDevices, emblemSlots, emblems, inscriptions, camouflages, horn = _splitVehicleCompactDescr(compactDescr)
+        resEmblems = {}
+        if stripEmblems and emblems:
+            for pos in _RANGE_4:
+                if emblemSlots & 1 << pos:
+                    resEmblems[pos] = _unpackIDAndDuration(emblems[:6])
+                    emblems = emblems[6:]
+
+            emblemSlots &= 240
+        resInscrs = {}
+        if stripInscriptions and inscriptions:
+            for pos in _RANGE_4:
+                if emblemSlots & 1 << pos + 4:
+                    resInscrs[pos] = _unpackIDAndDuration(inscriptions[:6]) + (ord(inscriptions[6]),)
+                    inscriptions = inscriptions[7:]
+
+            emblemSlots &= 15
+        resCams = {}
+        if stripCamouflages and camouflages:
+            pos = 0
+            while camouflages:
+                resCams[pos] = _unpackIDAndDuration(camouflages[:6])
+                camouflages = camouflages[6:]
+                pos += 1
+
+        compactDescr = _combineVehicleCompactDescr(type, components, optionalDevicesSlots, optionalDevices, emblemSlots, emblems, inscriptions, camouflages, horn)
+        return (compactDescr,
+         resEmblems,
+         resInscrs,
+         resCams)
+
+
     def isShellSuitableForGun(shellCompactDescr, gunDescr):
         itemTypeID, nationID, shellTypeID = parseIntCompactDescr(shellCompactDescr)
-        raise itemTypeID == items.ITEM_TYPE_INDICES['shell'] or AssertionError
+        raise itemTypeID == items.ITEM_TYPES.shell or AssertionError
         shellID = (nationID, shellTypeID)
         for shotDescr in gunDescr['shots']:
             if shotDescr['shell']['id'] == shellID:
@@ -1849,10 +1735,7 @@ if not IS_CELLAPP:
                 _xml.raiseWrongXml(xmlCtx, 'drivingWheels', 'unknown wheel name(s)')
 
             res['drivingWheelsSizes'] = (frontWheelSize, rearWheelSize)
-        v = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            res['price'] = v
-            res['showInShop'] = not section.readBool('notInShop', False)
+        _readPriceForItem(xmlCtx, section, compactDescr)
         if IS_CLIENT or IS_WEB:
             _readUserText(res, section)
         if IS_CLIENT:
@@ -1884,10 +1767,7 @@ if not IS_CELLAPP:
          'weight': _xml.readPositiveFloat(xmlCtx, section, 'weight'),
          'fireStartingChance': _xml.readFraction(xmlCtx, section, 'fireStartingChance'),
          'minFireStartingDamage': g_cache.commonConfig['miscParams']['minFireStartingDamage']}
-        v = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            res['price'] = v
-            res['showInShop'] = not section.readBool('notInShop', False)
+        _readPriceForItem(xmlCtx, section, compactDescr)
         if IS_CLIENT or IS_WEB:
             _readUserText(res, section)
         if IS_CLIENT:
@@ -1901,10 +1781,7 @@ if not IS_CELLAPP:
         res = {'tags': _readTags(xmlCtx, section, 'tags', 'vehicleEngine'),
          'level': _readLevel(xmlCtx, section),
          'weight': _xml.readPositiveFloat(xmlCtx, section, 'weight')}
-        v = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            res['price'] = v
-            res['showInShop'] = not section.readBool('notInShop', False)
+        _readPriceForItem(xmlCtx, section, compactDescr)
         if IS_CLIENT or IS_WEB:
             _readUserText(res, section)
         res.update(_readDeviceHealthParams(xmlCtx, section, '', False))
@@ -1917,10 +1794,7 @@ if not IS_CELLAPP:
          'level': _readLevel(xmlCtx, section),
          'weight': _xml.readNonNegativeFloat(xmlCtx, section, 'weight'),
          'distance': _xml.readNonNegativeFloat(xmlCtx, section, 'distance')}
-        v = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            res['price'] = v
-            res['showInShop'] = not section.readBool('notInShop', False)
+        _readPriceForItem(xmlCtx, section, compactDescr)
         if IS_CLIENT or IS_WEB:
             _readUserText(res, section)
         res.update(_readDeviceHealthParams(xmlCtx, section))
@@ -1945,10 +1819,7 @@ if not IS_CELLAPP:
                 res['invisibilityFactor'] = _xml.readNonNegativeFloat(xmlCtx, section, 'invisibilityFactor')
             else:
                 res['invisibilityFactor'] = 1.0
-        v = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            res['price'] = v
-            res['showInShop'] = not section.readBool('notInShop', False)
+        _readPriceForItem(xmlCtx, section, compactDescr)
         if IS_CLIENT or IS_WEB:
             _readUserText(res, section)
             res['primaryArmor'] = _readPrimaryArmor(xmlCtx, section, 'primaryArmor', res['materials'])
@@ -2003,10 +1874,7 @@ if not IS_CELLAPP:
         if not IS_CLIENT or IS_DEVELOPMENT:
             res['invisibilityFactorAtShot'] = _xml.readFraction(xmlCtx, section, 'invisibilityFactorAtShot')
             res['armorHomogenization'] = 1.0
-        v = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            res['price'] = v
-            res['showInShop'] = not section.readBool('notInShop', False)
+        _readPriceForItem(xmlCtx, section, compactDescr)
         if IS_CLIENT or IS_WEB:
             _readUserText(res, section)
         if IS_CLIENT:
@@ -2182,6 +2050,19 @@ if not IS_CELLAPP:
                 effects = g_cache._gunEffects.get(effName)
                 if effects is None:
                     _xml.raiseWrongXml(xmlCtx, 'effects', "unknown effect '%s'" % effName)
+            if not section.has_key('groundWave'):
+                groundWave = sharedDescr['groundWave']
+            else:
+                hasOverride = True
+                groundWaveEffName = section.readString('groundWave', '')
+                if groundWaveEffName == '':
+                    groundWave = None
+                else:
+                    eff = g_cache._gunEffects.get(groundWaveEffName)
+                    if eff is None:
+                        _xml.raiseWrongXml(xmlCtx, 'groundWave', "unknown effect '%s'" % groundWaveEffName)
+                    else:
+                        groundWave = eff
             if not section.has_key('camouflage'):
                 camTiling = sharedDescr.get('camouflageTiling')
                 camExclMask = sharedDescr.get('camouflageExclusionMask')
@@ -2238,6 +2119,7 @@ if not IS_CELLAPP:
             if IS_CLIENT:
                 descr['models'] = models
                 descr['effects'] = effects
+                descr['groundWave'] = groundWave
                 if camTiling is not None:
                     descr['camouflageTiling'] = camTiling
                     descr['camouflageExclusionMask'] = camExclMask
@@ -2317,10 +2199,11 @@ if not IS_CELLAPP:
 
 
     def _readShell(xmlCtx, section, name, nationID, shellTypeID, icons):
+        compactDescr = makeIntCompactDescrByID('shell', nationID, shellTypeID)
         res = {'itemTypeName': 'shell',
          'name': name,
          'id': (nationID, shellTypeID),
-         'compactDescr': makeIntCompactDescrByID('shell', nationID, shellTypeID),
+         'compactDescr': compactDescr,
          'caliber': _xml.readInt(xmlCtx, section, 'caliber', 1),
          'isTracer': section.readBool('isTracer', False),
          'damage': (_xml.readPositiveFloat(xmlCtx, section, 'damage/armor'), _xml.readPositiveFloat(xmlCtx, section, 'damage/devices')),
@@ -2333,10 +2216,7 @@ if not IS_CELLAPP:
             res['icon'] = icons.get(v)
             if res['icon'] is None:
                 _xml.raiseWrongXml(xmlCtx, 'icon', "unknown icon '%s'" % v)
-        v = _xml.readPrice(xmlCtx, section, 'price')
-        if IS_BASEAPP or IS_WEB:
-            res['price'] = v
-            res['showInShop'] = not section.readBool('notInShop', False)
+        _readPriceForItem(xmlCtx, section, compactDescr)
         kind = intern(_xml.readNonEmptyString(xmlCtx, section, 'kind'))
         if kind not in _shellKinds:
             _xml.raiseWrongXml(xmlCtx, 'kind', "unknown shell kind '%s'" % kind)
@@ -2585,6 +2465,15 @@ if not IS_CELLAPP:
         if volumeFactor > 1.0:
             _xml.raiseWrongXml(xmlCtx, 'volumeFactor', 'volumeFactor should be in range (0, 1]')
         return (_xml.readNonNegativeFloat(xmlCtx, section, 'priceFactor'), _xml.readPositiveFloat(xmlCtx, section, 'distanceFactor'), volumeFactor)
+
+
+    def _readPriceForItem(xmlCtx, section, compactDescr):
+        pricesDest = _g_prices
+        if pricesDest is not None:
+            pricesDest['itemPrices'][compactDescr] = _xml.readPrice(xmlCtx, section, 'price')
+            if section.readBool('notInShop', False):
+                pricesDest['notInShopItems'].add(compactDescr)
+        return
 
 
     def _readUnlocks(xmlCtx, section, subsectionName, unlocksDescrs, *requiredItems):
@@ -3012,6 +2901,7 @@ if not IS_CELLAPP:
                 _xml.raiseWrongXml(ctx, 'script', "class '%s' is not found in '%s'" % (className, artefacts.__name__))
             instObj = classObj()
             instObj.init(ctx, subsection)
+            _readPriceForItem(ctx, subsection, instObj.compactDescr)
             id = instObj.id[1]
             if id in objsByIDs:
                 _xml.raiseWrongXml(ctx, '', 'id is not unique')
@@ -3032,7 +2922,13 @@ if not IS_CELLAPP:
         res = {'inscriptionColors': _readColors(xmlCtx, section, 'inscriptionColors', NUM_INSCRIPTION_COLORS)}
         if IS_CLIENT:
             res['armorColor'] = _readColor(xmlCtx, section, 'armorColor')
-        res['inscriptionGroups'], res['inscriptions'] = _readPlayerInscriptions(xmlCtx, section, 'inscriptions')
+        pricesDest = _g_prices
+        if pricesDest is None:
+            priceFactors = notInShops = None
+        else:
+            priceFactors = pricesDest['inscriptionGroupPriceFactors'][nationID]
+            notInShops = pricesDest['notInShopInscriptionGroups'][nationID]
+        res['inscriptionGroups'], res['inscriptions'] = _readPlayerInscriptions(xmlCtx, section, 'inscriptions', priceFactors, notInShops)
         camouflageGroups = {}
         for groupName, subsection in _xml.getChildren(xmlCtx, section, 'camouflageGroups'):
             groupName = intern(groupName)
@@ -3044,10 +2940,15 @@ if not IS_CELLAPP:
                 groupDescr['hasNew'] = False
             camouflageGroups[groupName] = groupDescr
 
+        if pricesDest is None:
+            priceFactors = notInShops = None
+        else:
+            priceFactors = pricesDest['camouflagePriceFactors'][nationID]
+            notInShops = pricesDest['notInShopCamouflages'][nationID]
         camouflages = {}
         for camName, subsection in _xml.getChildren(xmlCtx, section, 'camouflages'):
             ctx = (xmlCtx, 'camouflages/' + camName)
-            camID, camDescr = _readCamouflage(ctx, subsection, camouflages, camouflageGroups, nationID)
+            camID, camDescr = _readCamouflage(ctx, subsection, camouflages, camouflageGroups, nationID, priceFactors, notInShops)
             camouflages[camID] = camDescr
 
         res['camouflageGroups'] = camouflageGroups
@@ -3058,7 +2959,7 @@ if not IS_CELLAPP:
         return res
 
 
-    def _readCamouflage(xmlCtx, section, ids, groups, nationID):
+    def _readCamouflage(xmlCtx, section, ids, groups, nationID, priceFactors, notInShops):
         id = _xml.readInt(xmlCtx, section, 'id', 1, 65535)
         if id in ids:
             _xml.raiseWrongXml(xmlCtx, 'id', 'camouflage ID is not unique')
@@ -3069,15 +2970,17 @@ if not IS_CELLAPP:
         groupDescr = groups.get(groupName)
         if groupDescr is None:
             _xml.raiseWrongXml(xmlCtx, 'group', "unknown camouflage group name '%s'" % groupName)
+        if priceFactors is not None:
+            priceFactors[id] = _xml.readNonNegativeFloat(xmlCtx, section, 'priceFactor')
+            if section.readBool('notInShop', False):
+                notInShops.add(id)
         descr = {'kind': kind,
          'groupName': groupName,
-         'priceFactor': _xml.readNonNegativeFloat(xmlCtx, section, 'priceFactor'),
          'invisibilityFactor': _xml.readNonNegativeFloat(xmlCtx, section, 'invisibilityFactor'),
          'allow': _readNationVehiclesByNames(xmlCtx, section, 'allow', nationID),
-         'deny': _readNationVehiclesByNames(xmlCtx, section, 'deny', nationID),
-         'showInShop': not section.readBool('notInShop', False)}
+         'deny': _readNationVehiclesByNames(xmlCtx, section, 'deny', nationID)}
         isNew = False
-        if IS_CLIENT or IS_WEB:
+        if IS_CLIENT:
             isNew = section.readBool('isNew', False)
             descr['isNew'] = isNew
             descr['description'] = i18n.makeString(section.readString('description'))
@@ -3154,16 +3057,18 @@ if not IS_CELLAPP:
         if section is None:
             return {}
         else:
-            nationName = nations.NAMES[nationID] + ':'
+            defNationNameTempl = nations.NAMES[nationID] + ':'
             res = {}
             ctx = (xmlCtx, sectionName)
-            for vehName in section.keys():
+            for vehName, subsection in section.items():
+                if vehName.find(':') == -1:
+                    vehName = defNationNameTempl + vehName
                 try:
-                    vehID = g_list.getIDsByName(nationName + vehName)[1]
+                    nationID, vehID = g_list.getIDsByName(vehName)
                 except:
                     _xml.raiseWrongXml(xmlCtx, sectionName, "unknown vehicle name '%s'" % vehName)
 
-                tiling = _xml.readTupleOfFloats(ctx, section, vehName, 4)
+                tiling = _xml.readTupleOfFloats(ctx, subsection, '', 4)
                 if tiling[0] <= 0 or tiling[1] <= 0:
                     _xml.raiseWrongSection(ctx, vehName)
                 res[makeIntCompactDescrByID('vehicle', nationID, vehID)] = tiling
@@ -3177,14 +3082,18 @@ if not IS_CELLAPP:
             _xml.raiseWrongXml(None, xmlPath, 'can not open or read')
         xmlCtx = (None, xmlPath)
         descrs = {}
+        pricesDest = _g_prices
+        if pricesDest is not None:
+            pricesDest = pricesDest['hornPrices']
         for name, subsection in section.items():
             ctx = (xmlCtx, name)
             id = _xml.readInt(ctx, subsection, 'id', 1, 255)
             if id in descrs:
                 _xml.raiseWrongXml(ctx, 'id', 'horn ID is not unique')
-            descr = {'gold': _xml.readInt(ctx, subsection, 'gold', 1),
-             'distance': _xml.readPositiveFloat(ctx, subsection, 'distance'),
+            descr = {'distance': _xml.readPositiveFloat(ctx, subsection, 'distance'),
              'vehicleTags': _readTags(ctx, subsection, 'vehicleTags', 'vehicle')}
+            if pricesDest is not None:
+                pricesDest[id] = _xml.readInt(ctx, subsection, 'gold', 1)
             if IS_CLIENT:
                 descr['userString'] = i18n.makeString(subsection.readString('userString'))
                 descr['mode'] = intern(_xml.readString(ctx, subsection, 'mode'))
@@ -3212,13 +3121,16 @@ if not IS_CELLAPP:
         groups = {}
         emblems = {}
         names = {}
+        pricesDest = _g_prices
         for sname, subsection in _xml.getChildren(xmlCtx, section, ''):
             groupCtx = (xmlCtx, sname)
             if groups.has_key(sname):
                 _xml.raiseWrongXml(groupCtx, '', 'emblem group name is not unique')
             groupName = intern(sname)
-            showInShop = not subsection.readBool('notInShop', False)
-            priceFactor = _xml.readPositiveFloat(groupCtx, subsection, 'priceFactor')
+            if pricesDest is not None:
+                pricesDest['playerEmblemGroupPriceFactors'][groupName] = _xml.readPositiveFloat(groupCtx, subsection, 'priceFactor')
+                if subsection.readBool('notInShop', False):
+                    pricesDest['notInShopPlayerEmblemGroups'].add(groupName)
             if IS_CLIENT:
                 groupUserString = subsection.readString('userString')
             else:
@@ -3251,15 +3163,12 @@ if not IS_CELLAPP:
                 if sname != 'emblem':
                     names[intern(sname)] = emblemID
 
-            groups[groupName] = (emblemIDs,
-             showInShop,
-             priceFactor,
-             groupUserString)
+            groups[groupName] = (emblemIDs, groupUserString)
 
         return (groups, emblems, names)
 
 
-    def _readPlayerInscriptions(xmlCtx, section, subsectionName):
+    def _readPlayerInscriptions(xmlCtx, section, subsectionName, priceFactors, notInShops):
         section = _xml.getSubsection(xmlCtx, section, subsectionName)
         xmlCtx = (xmlCtx, subsectionName)
         groups = {}
@@ -3269,8 +3178,10 @@ if not IS_CELLAPP:
             if groups.has_key(sname):
                 _xml.raiseWrongXml(groupCtx, '', 'inscription group name is not unique')
             groupName = intern(sname)
-            showInShop = not subsection.readBool('notInShop', False)
-            priceFactor = _xml.readPositiveFloat(groupCtx, subsection, 'priceFactor')
+            if priceFactors is not None:
+                priceFactors[groupName] = _xml.readPositiveFloat(groupCtx, subsection, 'priceFactor')
+                if subsection.readBool('notInShop', False):
+                    notInShops.add(groupName)
             if IS_CLIENT:
                 groupUserString = i18n.makeString(subsection.readString('userString'))
             else:
@@ -3297,10 +3208,7 @@ if not IS_CELLAPP:
                     inscrs[inscrID] = (groupName,)
                 inscrIDs.append(inscrID)
 
-            groups[groupName] = (inscrIDs,
-             showInShop,
-             priceFactor,
-             groupUserString)
+            groups[groupName] = (inscrIDs, groupUserString)
 
         return (groups, inscrs)
 
@@ -3400,6 +3308,92 @@ def _summPriceDiff(price, priceAdd, priceSub):
     return (price[0] + priceAdd[0] - priceSub[0], price[1] + priceAdd[1] - priceSub[1])
 
 
+def _splitVehicleCompactDescr(compactDescr):
+    header = ord(compactDescr[0])
+    raise header & 15 == items.ITEM_TYPES.vehicle or AssertionError
+    vehicleTypeID = ord(compactDescr[1])
+    nationID = header >> 4 & 15
+    type = g_cache.vehicle(nationID, vehicleTypeID)
+    idx = 10 + len(type.turrets) * 4
+    components = compactDescr[2:idx]
+    flags = ord(compactDescr[idx])
+    idx += 1
+    count = 0
+    optionalDeviceSlots = 0
+    for i in _RANGE_OPTIONAL_DEVICE_SLOTS:
+        if flags & 1 << i:
+            count += 1
+            optionalDeviceSlots |= 1 << i
+
+    optionalDevices = compactDescr[idx:idx + count * 2]
+    raise len(optionalDevices) % 2 == 0 or AssertionError
+    idx += count * 2
+    emblemPositions = flags & 32 and ord(compactDescr[idx])
+    raise emblemPositions or AssertionError
+    idx += 1
+    count = 0
+    for i in _RANGE_4:
+        if emblemPositions & 1 << i:
+            count += 1
+
+    emblems = compactDescr[idx:idx + count * 6]
+    if not len(emblems) % 6 == 0:
+        raise AssertionError
+        idx += count * 6
+        count = 0
+        for i in _RANGE_4:
+            if emblemPositions & 1 << i + 4:
+                count += 1
+
+        inscriptions = compactDescr[idx:idx + count * 7]
+        if not len(inscriptions) % 7 == 0:
+            raise AssertionError
+            idx += count * 7
+        else:
+            emblemPositions = 0
+            emblems = ''
+            inscriptions = ''
+        horn = flags & 64 and ord(compactDescr[idx])
+        idx += 1
+    else:
+        horn = None
+    camouflages = flags & 128 and compactDescr[idx:]
+    if not len(camouflages) % 6 == 0:
+        raise AssertionError
+    else:
+        camouflages = ''
+    return (type,
+     components,
+     optionalDeviceSlots,
+     optionalDevices,
+     emblemPositions,
+     emblems,
+     inscriptions,
+     camouflages,
+     horn)
+
+
+def _combineVehicleCompactDescr(type, components, optionalDeviceSlots, optionalDevices, emblemPositions, emblems, inscriptions, camouflages, horn):
+    header = items.ITEM_TYPES.vehicle + (type.id[0] << 4)
+    vehicleTypeID = type.id[1]
+    flags = optionalDeviceSlots
+    if emblems or inscriptions:
+        if not emblemPositions:
+            raise AssertionError
+            flags |= 32
+        if camouflages:
+            flags |= 128
+        if horn is not None:
+            flags |= 64
+        cd = chr(header) + chr(vehicleTypeID) + components + chr(flags) + optionalDevices
+        if emblems or inscriptions:
+            cd += chr(emblemPositions) + emblems + inscriptions
+        if horn is not None:
+            cd += chr(horn)
+        camouflages and cd += camouflages
+    return cd
+
+
 def _packIDAndDuration(id, startTime, durationDays):
     return struct.pack('<HI', id, (startTime - _CUSTOMIZATION_EPOCH) / 60 | durationDays << 24)
 
@@ -3414,17 +3408,6 @@ def _isWeightAllowedToChange(newWeights, prevWeights):
     return newReserve >= 0.0 or newReserve >= prevWeights[1] - prevWeights[0]
 
 
-_VEHICLE = items.ITEM_TYPE_INDICES['vehicle']
-_CHASSIS = items.ITEM_TYPE_INDICES['vehicleChassis']
-_TURRET = items.ITEM_TYPE_INDICES['vehicleTurret']
-_GUN = items.ITEM_TYPE_INDICES['vehicleGun']
-_ENGINE = items.ITEM_TYPE_INDICES['vehicleEngine']
-_FUEL_TANK = items.ITEM_TYPE_INDICES['vehicleFuelTank']
-_RADIO = items.ITEM_TYPE_INDICES['vehicleRadio']
-_TANKMAN = items.ITEM_TYPE_INDICES['tankman']
-_OPTIONALDEVICE = items.ITEM_TYPE_INDICES['optionalDevice']
-_SHELL = items.ITEM_TYPE_INDICES['shell']
-_EQUIPMENT = items.ITEM_TYPE_INDICES['equipment']
 _EMPTY_INSCRIPTION = (None,
  _CUSTOMIZATION_EPOCH,
  0,
@@ -3435,3 +3418,19 @@ _EMPTY_INSCRIPTIONS = (_EMPTY_INSCRIPTION,
  _EMPTY_INSCRIPTION)
 _EMPTY_CAMOUFLAGE = (None, _CUSTOMIZATION_EPOCH, 0)
 _EMPTY_CAMOUFLAGES = (_EMPTY_CAMOUFLAGE, _EMPTY_CAMOUFLAGE, _EMPTY_CAMOUFLAGE)
+_RANGE_4 = range(4)
+_RANGE_OPTIONAL_DEVICE_SLOTS = range(NUM_OPTIONAL_DEVICE_SLOTS)
+_VEHICLE = items.ITEM_TYPES['vehicle']
+_CHASSIS = items.ITEM_TYPES['vehicleChassis']
+_TURRET = items.ITEM_TYPES['vehicleTurret']
+_GUN = items.ITEM_TYPES['vehicleGun']
+_ENGINE = items.ITEM_TYPES['vehicleEngine']
+_FUEL_TANK = items.ITEM_TYPES['vehicleFuelTank']
+_RADIO = items.ITEM_TYPES['vehicleRadio']
+_TANKMAN = items.ITEM_TYPES['tankman']
+_OPTIONALDEVICE = items.ITEM_TYPES['optionalDevice']
+_SHELL = items.ITEM_TYPES['shell']
+_EQUIPMENT = items.ITEM_TYPES['equipment']
+# okay decompyling res/scripts/common/items/vehicles.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:43 EST

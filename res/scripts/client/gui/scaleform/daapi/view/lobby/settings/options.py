@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:13 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/options.py
 import sys
 import fractions
 import itertools
@@ -295,7 +297,7 @@ class StorageSetting(SettingAbstract):
         self._storage.store(setting)
         return result
 
-    def _getDefaultValue(self):
+    def getDefaultValue(self):
         return None
 
     def setSystemValue(self, value):
@@ -471,7 +473,7 @@ class MessengerDateTimeSetting(MessengerSetting):
         settingValue = super(MessengerDateTimeSetting, self)._get()
         if settingValue:
             settingValue = settingValue & self.bit
-        return settingValue
+        return bool(settingValue)
 
     def _set(self, value):
         settingValue = super(MessengerDateTimeSetting, self)._get()
@@ -779,17 +781,23 @@ class GraphicsPresetSetting(SettingAbstract):
 
 class MonitorSetting(SettingAbstract):
 
+    def __init__(self, isPreview = False, storage = None):
+        super(MonitorSetting, self).__init__(isPreview)
+        self._storage = storage
+
     def _get(self):
-        return g_monitorSettings.currentMonitor
+        return self._storage.monitor
+
+    def _set(self, value):
+        self._storage.monitor = value
 
     def _getOptions(self):
         return BigWorld.wg_getMonitorNames()
 
     def getApplyMethod(self):
-        return g_monitorSettings.isMonitorChanged and g_monitorSettings.isFullscreen
-
-    def _set(self, value):
-        g_monitorSettings.changeMonitor(value)
+        if g_monitorSettings.isMonitorChanged and g_monitorSettings.isFullscreen:
+            return APPLY_METHOD.RESTART
+        return super(MonitorSetting, self).getApplyMethod()
 
     def pack(self):
         result = super(MonitorSetting, self).pack()
@@ -976,6 +984,7 @@ class AimSetting(StorageAccountSetting):
         CENTRAL_TAG = 'centralTag'
         CENTRAL_TAG_TYPE = 'centralTagType'
         RELOADER = 'reloader'
+        RELOADER_TIMER = 'reloaderTimer'
         CONDITION = 'condition'
         MIXING = 'mixing'
         MIXING_TYPE = 'mixingType'
@@ -1416,6 +1425,12 @@ class DynamicCamera(StorageSetting):
         return AvatarInputHandler.isCameraDynamic()
 
 
+class SniperModeStabilization(StorageSetting):
+
+    def getDefaultValue(self):
+        return AvatarInputHandler.isSniperStabilized()
+
+
 class WindowsTarget4StoredData(SettingAbstract):
 
     def __init__(self, targetID, isPreview = False):
@@ -1430,3 +1445,6 @@ class WindowsTarget4StoredData(SettingAbstract):
             g_windowsStoredData.addTarget(self._targetID)
         else:
             g_windowsStoredData.removeTarget(self._targetID)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/settings/options.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:15 EST

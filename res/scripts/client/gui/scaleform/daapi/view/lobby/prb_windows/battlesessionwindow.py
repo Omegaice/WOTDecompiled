@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:06 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/BattleSessionWindow.py
 import BigWorld
 import constants
 import nations
@@ -6,7 +8,7 @@ from gui.shared import events, EVENT_BUS_SCOPE
 from gui.shared.utils import functions
 from gui import prb_control
 from gui.prb_control import formatters, context
-from gui.prb_control.settings import PREBATTLE_ROSTER, PREBATTLE_REQUEST, PREBATTLE_SETTING_NAME
+from gui.prb_control.settings import PREBATTLE_ROSTER, REQUEST_TYPE, PREBATTLE_SETTING_NAME
 from gui.Scaleform.locale.MENU import MENU
 from gui.Scaleform.daapi.view.lobby.prb_windows.PrebattleWindow import PrebattleWindow
 from gui.Scaleform.daapi.view.meta.BattleSessionWindowMeta import BattleSessionWindowMeta
@@ -108,7 +110,7 @@ class BattleSessionWindow(PrebattleWindow, BattleSessionWindowMeta):
         self.destroy()
 
     def __handleSetPrebattleCoolDown(self, event):
-        if event.requestID is PREBATTLE_REQUEST.SET_PLAYER_STATE:
+        if event.requestID is REQUEST_TYPE.SET_PLAYER_STATE:
             self.as_setCoolDownForReadyButtonS(event.coolDown)
 
     def __clearSyncStartTimeCallback(self):
@@ -212,3 +214,6 @@ class BattleSessionWindow(PrebattleWindow, BattleSessionWindowMeta):
             return '-'
         else:
             return '{0:>s}-{1:>s}'.format(minString, maxString)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/battlesessionwindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:07 EST

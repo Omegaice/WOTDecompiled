@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:01 EST
+# Embedded file name: scripts/client/gui/shared/utils/key_mapping.py
 import BigWorld, Keys
 from gui.BattleContext import g_battleContext
 BW_TO_SCALEFORM = {Keys.KEY_NONE: 666,
@@ -147,3 +149,6 @@ def getScaleformKey(bigworldKey):
     if g_battleContext.isInBattle and bigworldKey in BW_TO_SCALEFORM_OVERRIDE:
         return BW_TO_SCALEFORM_OVERRIDE[bigworldKey]
     return BW_TO_SCALEFORM.get(bigworldKey, voidSymbol)
+# okay decompyling res/scripts/client/gui/shared/utils/key_mapping.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:02 EST

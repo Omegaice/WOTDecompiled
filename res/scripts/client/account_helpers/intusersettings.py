@@ -1,11 +1,7 @@
+# 2013.11.15 11:25:09 EST
+# Embedded file name: scripts/client/account_helpers/IntUserSettings.py
 import AccountCommands
-import time
-import constants
-import items
-import dossiers
 from functools import partial
-from AccountSyncData import synchronizeDicts
-from itertools import izip
 from debug_utils import *
 
 class IntUserSettings(object):
@@ -32,15 +28,12 @@ class IntUserSettings(object):
     def synchronize(self, isFullSync, diff):
         cache = self.__cache
         if isFullSync:
-            LOG_DEBUG('IntUserSettings full sync: clearing cache')
             cache.clear()
         settingsFull = diff.get(('intUserSettings', '_r'), {})
         if settingsFull:
-            LOG_DEBUG('IntUserSettings full sync: settingsFull=%s' % settingsFull)
             self.__cache = dict(settingsFull)
         settingsDiff = diff.get('intUserSettings', {})
         if settingsDiff:
-            LOG_DEBUG('IntUserSettings sync: settingsDiff=%s' % settingsDiff)
             for key, value in settingsDiff.iteritems():
                 if value is not None:
                     cache[key] = value
@@ -57,7 +50,6 @@ class IntUserSettings(object):
             callback(AccountCommands.RES_NON_PLAYER)
 
     def get(self, key, callback = None):
-        LOG_DEBUG('IntUserSettings get: syncData=%s, key=%s' % (self.__syncData, key))
         if self.__syncData:
             self.__syncData.waitForSync(partial(self.__onGetResponse, key, callback))
         elif callback:
@@ -129,3 +121,6 @@ class IntUserSettings(object):
             if callback is not None:
                 callback(resultID, self.__cache)
             return
+# okay decompyling res/scripts/client/account_helpers/intusersettings.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:09 EST

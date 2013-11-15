@@ -1,3 +1,6 @@
+# 2013.11.15 11:27:09 EST
+# Embedded file name: scripts/client/messenger/doc_loaders/html_templates.py
+import types
 from helpers.html import translation as html_translation, templates
 
 class _MessageTemplate(templates.Template):
@@ -14,6 +17,8 @@ class _MessageTemplate(templates.Template):
 
     def format(self, ctx = None, data = None):
         vo = self.data.copy()
+        if type(data) is types.DictionaryType:
+            vo.update(data)
         vo['showMore'] = self._makeShowMore(data)
         vo['message'] = super(_MessageTemplate, self).format(ctx=ctx, sourceKey='message')
         return vo
@@ -53,3 +58,6 @@ def loadForMessage(_, section, settings):
 
 def loadForOthers(_, section, settings):
     settings.htmlTemplates.load(section=section)
+# okay decompyling res/scripts/client/messenger/doc_loaders/html_templates.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:09 EST

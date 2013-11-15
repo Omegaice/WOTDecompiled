@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:27 EST
+# Embedded file name: scripts/client/gui/Scaleform/framework/application.py
 import weakref
 import BigWorld
 import GUI
@@ -322,3 +324,6 @@ class App(ApplicationMeta, AppBase):
         if self._gameInputMgr is None:
             raise Exception, 'Game input manager is not defined'
         return
+# okay decompyling res/scripts/client/gui/scaleform/framework/application.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:27 EST

@@ -1,14 +1,18 @@
+# 2013.11.15 11:25:45 EST
+# Embedded file name: scripts/client/gui/prb_control/restrictions/permissions.py
+from UnitBase import UNIT_ROLE, UNIT_STATE
+import account_helpers
 from constants import PREBATTLE_ROLE, PREBATTLE_TEAM_STATE
 from constants import PREBATTLE_ACCOUNT_STATE
 from gui import prb_control
-from gui.prb_control.info import TeamStateInfo
-from gui.prb_control.restrictions.interfaces import IPermissions
+from gui.prb_control.info import TeamStateInfo, UnitState
+from gui.prb_control.restrictions.interfaces import IPrbPermissions, IUnitPermissions
 from gui.prb_control.restrictions.limits import MaxCount, TotalMaxCount, TeamNoPlayersInBattle
 
-class DefaultPermissions(IPermissions):
+class DefaultPrbPermissions(IPrbPermissions):
 
     def __init__(self, roles = 0, pState = PREBATTLE_ACCOUNT_STATE.UNKNOWN, teamState = None):
-        super(DefaultPermissions, self).__init__()
+        super(DefaultPrbPermissions, self).__init__()
         self._roles = roles
         self._pState = pState
         if teamState is None:
@@ -75,7 +79,7 @@ class DefaultPermissions(IPermissions):
         return False
 
 
-class TrainingPermissions(DefaultPermissions):
+class TrainingPrbPermissions(DefaultPrbPermissions):
 
     def canChangeVehicle(self):
         return True
@@ -85,10 +89,10 @@ class TrainingPermissions(DefaultPermissions):
         return roles == PREBATTLE_ROLE.TRAINING_CREATOR
 
 
-class SquadPermissions(DefaultPermissions):
+class SquadPrbPermissions(DefaultPrbPermissions):
 
     def canSendInvite(self):
-        return super(SquadPermissions, self).canSendInvite() and self._canAddPlayers()
+        return super(SquadPrbPermissions, self).canSendInvite() and self._canAddPlayers()
 
     def canAssignToTeam(self, team = 1):
         return False
@@ -113,10 +117,10 @@ class SquadPermissions(DefaultPermissions):
         return result
 
 
-class CompanyPermissions(DefaultPermissions):
+class CompanyPrbPermissions(DefaultPrbPermissions):
 
     def canSendInvite(self):
-        return super(CompanyPermissions, self).canSendInvite() and self._canAddPlayers()
+        return super(CompanyPrbPermissions, self).canSendInvite() and self._canAddPlayers()
 
     def canChangeDivision(self):
         return self._roles & PREBATTLE_ROLE.CHANGE_DIVISION != 0 and self._teamState.isNotReady()
@@ -138,10 +142,10 @@ class CompanyPermissions(DefaultPermissions):
         return result
 
 
-class BattleSessionPermissions(DefaultPermissions):
+class BattleSessionPrbPermissions(DefaultPrbPermissions):
 
     def canSendInvite(self):
-        return super(BattleSessionPermissions, self).canSendInvite() and self._canAddPlayers()
+        return super(BattleSessionPrbPermissions, self).canSendInvite() and self._canAddPlayers()
 
     def canExitFromRandomQueue(self):
         return self.isCreator(self._roles)
@@ -168,3 +172,65 @@ class BattleSessionPermissions(DefaultPermissions):
             rosters = prb_control.getPrebattleRosters(prebattle=clientPrb)
             result, _ = MaxCount().check(rosters, 1, settings.getTeamLimits(1))
         return result
+
+
+class UnitPermissions(IUnitPermissions):
+
+    def __init__(self, roles = 0, state = UNIT_STATE.DEFAULT, isCurrentPlayer = False, isPlayerReady = False):
+        super(UnitPermissions, self).__init__()
+        self._roles = roles
+        self._state = UnitState(state)
+        self._isCurrentPlayer = isCurrentPlayer
+        self._isPlayerReady = isPlayerReady
+
+    def __repr__(self):
+        return '{0:>s}(roles = {1:n}, state = {2!r:s}, isCurrentPlayer = {3!r:s})'.format(self.__class__.__name__, self._roles, self._state, self._isCurrentPlayer)
+
+    def canSendInvite(self):
+        return self._roles & UNIT_ROLE.INVITE_KICK_PLAYERS > 0
+
+    def canKick(self):
+        return self._roles & UNIT_ROLE.INVITE_KICK_PLAYERS > 0
+
+    def canChangeUnitState(self):
+        return self._roles & UNIT_ROLE.CHANGE_ROSTER > 0
+
+    def canChangeRosters(self):
+        return self._roles & UNIT_ROLE.CHANGE_ROSTER > 0
+
+    def canSetVehicle(self):
+        return self._isCurrentPlayer
+
+    def canSetReady(self):
+        return self._isCurrentPlayer
+
+    def canChangeClosedSlots(self):
+        return self._roles & UNIT_ROLE.CHANGE_ROSTER > 0
+
+    def canAssignToSlot(self, dbID):
+        return self._roles & UNIT_ROLE.ADD_REMOVE_MEMBERS > 0 or dbID == account_helpers.getPlayerDatabaseID()
+
+    def canReassignToSlot(self):
+        return self._roles & UNIT_ROLE.ADD_REMOVE_MEMBERS > 0
+
+    def canChangeComment(self):
+        return self._roles & UNIT_ROLE.CHANGE_ROSTER > 0 and not self._state.isInIdle()
+
+    def canInvokeAutoSearch(self):
+        return self._roles & UNIT_ROLE.START_STOP_BATTLE > 0
+
+    def canStartBattleQueue(self):
+        return self._roles & UNIT_ROLE.START_STOP_BATTLE > 0
+
+    def canStopBattleQueue(self):
+        return self._roles & UNIT_ROLE.START_STOP_BATTLE > 0
+
+    def canChangeVehicle(self):
+        return self._isCurrentPlayer and not self._isPlayerReady
+
+    @classmethod
+    def isCreator(cls, roles):
+        return roles & UNIT_ROLE.COMMANDER_UPDATES > 0
+# okay decompyling res/scripts/client/gui/prb_control/restrictions/permissions.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:46 EST

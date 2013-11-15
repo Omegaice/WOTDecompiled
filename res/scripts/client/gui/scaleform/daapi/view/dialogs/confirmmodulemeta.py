@@ -1,6 +1,9 @@
+# 2013.11.15 11:25:55 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/dialogs/ConfirmModuleMeta.py
 import math
 from gui.Scaleform.daapi.view.dialogs import IDialogMeta
 import Event
+from gui.Scaleform.framework import VIEW_SCOPE
 from gui.shared import events
 from helpers import i18n
 from gui.Scaleform.locale.DIALOGS import DIALOGS
@@ -49,6 +52,9 @@ class ConfirmModuleMeta(IDialogMeta):
     def getActualPrice(self, module):
         return (0, 0)
 
+    def getViewScopeType(self):
+        return VIEW_SCOPE.DEFAULT
+
 
 class SellModuleMeta(ConfirmModuleMeta):
 
@@ -74,6 +80,12 @@ class SellModuleMeta(ConfirmModuleMeta):
 
     def getActualPrice(self, module):
         return module.sellPrice
+
+
+class LocalSellModuleMeta(SellModuleMeta):
+
+    def getViewScopeType(self):
+        return VIEW_SCOPE.LOBBY_SUB
 
 
 class BuyModuleMeta(ConfirmModuleMeta):
@@ -116,3 +128,6 @@ class BuyModuleMeta(ConfirmModuleMeta):
         result = yield ModuleBuyer(item, count, currency == 'credits').request()
         if len(result.userMsg):
             SystemMessages.g_instance.pushI18nMessage(result.userMsg, type=result.sysMsgType)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/dialogs/confirmmodulemeta.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:56 EST

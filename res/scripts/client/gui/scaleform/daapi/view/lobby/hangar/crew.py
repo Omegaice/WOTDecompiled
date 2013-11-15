@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:02 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/Crew.py
 from adisp import process
 from CurrentVehicle import g_currentVehicle
 from debug_utils import LOG_DEBUG, LOG_ERROR
@@ -64,7 +66,7 @@ class Crew(CrewMeta):
             for t in crew:
                 if t is None or 'brotherhood' not in t.skills or t.skills.index('brotherhood') == len(t.skills) - 1 and t.lastSkillLevel != 100:
                     brotherhood_bonus = 0
-                break
+                    break
 
             lessMastered = 0
             tankmenDescrs = dict(vehicle.crew)
@@ -163,3 +165,6 @@ class Crew(CrewMeta):
     def openPersonalCase(self, value, tabNumber):
         self.fireEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_TANKMAN_INFO, ctx={'tankmanID': int(value),
          'page': int(tabNumber)}))
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/hangar/crew.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:03 EST

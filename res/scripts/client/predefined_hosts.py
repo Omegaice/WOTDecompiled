@@ -1,3 +1,6 @@
+# 2013.11.15 11:27:18 EST
+# Embedded file name: scripts/client/predefined_hosts.py
+import operator
 import BigWorld, ResMgr
 import base64, pickle, random, time, threading
 from collections import namedtuple
@@ -136,6 +139,7 @@ class _PreDefinedHostList(object):
         self.__pingResult = {}
         self.__csisUrl = ''
         self.__csisResponse = {}
+        self.__lastRoamingHosts = []
         self.__queryCallback = None
         self.__queryState = AUTO_LOGIN_QUERY_STATE.DEFAULT
         self.__recommended = []
@@ -166,6 +170,10 @@ class _PreDefinedHostList(object):
             LOG_CURRENT_EXCEPTION()
 
         return
+
+    @property
+    def lastRoamingHosts(self):
+        return self.__lastRoamingHosts
 
     def _makeHostItem(self, name, url, urlIterator = None, keyPath = None, areaID = None, peripheryID = 0):
         return _HostItem(name, url, urlIterator, keyPath, areaID, peripheryID)
@@ -381,6 +389,9 @@ class _PreDefinedHostList(object):
     def predefined(self, url):
         return url in self._urlMap
 
+    def roaming(self, url):
+        return url in [ p.url for p in self.roamingHosts() ]
+
     def first(self):
         if len(self._hosts):
             return self._hosts[0]
@@ -391,6 +402,11 @@ class _PreDefinedHostList(object):
         index = self._urlMap.get(url, -1)
         if index > -1:
             result = self._hosts[index]
+        else:
+            for host in self.roamingHosts():
+                if host.url == url:
+                    result = host
+
         return result
 
     def byName(self, name):
@@ -398,6 +414,11 @@ class _PreDefinedHostList(object):
         index = self._nameMap.get(name, -1)
         if index > -1:
             result = self._hosts[index]
+        else:
+            for host in self.roamingHosts():
+                if host.name == name:
+                    result = host
+
         return result
 
     def hosts(self):
@@ -417,14 +438,33 @@ class _PreDefinedHostList(object):
         return result
 
     def periphery(self, peripheryID):
-        result = None
-        index = self._peripheryMap.get(peripheryID, -1)
-        if index > -1:
-            result = self._hosts[index]
-        return result
+        if peripheryID in self._peripheryMap:
+            index = self._peripheryMap[peripheryID]
+            return self._hosts[index]
+        else:
+            roamingHosts = dict(((host.peripheryID, host) for host in self.roamingHosts()))
+            if peripheryID in roamingHosts:
+                return roamingHosts[peripheryID]
+            return None
 
     def peripheries(self):
         return filter(lambda app: app.peripheryID, self._hosts)
 
+    def roamingHosts(self):
+        p = BigWorld.player()
+        result = []
+        if hasattr(p, 'serverSettings'):
+            for peripheryID, name, host, keyPath in p.serverSettings['roaming'][3]:
+                result.append(self._makeHostItem(name, host, keyPath=keyPath, peripheryID=peripheryID))
+
+            self.__lastRoamingHosts = sorted(result, key=operator.itemgetter(0))
+        return self.__lastRoamingHosts
+
+    def isRoamingPeriphery(self, peripheryID):
+        return peripheryID not in [ p.peripheryID for p in self.peripheries() ]
+
 
 g_preDefinedHosts = _PreDefinedHostList()
+# okay decompyling res/scripts/client/predefined_hosts.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:19 EST

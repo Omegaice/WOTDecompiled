@@ -1,9 +1,12 @@
+# 2013.11.15 11:25:39 EST
+# Embedded file name: scripts/client/gui/prb_control/functional/battle_session.py
 import BigWorld
 from ConnectionManager import connectionManager
 from PlayerEvents import g_playerEvents
 from debug_utils import LOG_ERROR
 from gui import SystemMessages
 from gui.Scaleform.locale.SYSTEM_MESSAGES import SYSTEM_MESSAGES
+from gui.prb_control.functional.decorators import vehicleAmmoCheck
 from gui.shared import g_eventBus, EVENT_BUS_SCOPE
 from gui.shared.events import ChannelCarouselEvent
 from helpers import i18n
@@ -11,11 +14,10 @@ from gui.prb_control import events_dispatcher, getPrebattleRosters, info, contex
 from gui.prb_control.functional.default import PrbEntry, PrbFunctional
 from gui.prb_control.functional.interfaces import IPrbListRequester
 from gui.prb_control.sequences import AutoInvitesIterator
-from gui.prb_control.settings import PREBATTLE_REQUEST, PREBATTLE_ROSTER, PREBATTLE_SETTING_NAME
+from gui.prb_control.settings import REQUEST_TYPE, PREBATTLE_ROSTER, PREBATTLE_SETTING_NAME
 from gui.prb_control.restrictions.limits import BattleSessionLimits
-from gui.prb_control.restrictions.permissions import BattleSessionPermissions
+from gui.prb_control.restrictions.permissions import BattleSessionPrbPermissions
 from predefined_hosts import g_preDefinedHosts
-from gui.prb_control.prb_helpers import vehicleAmmoCheck
 
 class BattleSessionEntry(PrbEntry):
 
@@ -132,20 +134,24 @@ class AutoInvitesNotifier(object):
 class BattleSessionFunctional(PrbFunctional):
 
     def __init__(self, settings):
-        requests = {PREBATTLE_REQUEST.ASSIGN: self.assign,
-         PREBATTLE_REQUEST.SET_TEAM_STATE: self.setTeamState,
-         PREBATTLE_REQUEST.SET_PLAYER_STATE: self.setPlayerState,
-         PREBATTLE_REQUEST.KICK: self.kickPlayer}
-        super(BattleSessionFunctional, self).__init__(settings, permClass=BattleSessionPermissions, limits=BattleSessionLimits(self), requestHandlers=requests)
+        requests = {REQUEST_TYPE.ASSIGN: self.assign,
+         REQUEST_TYPE.SET_TEAM_STATE: self.setTeamState,
+         REQUEST_TYPE.SET_PLAYER_STATE: self.setPlayerState,
+         REQUEST_TYPE.KICK: self.kickPlayer}
+        super(BattleSessionFunctional, self).__init__(settings, permClass=BattleSessionPrbPermissions, limits=BattleSessionLimits(self), requestHandlers=requests)
 
     def init(self, clientPrb = None, ctx = None):
         super(BattleSessionFunctional, self).init(clientPrb=clientPrb)
+        events_dispatcher.loadHangar()
         events_dispatcher.loadBattleSessionWindow(self.getPrbType())
         g_eventBus.addListener(ChannelCarouselEvent.CAROUSEL_INITED, self.__handleCarouselInited, scope=EVENT_BUS_SCOPE.LOBBY)
 
+    def isGUIProcessed(self):
+        return True
+
     def fini(self, clientPrb = None, woEvents = False):
         prbType = self.getPrbType()
-        super(BattleSessionFunctional, self).fini(clientPrb=clientPrb)
+        super(BattleSessionFunctional, self).fini(clientPrb=clientPrb, woEvents=woEvents)
         if not woEvents:
             events_dispatcher.unloadBattleSessionWindow(prbType)
         else:
@@ -198,3 +204,6 @@ class BattleSessionFunctional(PrbFunctional):
 
     def __handleCarouselInited(self, _):
         events_dispatcher.addSpecBattleToCarousel(self.getPrbType())
+# okay decompyling res/scripts/client/gui/prb_control/functional/battle_session.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:40 EST

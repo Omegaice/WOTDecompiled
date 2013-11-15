@@ -1,5 +1,7 @@
+# 2013.11.15 11:26:09 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/sf_settings.py
 from gui.Scaleform.framework.managers.loaders import PackageBusinessHandler
-from gui.Scaleform.framework import GroupedViewSettings, VIEW_TYPE
+from gui.Scaleform.framework import GroupedViewSettings, VIEW_TYPE, VIEW_SCOPE
 from gui.shared import EVENT_BUS_SCOPE
 from gui.shared.events import ShowWindowEvent
 
@@ -23,14 +25,14 @@ def getViewSettings():
     from gui.Scaleform.daapi.view.lobby.prb_windows.PrbSendInvitesWindow import PrbSendInvitesWindow
     from gui.Scaleform.daapi.view.lobby.prb_windows.ReceivedInviteWindow import ReceivedInviteWindow
     from gui.Scaleform.daapi.view.lobby.prb_windows.SquadWindow import SquadWindow
-    return [GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.SEND_INVITES_WINDOW, PrbSendInvitesWindow, 'prbSendInvitesWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_SEND_INVITES_WINDOW),
-     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.RECEIVED_INVITE_WINDOW, ReceivedInviteWindow, 'receivedInviteWindow.swf', VIEW_TYPE.WINDOW, 'receivedInviteWindow', None),
-     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.SQUAD_WINDOW, SquadWindow, 'squadWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_SQUAD_WINDOW),
-     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.COMPANY_WINDOW, CompanyWindow, 'companyWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_COMPANY_WINDOW),
-     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.COMPANIES_WINDOW, CompaniesWindow, 'companiesListWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_COMPANIES_WINDOW),
-     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.BATTLE_SESSION_WINDOW, BattleSessionWindow, 'battleSessionWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_BATTLE_SESSION_WINDOW),
-     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.BATTLE_SESSION_LIST, BattleSessionList, 'battleSessionList.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_BATTLE_SESSION_LIST),
-     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.NOTIFICATION_INVITES_WINDOW, NotificationInvitesWindow, 'notificationInvitesWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_NOTIFICATION_INVITES_WINDOW)]
+    return [GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.SEND_INVITES_WINDOW, PrbSendInvitesWindow, 'prbSendInvitesWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_SEND_INVITES_WINDOW, VIEW_SCOPE.DEFAULT),
+     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.RECEIVED_INVITE_WINDOW, ReceivedInviteWindow, 'receivedInviteWindow.swf', VIEW_TYPE.WINDOW, 'receivedInviteWindow', None, VIEW_SCOPE.DEFAULT),
+     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.SQUAD_WINDOW, SquadWindow, 'squadWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_SQUAD_WINDOW, VIEW_SCOPE.DEFAULT),
+     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.COMPANY_WINDOW, CompanyWindow, 'companyWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_COMPANY_WINDOW, VIEW_SCOPE.DEFAULT),
+     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.COMPANIES_WINDOW, CompaniesWindow, 'companiesListWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_COMPANIES_WINDOW, VIEW_SCOPE.DEFAULT),
+     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.BATTLE_SESSION_WINDOW, BattleSessionWindow, 'battleSessionWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_BATTLE_SESSION_WINDOW, VIEW_SCOPE.DEFAULT),
+     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.BATTLE_SESSION_LIST, BattleSessionList, 'battleSessionList.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_BATTLE_SESSION_LIST, VIEW_SCOPE.DEFAULT),
+     GroupedViewSettings(PRB_WINDOW_VIEW_ALIAS.NOTIFICATION_INVITES_WINDOW, NotificationInvitesWindow, 'notificationInvitesWindow.swf', VIEW_TYPE.WINDOW, '', ShowWindowEvent.SHOW_NOTIFICATION_INVITES_WINDOW, VIEW_SCOPE.DEFAULT)]
 
 
 def getBusinessHandlers():
@@ -81,3 +83,6 @@ class PrbPackageBusinessHandler(PackageBusinessHandler):
     def __showCompanyWindow(self, event):
         alias = name = PRB_WINDOW_VIEW_ALIAS.COMPANY_WINDOW
         self.app.loadView(alias, name, event.ctx)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/sf_settings.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:09 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:15 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/SettingsWindow.py
 import functools
 import BigWorld
 import VOIP
@@ -153,3 +155,6 @@ class SettingsWindow(View, WindowViewMeta, SettingsWindowMeta, AppRef):
                 self.closeWindow()
 
         DialogsInterface.showI18nConfirmDialog(dialogID, callback)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/settings/settingswindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:16 EST

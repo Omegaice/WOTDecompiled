@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:29 EST
+# Embedded file name: scripts/client/ClientArena.py
 import Math
 import BigWorld, ResMgr
 import ArenaType
@@ -228,7 +230,7 @@ class _BBCollider():
         self.__planes.append(Plane(Math.Vector3(1.0, 0.0, 0.0), bb[0][0]))
         self.__planes.append(Plane(Math.Vector3(-1.0, 0.0, 0.0), -bb[1][0]))
         self.__planes.append(Plane(Math.Vector3(0.0, 1.0, 0.0), heightLimits[0]))
-        self.__planes.append(Plane(Math.Vector3(0.0, -1.0, 0.0), heightLimits[1]))
+        self.__planes.append(Plane(Math.Vector3(0.0, -1.0, 0.0), -heightLimits[1]))
 
     def collide(self, start, end):
         if not _pointInBB(self.__bb[0], self.__bb[1], end, self.__heightLimits):
@@ -270,3 +272,6 @@ class Plane():
         if self.n.dot(point) - self.d >= 0.0:
             return True
         return False
+# okay decompyling res/scripts/client/clientarena.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:29 EST

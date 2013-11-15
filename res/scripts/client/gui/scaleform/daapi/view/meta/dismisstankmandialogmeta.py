@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:24 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/meta/DismissTankmanDialogMeta.py
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 
 class DismissTankmanDialogMeta(DAAPIModule):
@@ -20,3 +22,6 @@ class DismissTankmanDialogMeta(DAAPIModule):
     def as_controlTextInputS(self, value):
         if self._isDAAPIInited():
             return self.flashObject.as_controlTextInput(value)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/meta/dismisstankmandialogmeta.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:25 EST

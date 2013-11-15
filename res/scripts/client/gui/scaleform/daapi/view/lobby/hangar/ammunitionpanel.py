@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:02 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/AmmunitionPanel.py
 from CurrentVehicle import g_currentVehicle
 from adisp import process
 from debug_utils import LOG_DEBUG, LOG_ERROR
@@ -56,7 +58,7 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
     @process
     def __updateAmmo(self):
         Waiting.show('updateAmmo')
-        credits = yield StatsRequester().getCredits()
+        credits = g_itemsCache.items.stats.credits
         shopRqs = yield ShopRequester().request()
         ammo = {'gunName': '',
          'maxAmmo': 0,
@@ -65,26 +67,29 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
          'defaultAmmoCount': 0,
          'reserved3': 0,
          'vehicleLocked': True,
-         'stateMsg': False,
-         'stateLevel': False,
-         'shells': []}
+         'stateMsg': '',
+         'stateLevel': 'info',
+         'shells': [],
+         'stateWarning': 0}
         if g_currentVehicle.isPresent():
             vehicle = g_currentVehicle.item
             default_ammo_count = 0
             default_ammo = dict(((s.intCD, s.defaultCount) for s in vehicle.shells))
+            stateWarning = vehicle.isBroken or not vehicle.isCrewFull or not vehicle.isAmmoFull or not g_currentVehicle.isAutoLoadFull() or not g_currentVehicle.isAutoEquipFull()
             for compactDescr, count in default_ammo.iteritems():
                 default_ammo_count += count
 
             msg, msgLvl = g_currentVehicle.getHangarMessage()
             ammo.update({'gunName': vehicle.gun.longUserName,
-             'maxAmmo': vehicle.gun.descriptor['maxAmmo'],
+             'maxAmmo': vehicle.ammoMaxSize,
              'reserved1': not g_currentVehicle.isLocked(),
              'reserved2': not g_currentVehicle.isBroken(),
              'defaultAmmoCount': default_ammo_count,
              'reserved3': 0,
              'vehicleLocked': g_currentVehicle.isLocked(),
              'stateMsg': msg,
-             'stateLevel': msgLvl})
+             'stateLevel': msgLvl,
+             'stateWarning': int(stateWarning)})
             iAmmo = yield Requester('shell').getFromInventory()
             sAmmo = yield Requester('shell').getFromShop()
             iVehicles = yield Requester('vehicle').getFromInventory()
@@ -103,7 +108,6 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
                     sPrice = (yield shopShell.getPrice()) if shell is not shopShell else (0, 0)
                     if goldAmmoForCredits:
                         shopShell.priceOrder = (sPrice[0] + sPrice[1] * shopRqs.exchangeRateForShellsAndEqs, sPrice[1])
-                    buyCount = max(shell.default - iCount - shell.count, 0)
                     shells.append({'id': gui_items.compactItem(shopShell),
                      'type': shell.type,
                      'label': ITEM_TYPES.shell_kindsabbreviation(shell.type),
@@ -118,6 +122,7 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
 
         self.as_setAmmoS(ammo)
         Waiting.hide('updateAmmo')
+        return
 
     @process
     def __requestAvailableItems(self, type):
@@ -141,8 +146,7 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
             dataProvider = [[], [], []]
         else:
             dataProvider = []
-        credits = yield StatsRequester().getCredits()
-        gold = yield StatsRequester().getGold()
+        credits, gold = g_itemsCache.items.stats.money
         for module in data:
             price = yield module.getPrice()
             inventoryCount, vehicleCount = self.__getModuleInventoryAndVehicleCounts(modulesAllVehicle, modulesAllInventory, module, type)
@@ -171,7 +175,7 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
                     else:
                         md['status'] = fits[1]
                         md['isSelected'] = False
-                    md['slotIndex'] = md['slotIndex'] or i
+                    md['slotIndex'] = i
                     dataProvider[i].append(md)
 
             else:
@@ -182,6 +186,7 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
                 dataProvider.append(moduleData)
 
         self.as_setDataS(dataProvider, type)
+        return
 
     def showTechnicalMaintenance(self):
         self.fireEvent(ShowWindowEvent(ShowWindowEvent.SHOW_TECHNICAL_MAINTENANCE))
@@ -194,11 +199,11 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
 
     def showModuleInfo(self, moduleId):
         if moduleId is None:
-            LOG_ERROR('There is error while attempting to show module info window: ', str(moduleId))
-            return
+            return LOG_ERROR('There is error while attempting to show module info window: ', str(moduleId))
         else:
             self.fireEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_MODULE_INFO_WINDOW, {'moduleId': moduleId,
              'vehicleDescr': g_currentVehicle.item.descriptor}))
+            return
 
     @process
     def setVehicleModule(self, newId, slotIdx, oldId, isRemove):
@@ -206,63 +211,66 @@ class AmmunitionPanel(AmmunitionPanelMeta, AppRef):
             isUseGold = oldId is not None
             newComponent = gui_items.getItemByCompact(newId)
             newComponentItem = g_itemsCache.items.getItemByCD(newComponent.compactDescr)
-            if newComponentItem is None:
-                return
-            else:
-                oldComponentItem = None
-                if oldId:
-                    oldComponent = gui_items.getItemByCompact(oldId)
-                    oldComponentItem = g_itemsCache.items.getItemByCD(oldComponent.compactDescr)
-                if not isRemove and oldComponentItem and oldComponentItem.itemTypeID == GUI_ITEM_TYPE.OPTIONALDEVICE:
-                    result = yield getInstallerProcessor(g_currentVehicle.item, oldComponentItem, slotIdx, False, True).request()
-                    if result and result.auxData:
-                        for m in result.auxData:
-                            SystemMessages.g_instance.pushI18nMessage(m.userMsg, type=m.sysMsgType)
-
-                    if result and len(result.userMsg):
-                        SystemMessages.g_instance.pushI18nMessage(result.userMsg, type=result.sysMsgType)
-                    if not result.success:
-                        return
-                iVehicles = yield Requester(ITEM_TYPE_NAMES[1]).getFromInventory()
-                oldStyleVehicle = None
-                for v in iVehicles:
-                    if v.inventoryId == g_currentVehicle.invID:
-                        oldStyleVehicle = v
-                        break
-
-                conflictedEqs = findConflictedEquipmentForModule(newComponent, oldStyleVehicle)
-                if isinstance(newComponent, gui_items.ShopItem):
-                    Waiting.show('buyItem')
-                    buyResult = yield ModuleBuyer(newComponentItem, count=1, buyForCredits=True, conflictedEqs=conflictedEqs, install=True).request()
-                    if len(buyResult.userMsg):
-                        SystemMessages.g_instance.pushI18nMessage(buyResult.userMsg, type=buyResult.sysMsgType)
-                    if buyResult.success:
-                        newComponentItem = g_itemsCache.items.getItemByCD(newComponent.compactDescr)
-                    Waiting.hide('buyItem')
-                    if not buyResult.success:
-                        return
-                Waiting.show('applyModule')
-                result = yield getInstallerProcessor(g_currentVehicle.item, newComponentItem, slotIdx, not isRemove, isUseGold, conflictedEqs).request()
+            return newComponentItem is None and None
+        else:
+            oldComponentItem = None
+            if oldId:
+                oldComponent = gui_items.getItemByCompact(oldId)
+                oldComponentItem = g_itemsCache.items.getItemByCD(oldComponent.compactDescr)
+            if not isRemove and oldComponentItem and oldComponentItem.itemTypeID == GUI_ITEM_TYPE.OPTIONALDEVICE:
+                result = yield getInstallerProcessor(g_currentVehicle.item, oldComponentItem, slotIdx, False, True).request()
                 if result and result.auxData:
                     for m in result.auxData:
                         SystemMessages.g_instance.pushI18nMessage(m.userMsg, type=m.sysMsgType)
 
                 if result and len(result.userMsg):
                     SystemMessages.g_instance.pushI18nMessage(result.userMsg, type=result.sysMsgType)
-                if result and result.success and newComponentItem.itemTypeID in (GUI_ITEM_TYPE.TURRET, GUI_ITEM_TYPE.GUN):
-                    iAmmo = yield Requester(ITEM_TYPE_NAMES[10]).getFromInventory()
-                    iVehicles = yield Requester(ITEM_TYPE_NAMES[1]).getFromInventory()
-                    for iVehicle in iVehicles:
-                        if iVehicle.inventoryId == g_currentVehicle.invID:
-                            installAmmoVehicle = iVehicle
+                if not result.success:
+                    return
+            iVehicles = yield Requester(ITEM_TYPE_NAMES[1]).getFromInventory()
+            oldStyleVehicle = None
+            for v in iVehicles:
+                if v.inventoryId == g_currentVehicle.invID:
+                    oldStyleVehicle = v
+                    break
 
-                    for shell in installAmmoVehicle.shells:
-                        iCount = iAmmo[iAmmo.index(shell)].count if shell in iAmmo else 0
-                        if shell.default > iCount:
-                            success, message = False, '#system_messages:charge/inventory_error'
-                            break
-                    else:
-                        success, message = yield installAmmoVehicle.loadShells(None)
+            conflictedEqs = findConflictedEquipmentForModule(newComponent, oldStyleVehicle)
+            if isinstance(newComponent, gui_items.ShopItem):
+                Waiting.show('buyItem')
+                buyResult = yield ModuleBuyer(newComponentItem, count=1, buyForCredits=True, conflictedEqs=conflictedEqs, install=True).request()
+                if len(buyResult.userMsg):
+                    SystemMessages.g_instance.pushI18nMessage(buyResult.userMsg, type=buyResult.sysMsgType)
+                if buyResult.success:
+                    newComponentItem = g_itemsCache.items.getItemByCD(newComponent.compactDescr)
+                Waiting.hide('buyItem')
+                if not buyResult.success:
+                    return
+            Waiting.show('applyModule')
+            result = yield getInstallerProcessor(g_currentVehicle.item, newComponentItem, slotIdx, not isRemove, isUseGold, conflictedEqs).request()
+            if result and result.auxData:
+                for m in result.auxData:
+                    SystemMessages.g_instance.pushI18nMessage(m.userMsg, type=m.sysMsgType)
 
-                    SystemMessages.g_instance.pushI18nMessage(message, type=SystemMessages.SM_TYPE.Information if success else SystemMessages.SM_TYPE.Warning)
-                Waiting.hide('applyModule')
+            if result and len(result.userMsg):
+                SystemMessages.g_instance.pushI18nMessage(result.userMsg, type=result.sysMsgType)
+            if result and result.success and newComponentItem.itemTypeID in (GUI_ITEM_TYPE.TURRET, GUI_ITEM_TYPE.GUN):
+                iAmmo = yield Requester(ITEM_TYPE_NAMES[10]).getFromInventory()
+                iVehicles = yield Requester(ITEM_TYPE_NAMES[1]).getFromInventory()
+                for iVehicle in iVehicles:
+                    if iVehicle.inventoryId == g_currentVehicle.invID:
+                        installAmmoVehicle = iVehicle
+
+                for shell in installAmmoVehicle.shells:
+                    iCount = iAmmo[iAmmo.index(shell)].count if shell in iAmmo else 0
+                    if shell.default > iCount:
+                        success, message = False, '#system_messages:charge/inventory_error'
+                        break
+                else:
+                    success, message = yield installAmmoVehicle.loadShells(None)
+
+                SystemMessages.g_instance.pushI18nMessage(message, type=SystemMessages.SM_TYPE.Information if success else SystemMessages.SM_TYPE.Warning)
+            Waiting.hide('applyModule')
+            return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/hangar/ammunitionpanel.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:02 EST

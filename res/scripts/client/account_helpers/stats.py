@@ -1,15 +1,10 @@
+# 2013.11.15 11:25:13 EST
+# Embedded file name: scripts/client/account_helpers/Stats.py
 import AccountCommands
-import time
-import constants
 import items
-import dossiers
 from functools import partial
 from AccountSyncData import synchronizeDicts
-from PlayerEvents import g_playerEvents as events
-from itertools import izip
 from items import vehicles
-from constants import DOSSIER_TYPE, ACCOUNT_ATTR
-from AccountCommands import VEHICLE_SETTINGS_FLAG
 from debug_utils import *
 _VEHICLE = items.ITEM_TYPE_INDICES['vehicle']
 _CHASSIS = items.ITEM_TYPE_INDICES['vehicleChassis']
@@ -83,7 +78,7 @@ class Stats(object):
 
         cacheDiff = diff.get('cache', None)
         if cacheDiff is not None:
-            for stat in ('isFinPswdVerified',):
+            for stat in ('isFinPswdVerified', 'mayConsumeWalletResources'):
                 if stat in cacheDiff:
                     cache[stat] = cacheDiff[stat]
 
@@ -168,7 +163,7 @@ class Stats(object):
             self.__account.shop.waitForSync(partial(self.__berths_onShopSynced, callback))
             return
 
-    def setMoney(self, credits, gold = 0, callback = None):
+    def setMoney(self, credits, gold = 0, freeXP = 0, callback = None):
         if self.__ignore:
             if callback is not None:
                 callback(AccountCommands.RES_NON_PLAYER)
@@ -178,7 +173,7 @@ class Stats(object):
                 proxy = lambda requestID, resultID, errorStr, ext = {}: callback(resultID)
             else:
                 proxy = None
-            self.__account._doCmdInt3(AccountCommands.CMD_SET_MONEY, credits, gold, 0, proxy)
+            self.__account._doCmdInt3(AccountCommands.CMD_SET_MONEY, credits, gold, freeXP, proxy)
             return
 
     def addExperience(self, vehTypeName, xp, callback = None):
@@ -314,3 +309,6 @@ class Stats(object):
                 proxy = None
             self.__account._doCmdInt3(AccountCommands.CMD_BUY_BERTHS, shopRev, 0, 0, proxy)
             return
+# okay decompyling res/scripts/client/account_helpers/stats.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:13 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:29 EST
+# Embedded file name: scripts/client/VOIP/VOIPManager.py
 import BigWorld
 import Event
 import constants
@@ -303,3 +305,6 @@ class VOIPManager:
             return (int(s), login)
         except:
             return -1
+# okay decompyling res/scripts/client/voip/voipmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:29 EST

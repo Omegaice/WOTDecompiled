@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:13 EST
+# Embedded file name: scripts/client/messenger/gui/Scaleform/data/ChannelsCarouselHandler.py
 from debug_utils import LOG_ERROR
 from gui.Scaleform.daapi.view.meta.ChannelCarouselMeta import ChannelCarouselMeta
 from gui.Scaleform.framework import AppRef, VIEW_TYPE
@@ -197,3 +199,6 @@ class ChannelsCarouselHandler(AppRef):
                 if controller:
                     controller.exit()
             return
+# okay decompyling res/scripts/client/messenger/gui/scaleform/data/channelscarouselhandler.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:13 EST

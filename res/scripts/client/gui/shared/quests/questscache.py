@@ -1,11 +1,16 @@
+# 2013.11.15 11:26:55 EST
+# Embedded file name: scripts/client/gui/shared/quests/QuestsCache.py
 import zlib
 import pickle
 from collections import defaultdict
 import BigWorld
+import math
+import sys
 from Event import Event
 from adisp import async
+from gui.shared import events
 from helpers import isPlayerAccount
-from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION
+from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG
 from gui.shared.utils.requesters.QuestsProgress import QuestsProgress
 from gui.shared.quests.event_items import Quest
 
@@ -14,8 +19,10 @@ class _QuestsCache(object):
     def __init__(self):
         self.__progress = QuestsProgress()
         self.__waitForSync = False
+        self.__invalidateCbID = None
         self.onSyncStarted = Event()
         self.onSyncCompleted = Event()
+        return
 
     def init(self):
         pass
@@ -23,6 +30,7 @@ class _QuestsCache(object):
     def fini(self):
         self.onSyncStarted.clear()
         self.onSyncCompleted.clear()
+        self.__clearInvalidateCallback()
 
     @property
     def waitForSync(self):
@@ -94,9 +102,21 @@ class _QuestsCache(object):
             self.onSyncCompleted()
             callback(*args)
 
+        self.__clearInvalidateCallback()
         self.__waitForSync = True
         self.onSyncStarted()
         self.__progress.request()(cbWrapper)
+        minFinishTimeLeft = sys.maxint
+        for q in self.getCurrentQuests().itervalues():
+            minFinishTimeLeft = min(minFinishTimeLeft, q.getFinishTimeLeft())
+
+        for q in self.getFutureQuests().itervalues():
+            minFinishTimeLeft = min(minFinishTimeLeft, q.getStartTimeLeft())
+
+        if minFinishTimeLeft != sys.maxint:
+            self.__loadInvalidateCallback(minFinishTimeLeft)
+        from gui.shared import g_eventBus
+        g_eventBus.handleEvent(events.LobbySimpleEvent(events.LobbySimpleEvent.QUESTS_UPDATED))
 
     def __getQuestsData(self):
         try:
@@ -110,5 +130,19 @@ class _QuestsCache(object):
 
         return {}
 
+    def __loadInvalidateCallback(self, duration):
+        LOG_DEBUG('load quest window invalidation callback (secs)', duration)
+        self.__clearInvalidateCallback()
+        self.__invalidateCbID = BigWorld.callback(math.ceil(duration), self.__invalidateData)
+
+    def __clearInvalidateCallback(self):
+        if self.__invalidateCbID is not None:
+            BigWorld.cancelCallback(self.__invalidateCbID)
+            self.__invalidateCbID = None
+        return
+
 
 g_questsCache = _QuestsCache()
+# okay decompyling res/scripts/client/gui/shared/quests/questscache.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:56 EST

@@ -1,4 +1,6 @@
-from constants import CLIENT_INACTIVITY_TIMEOUT
+# 2013.11.15 11:25:29 EST
+# Embedded file name: scripts/client/ConnectionManager.py
+import constants
 import json
 import hashlib
 import BigWorld
@@ -53,7 +55,6 @@ class ConnectionManager(Singleton):
         self.onDisconnected = Event()
         self.__rawStatus = ''
         self.__loginName = None
-        self.loginPriority = 0
         BigWorld.serverDiscovery.changeNotifier = self._searchServersHandler
         return
 
@@ -94,7 +95,8 @@ class ConnectionManager(Singleton):
 
     def connect(self, url, login, password, publicKeyPath = None, nickName = None, token2 = ''):
         self.disconnect()
-        LOG_DEBUG('login: %s; pass: %s; name: %s; token: %s' % (login,
+        LOG_DEBUG('url: %s; login: %s; pass: %s; name: %s; token: %s' % (url,
+         login,
          password,
          nickName,
          token2))
@@ -114,6 +116,7 @@ class ConnectionManager(Singleton):
             if token2:
                 dct['token2'] = token2
                 dct['auth_method'] = AUTH_METHODS.TOKEN2
+            dct['auth_realm'] = constants.AUTH_REALM
             dct['game'] = 'wot'
 
             class LoginInfo:
@@ -122,7 +125,7 @@ class ConnectionManager(Singleton):
             loginInfo = LoginInfo()
             loginInfo.username = json.dumps(dct).encode('utf8')
             loginInfo.password = password
-            loginInfo.inactivityTimeout = CLIENT_INACTIVITY_TIMEOUT
+            loginInfo.inactivityTimeout = constants.CLIENT_INACTIVITY_TIMEOUT
             if publicKeyPath is not None:
                 loginInfo.publicKeyPath = publicKeyPath
             if constants.IS_DEVELOPMENT and login[0] == '@':
@@ -134,9 +137,8 @@ class ConnectionManager(Singleton):
             BigWorld.connect(url, loginInfo, partial(self.connectionWatcher, nickName is not None))
             self.__setConnectionStatus(CONNECTION_STATUS.connectionInProgress)
             self.__loginName = login
-            if g_preDefinedHosts.predefined(url):
-                host = g_preDefinedHosts.byUrl(url)
-                self.__host = host
+            if g_preDefinedHosts.predefined(url) or g_preDefinedHosts.roaming(url):
+                self.__host = g_preDefinedHosts.byUrl(url)
             else:
                 for server in BigWorld.serverDiscovery.servers:
                     if server.serverString == url:
@@ -211,3 +213,6 @@ def _getClientUpdateUrl():
 
 
 connectionManager = ConnectionManager.instance()
+# okay decompyling res/scripts/client/connectionmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:30 EST

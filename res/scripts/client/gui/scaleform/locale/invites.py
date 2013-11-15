@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:33 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/INVITES.py
 
 
 class INVITES(object):
@@ -26,6 +28,11 @@ class INVITES(object):
     INVITES_TRAINING_REJECT = '#invites:invites/training/reject'
     INVITES_TRAINING_INVALIDINVITE_SENDER_SIDE = '#invites:invites/training/invalidInvite/sender-side'
     INVITES_TRAINING_INVALIDINVITE_RECEIVER_SIDE = '#invites:invites/training/invalidInvite/receiver-side'
+    INVITES_UNIT_INVITE = '#invites:invites/unit/invite'
+    INVITES_UNIT_ACCEPT = '#invites:invites/unit/accept'
+    INVITES_UNIT_REJECT = '#invites:invites/unit/reject'
+    INVITES_UNIT_INVALIDINVITE_SENDER_SIDE = '#invites:invites/unit/invalidInvite/sender-side'
+    INVITES_UNIT_INVALIDINVITE_RECEIVER_SIDE = '#invites:invites/unit/invalidInvite/receiver-side'
     INVITES_NOTE_SERVER_CHANGE = '#invites:invites/note/server_change'
     INVITES_NOTE_COMPANY_LEAVE = '#invites:invites/note/company/leave'
     INVITES_NOTE_COMPANY_LEAVE_AND_CHANGE = '#invites:invites/note/company/leave_and_change'
@@ -33,6 +40,8 @@ class INVITES(object):
     INVITES_NOTE_SQUAD_LEAVE_AND_CHANGE = '#invites:invites/note/squad/leave_and_change'
     INVITES_NOTE_TRAINING_LEAVE = '#invites:invites/note/training/leave'
     INVITES_NOTE_TRAINING_LEAVE_AND_CHANGE = '#invites:invites/note/training/leave_and_change'
+    INVITES_NOTE_UNIT_LEAVE = '#invites:invites/note/unit/leave'
+    INVITES_NOTE_UNIT_LEAVE_AND_CHANGE = '#invites:invites/note/unit/leave_and_change'
     INVITES_NOTE_CLAN_LEAVE = '#invites:invites/note/clan/leave'
     INVITES_NOTE_CLAN_LEAVE_AND_CHANGE = '#invites:invites/note/clan/leave_and_change'
     INVITES_NOTE_TOURNAMENT_LEAVE = '#invites:invites/note/tournament/leave'
@@ -48,3 +57,6 @@ class INVITES(object):
     GUI_BUTTONS_ACCEPT = '#invites:gui/buttons/accept'
     GUI_BUTTONS_REJECT = '#invites:gui/buttons/reject'
     GUI_BUTTONS_CANCEL = '#invites:gui/buttons/cancel'
+# okay decompyling res/scripts/client/gui/scaleform/locale/invites.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:33 EST

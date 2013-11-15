@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:16 EST
+# Embedded file name: scripts/client/messenger/proto/xmpp/RosterItem.py
 import BigWorld
 from debug_utils import LOG_ERROR, LOG_DEBUG
 from messenger.proto.xmpp.XmppResource import XmppResource
@@ -134,3 +136,6 @@ class RosterItem:
 
     def __tracePresence(self):
         LOG_DEBUG('XMPP: Roster item presence changed', self.bareJid, self.name, self.getPresenceStr(self.presence))
+# okay decompyling res/scripts/client/messenger/proto/xmpp/rosteritem.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:17 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:34 EST
+# Embedded file name: scripts/client/gui/doc_loaders/LoginDataLoader.py
 from debug_utils import LOG_CURRENT_EXCEPTION, LOG_DEBUG
 from Event import Event
 from account_helpers.SteamAccount import g_steamAccount
@@ -154,3 +156,6 @@ class LoginDataLoader(object):
             return up[Settings.KEY_LOGIN_INFO]
         else:
             return up.write(Settings.KEY_LOGIN_INFO, '')
+# okay decompyling res/scripts/client/gui/doc_loaders/logindataloader.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:34 EST

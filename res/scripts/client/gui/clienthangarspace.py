@@ -1,5 +1,9 @@
+# 2013.11.15 11:25:32 EST
+# Embedded file name: scripts/client/gui/ClientHangarSpace.py
 import BigWorld, Math, ResMgr
+import Keys
 import copy
+import weakref
 from debug_utils import *
 from functools import partial
 from gui import g_tankActiveCamouflage
@@ -12,20 +16,22 @@ from ConnectionManager import connectionManager
 from ModelHitTester import ModelHitTester
 from AvatarInputHandler import mathUtils
 import MapActivities
+_DEFAULT_HANGAR_SPACE_PATH_BASIC = 'spaces/hangar'
+_DEFAULT_HANGAR_SPACE_PATH_PREM = 'spaces/hangar_premium'
 _SERVER_CMD_CHANGE_HANGAR = 'cmd_change_hangar'
 _SERVER_CMD_CHANGE_HANGAR_PREM = 'cmd_change_hangar_prem'
 _HANGAR_UNDERGUN_EMBLEM_ANGLE_SHIFT = math.pi / 4
 _CAMOUFLAGE_MIN_INTENSITY = 1.0
 _CFG = {}
 _DEFAULT_CFG = {}
-_SPECIAL_HANGARS_CFG = {}
+_HANGAR_CFGS = {}
 _EVENT_HANGAR_PATHS = {}
 
 class ClientHangarSpace():
 
     def __init__(self):
+        global _HANGAR_CFGS
         global _DEFAULT_CFG
-        global _SPECIAL_HANGARS_CFG
         global _CFG
         self.__spaceId = None
         self.__cam = None
@@ -37,20 +43,24 @@ class ClientHangarSpace():
         self.__boundingRadius = None
         self.__vAppearance = None
         self.__vEntityId = None
+        self.__savedInputHandler = None
         self.__selectedEmblemInfo = None
-        xml = ResMgr.openSection('gui/hangars.xml')
-        for type in (self.getSpaceType(False), self.getSpaceType(True)):
-            cfg = {}
-            self.__loadConfig(cfg, xml['defaultHangars'][type])
-            self.__loadConfigValue('fakeShadowMapModelName', xml, xml.readString, cfg)
-            self.__loadConfigValue('fakeShadowMapDefaultTexName', xml, xml.readString, cfg)
-            self.__loadConfigValue('fakeShadowMapEmptyTexName', xml, xml.readString, cfg)
-            _DEFAULT_CFG[type] = cfg
+        hangarsXml = ResMgr.openSection('gui/hangars.xml')
+        for isPremium in (False, True):
+            spacePath = _DEFAULT_HANGAR_SPACE_PATH_PREM if isPremium else _DEFAULT_HANGAR_SPACE_PATH_BASIC
+            settingsXml = ResMgr.openSection(spacePath + '/space.settings/hangarSettings')
+            cfg = {'path': spacePath}
+            self.__loadConfig(cfg, settingsXml)
+            self.__loadConfigValue('fakeShadowMapModelName', hangarsXml, hangarsXml.readString, cfg)
+            self.__loadConfigValue('fakeShadowMapDefaultTexName', hangarsXml, hangarsXml.readString, cfg)
+            self.__loadConfigValue('fakeShadowMapEmptyTexName', hangarsXml, hangarsXml.readString, cfg)
+            _DEFAULT_CFG[self.getSpaceType(isPremium)] = cfg
+            _HANGAR_CFGS[spacePath.lower()] = settingsXml
 
-        xml = xml['specialHangars']
-        for _, data in xml.items():
-            if data.has_key('path'):
-                _SPECIAL_HANGARS_CFG[data.readString('path')] = data
+        for folderName, folderDS in ResMgr.openSection('spaces').items():
+            settingsXml = ResMgr.openSection('spaces/' + folderName + '/space.settings/hangarSettings')
+            if settingsXml is not None:
+                _HANGAR_CFGS[('spaces/' + folderName).lower()] = settingsXml
 
         _CFG = copy.copy(_DEFAULT_CFG[self.getSpaceType(False)])
         return
@@ -58,6 +68,7 @@ class ClientHangarSpace():
     def create(self, isPremium, onSpaceLoadedCallback = None):
         global _EVENT_HANGAR_PATHS
         global _CFG
+        global g_hangarInputHandler
         BigWorld.worldDrawEnabled(False)
         BigWorld.wg_setSpecialFPSMode()
         self.__onLoadedCallback = onSpaceLoadedCallback
@@ -86,13 +97,19 @@ class ClientHangarSpace():
                 LOG_CURRENT_EXCEPTION()
                 return
 
-        if _SPECIAL_HANGARS_CFG.has_key(spacePath):
-            self.__loadConfig(_CFG, _SPECIAL_HANGARS_CFG[spacePath], _CFG)
+        spacePathLC = spacePath.lower()
+        if _HANGAR_CFGS.has_key(spacePathLC):
+            self.__loadConfig(_CFG, _HANGAR_CFGS[spacePathLC], _CFG)
         self.__vEntityId = BigWorld.createEntity('OfflineEntity', self.__spaceId, 0, _CFG['v_start_pos'], (_CFG['v_start_angles'][2], _CFG['v_start_angles'][1], _CFG['v_start_angles'][0]), dict())
         self.__vAppearance = _VehicleAppearance(self.__spaceId, self.__vEntityId)
         self.__setupCamera()
         self.__waitCallback = BigWorld.callback(0.1, self.__waitLoadingSpace)
         MapActivities.g_mapActivities.generateHangarActivities(spacePath)
+        inputHandler = getattr(BigWorld.player(), 'inputHandler', None)
+        if inputHandler is not None:
+            self.__savedInputHandler = inputHandler
+            g_hangarInputHandler.hangarSpace = weakref.proxy(self)
+            BigWorld.player().inputHandler = g_hangarInputHandler
         return
 
     def recreateVehicle(self, vDesc, vState, onVehicleLoadedCallback = None):
@@ -276,6 +293,10 @@ class ClientHangarSpace():
             BigWorld.destroyEntity(self.__vEntityId)
             self.__vEntityId = None
             BigWorld.wg_disableSpecialFPSMode()
+            if hasattr(BigWorld.player(), 'inputHandler') and self.__savedInputHandler is not None:
+                BigWorld.player().inputHandler = self.__savedInputHandler
+                g_hangarInputHandler.hangarSpace = None
+                self.__savedInputHandler = None
             return
 
     def __setupCamera(self):
@@ -320,7 +341,6 @@ class ClientHangarSpace():
     def __loadConfig(self, cfg, xml, defaultCfg = None):
         if defaultCfg is None:
             defaultCfg = cfg
-        self.__loadConfigValue('path', xml, xml.readString, cfg, defaultCfg)
         self.__loadConfigValue('v_scale', xml, xml.readFloat, cfg, defaultCfg)
         self.__loadConfigValue('v_start_angles', xml, xml.readVector3, cfg, defaultCfg)
         self.__loadConfigValue('v_start_pos', xml, xml.readVector3, cfg, defaultCfg)
@@ -403,7 +423,7 @@ class _VehicleAppearance():
          'turret': vDesc.turret['models'][vState],
          'gun': vDesc.gun['models'][vState],
          'camouflageExclusionMask': vDesc.type.camouflageExclusionMask}
-        customization = items.vehicles.g_cache.customization(vDesc.type.id[0])
+        customization = items.vehicles.g_cache.customization(vDesc.type.customizationNationID)
         if customization is not None and vDesc.camouflages is not None:
             camouflageID = vDesc.camouflages[g_tankActiveCamouflage.get(vDesc.type.compactDescr, 0)][0]
             camouflageDesc = customization['camouflages'].get(camouflageID)
@@ -680,7 +700,7 @@ class _VehicleAppearance():
                         camouflageID = camouflageData[0]
                         break
 
-            customization = items.vehicles.g_cache.customization(vDesc.type.id[0])
+            customization = items.vehicles.g_cache.customization(vDesc.type.customizationNationID)
             defaultTiling = None
             if camouflageID is not None and customization is not None:
                 camouflage = customization['camouflages'].get(camouflageID)
@@ -749,6 +769,23 @@ class _ClientHangarSpacePathOverride():
         g_playerEvents.onEventNotificationsChanged -= self.__onEventNotificationsChanged
         connectionManager.onDisconnected -= self.__onDisconnected
 
+    def setPremium(self, isPremium):
+        from gui.shared.utils.HangarSpace import g_hangarSpace
+        g_hangarSpace.refreshSpace(isPremium, True)
+
+    def setPath(self, path, isPremium = None):
+        if path is not None and not path.startswith('spaces/'):
+            path = 'spaces/' + path
+        from gui.shared.utils.HangarSpace import g_hangarSpace
+        if isPremium is None:
+            isPremium = g_hangarSpace.isPremium
+        if path is not None:
+            _EVENT_HANGAR_PATHS[isPremium] = path
+        elif _EVENT_HANGAR_PATHS.has_key(isPremium):
+            del _EVENT_HANGAR_PATHS[isPremium]
+        g_hangarSpace.refreshSpace(g_hangarSpace.isPremium, True)
+        return
+
     def __onDisconnected(self):
         global _EVENT_HANGAR_PATHS
         _EVENT_HANGAR_PATHS = {}
@@ -759,11 +796,13 @@ class _ClientHangarSpacePathOverride():
         hasChanged = False
         for notification in notificationsDiff['removed']:
             if notification['type'] == _SERVER_CMD_CHANGE_HANGAR:
-                del _EVENT_HANGAR_PATHS[False]
+                if _EVENT_HANGAR_PATHS.has_key(False):
+                    del _EVENT_HANGAR_PATHS[False]
                 if not isPremium:
                     hasChanged = True
             elif notification['type'] == _SERVER_CMD_CHANGE_HANGAR_PREM:
-                del _EVENT_HANGAR_PATHS[True]
+                if _EVENT_HANGAR_PATHS.has_key(True):
+                    del _EVENT_HANGAR_PATHS[True]
                 if isPremium:
                     hasChanged = True
 
@@ -785,6 +824,29 @@ class _ClientHangarSpacePathOverride():
 
 g_clientHangarSpaceOverride = _ClientHangarSpacePathOverride()
 
+class _HangarInputHandler():
+
+    def __init__(self):
+        self.__isMouseDown = False
+        self.hangarSpace = None
+        return
+
+    def handleKeyEvent(self, event):
+        if event.key == Keys.KEY_LEFTMOUSE:
+            self.__isMouseDown = event.isKeyDown()
+        return False
+
+    def handleMouseEvent(self, dx, dy, dz):
+        isGuiVisible = BigWorld.getWatcher('Visibility/GUI')
+        if isGuiVisible is not None and isGuiVisible.lower() == 'false':
+            if self.__isMouseDown and self.hangarSpace is not None:
+                result = self.hangarSpace.handleMouseEvent(dx, dy, dz)
+                return result
+        return False
+
+
+g_hangarInputHandler = _HangarInputHandler()
+
 def _createMatrix(scale, angles, pos):
     mat = Math.Matrix()
     mat.setScale((scale, scale, scale))
@@ -795,3 +857,6 @@ def _createMatrix(scale, angles, pos):
     mat.preMultiply(mat3)
     mat.postMultiply(mat2)
     return mat
+# okay decompyling res/scripts/client/gui/clienthangarspace.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:33 EST

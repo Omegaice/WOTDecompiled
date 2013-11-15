@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:09 EST
+# Embedded file name: scripts/client/MapActivities.py
 import BigWorld
 import Math
 import ResMgr
@@ -11,7 +13,7 @@ from debug_utils import *
 
 class IMapActivity:
 
-    def create(self, settings, startTimes):
+    def create(self, settings, startTime):
         pass
 
     def destroy(self):
@@ -58,7 +60,18 @@ class MapActivities(object):
         settings = ResMgr.openSection('scripts/arena_defs/' + xmlName + '.xml/mapActivities')
         if settings is not None:
             SoundGroups.g_instance.enableArenaSounds(True)
-        self.__generateActivities(settings, {})
+        else:
+            return
+        startTimes = []
+        for activityXML in settings.values():
+            timeframe = activityXML.readVector2('startTime')
+            possibility = activityXML.readFloat('possibility', 1.0)
+            if possibility < random.uniform(0, 1):
+                startTimes.append(-1)
+            else:
+                startTimes.append(BigWorld.serverTime() + random.uniform(timeframe[0], timeframe[1]))
+
+        self.__generateActivities(settings, startTimes)
         return
 
     def generateArenaActivities(self, startTimes):
@@ -67,13 +80,18 @@ class MapActivities(object):
 
     def __generateActivities(self, settings, startTimes):
         self.__pendingActivities = []
-        if settings is None:
+        if settings is None or len(startTimes) != len(settings.items()):
             return
         else:
+            i = -1
             for activityType, activityXML in settings.items():
+                i += 1
+                startTime = startTimes[i]
+                if startTime == -1:
+                    continue
                 activity = _createActivity(activityType)
                 if activity is not None:
-                    activity.create(activityXML, startTimes)
+                    activity.create(activityXML, startTime)
                     self.__pendingActivities.append(activity)
 
             return
@@ -98,37 +116,36 @@ class MapActivities(object):
 
 class WarplaneActivity(IMapActivity):
 
-    def create(self, settings, startTimes):
+    def create(self, settings, startTime):
         self.__settings = settings
         self.__curve = None
         self.__model = None
         self.__motor = None
         self.__sound = None
         self.__particles = None
-        self.__particlesAdded = False
         self.__particlesNode = None
         self.__cbID = None
-        preset = settings.readString('preset', '')
-        self.__startTime = startTimes.get(preset, BigWorld.serverTime())
-        self.__startTime += BigWorld.time() - BigWorld.serverTime()
-        if BigWorld.time() >= self.__startTime or settings.readFloat('possibility', 1.0) < random.uniform(0, 1):
-            self.__startTime += 1000000.0
-        self.__curve = BigWorld.WGActionCurve(self.__settings)
-        self.__modelName = self.__curve.getChannelProperty(0, 'modelName').asString
-        BigWorld.loadResourceListBG((self.__modelName,), self.__onModelLoaded)
-        return
+        self.__startTime = startTime
+        self.__canStart = True
+        self.__fadedIn = False
+        if BigWorld.serverTime() > self.__startTime + 5.0:
+            self.__canStart = False
+            return
+        else:
+            self.__curve = BigWorld.WGActionCurve(self.__settings)
+            self.__modelName = self.__curve.getChannelProperty(0, 'modelName').asString
+            BigWorld.loadResourceListBG((self.__modelName,), self.__onModelLoaded)
+            return
 
     def isActive(self):
         return self.__model is not None
 
     def canStart(self):
-        return BigWorld.time() >= self.__startTime and self.__model is not None
+        return self.__canStart and BigWorld.serverTime() >= self.__startTime and self.__model is not None
 
     def start(self):
         self.__model = BigWorld.Model(self.__curve.getChannelProperty(0, 'modelName').asString)
         BigWorld.addModel(self.__model)
-        self.__model.wg_fashion = BigWorld.WGBaseFashion()
-        self.__model.wg_fashion.initAlphaMaterials()
         self.__motor = BigWorld.WGWarplaneMotor(self.__curve, 0)
         self.__model.addMotor(self.__motor)
         ds = self.__curve.getChannelProperty(0, 'soundName')
@@ -141,7 +158,7 @@ class WarplaneActivity(IMapActivity):
                 self.__sound = None
                 LOG_CURRENT_EXCEPTION()
 
-        self.__updateAlpha()
+        self.__update()
         return
 
     def stop(self):
@@ -149,7 +166,6 @@ class WarplaneActivity(IMapActivity):
             BigWorld.cancelCallback(self.__cbID)
             self.__cbID = None
         if self.__model is not None:
-            delattr(self.__model, 'wg_fashion')
             self.__model.delMotor(self.__motor)
             if self.__model in BigWorld.models():
                 BigWorld.delModel(self.__model)
@@ -165,22 +181,21 @@ class WarplaneActivity(IMapActivity):
             self.__particles = None
         return
 
-    def __updateAlpha(self):
-        alpha = self.__motor.warplaneAlpha
+    def __update(self):
         self.__cbID = None
-        self.__model.wg_fashion.setAlpha(alpha)
+        visibility = self.__motor.warplaneAlpha
         if self.__sound is not None and self.__sound.isPlaying:
-            self.__sound.volume = alpha
-        if alpha == 1.0 and self.__particles is None and not self.__particlesAdded:
-            self.__particlesAdded = True
+            self.__sound.volume = visibility
+        if visibility == 1.0 and not self.__fadedIn:
+            self.__fadedIn = True
             ds = self.__curve.getChannelProperty(0, 'effectName')
             effectName = ds.asString if ds is not None else ''
             if effectName != '':
                 Pixie.createBG(effectName, self.__onParticlesLoaded)
-        elif alpha == 0.0 and self.__particles is not None and self.__particlesAdded:
+        elif visibility <= 0.1 and self.__fadedIn:
             self.stop()
             return
-        self.__cbID = BigWorld.callback(0, self.__updateAlpha)
+        self.__cbID = BigWorld.callback(0, self.__update)
         return
 
     def __onModelLoaded(self, resourceRefs):
@@ -212,3 +227,6 @@ def _createActivity(typeName):
 
 
 g_mapActivities = MapActivities()
+# okay decompyling res/scripts/client/mapactivities.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:09 EST

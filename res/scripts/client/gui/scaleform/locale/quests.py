@@ -1,8 +1,14 @@
+# 2013.11.15 11:26:34 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/QUESTS.py
 
 
 class QUESTS(object):
     IGR_TOOLTIP_BATTLESLABEL = '#quests:igr/tooltip/battlesLabel'
     IGR_TOOLTIP_WINSLABEL = '#quests:igr/tooltip/winsLabel'
+    TOOLTIP_PROGRESS_GROUPBY_HEADER = '#quests:tooltip/progress/groupBy/header'
+    TOOLTIP_PROGRESS_GROUPBY_BODY = '#quests:tooltip/progress/groupBy/body'
+    TOOLTIP_PROGRESS_GROUPBY_NOTE = '#quests:tooltip/progress/groupBy/note'
+    TOOLTIP_PROGRESS_GROUPBY_NOTE_LEVEL = '#quests:tooltip/progress/groupBy/note/level'
     BONUSES_ITEMS_NAME = '#quests:bonuses/items/name'
     BONUSES_VEHICLES_NAME = '#quests:bonuses/vehicles/name'
     BONUSES_VEHICLES_CREWLVL = '#quests:bonuses/vehicles/crewLvl'
@@ -50,8 +56,16 @@ class QUESTS(object):
     DETAILS_HEADER_ACTIVEDURATION = '#quests:details/header/activeDuration'
     DETAILS_HEADER_HASNOVEHICLES = '#quests:details/header/hasNoVehicles'
     DETAILS_HEADER_COMPLETION_DAILY = '#quests:details/header/completion/daily'
+    DETAILS_HEADER_COMPLETION_DAILY_GROUPBYVEHICLE = '#quests:details/header/completion/daily/groupByVehicle'
+    DETAILS_HEADER_COMPLETION_DAILY_GROUPBYNATION = '#quests:details/header/completion/daily/groupByNation'
+    DETAILS_HEADER_COMPLETION_DAILY_GROUPBYLEVEL = '#quests:details/header/completion/daily/groupByLevel'
+    DETAILS_HEADER_COMPLETION_DAILY_GROUPBYCLASS = '#quests:details/header/completion/daily/groupByClass'
     DETAILS_HEADER_COMPLETION_UNLIMITED = '#quests:details/header/completion/unlimited'
     DETAILS_HEADER_COMPLETION_SINGLE = '#quests:details/header/completion/single'
+    DETAILS_HEADER_COMPLETION_SINGLE_GROUPBYVEHICLE = '#quests:details/header/completion/single/groupByVehicle'
+    DETAILS_HEADER_COMPLETION_SINGLE_GROUPBYNATION = '#quests:details/header/completion/single/groupByNation'
+    DETAILS_HEADER_COMPLETION_SINGLE_GROUPBYLEVEL = '#quests:details/header/completion/single/groupByLevel'
+    DETAILS_HEADER_COMPLETION_SINGLE_GROUPBYCLASS = '#quests:details/header/completion/single/groupByClass'
     DETAILS_TASKS_SUBTASK = '#quests:details/tasks/subTask'
     DETAILS_TASKS_NEXTTASK = '#quests:details/tasks/nextTask'
     DETAILS_TASKS_STRATEGIC = '#quests:details/tasks/strategic'
@@ -60,3 +74,6 @@ class QUESTS(object):
     DETAILS_CONDITIONS_VEHICLEKILLS = '#quests:details/conditions/vehicleKills'
     DETAILS_CONDITIONS_VEHICLESUNLOCKED = '#quests:details/conditions/vehiclesUnlocked'
     DETAILS_CONDITIONS_VEHICLESOWNED = '#quests:details/conditions/vehiclesOwned'
+# okay decompyling res/scripts/client/gui/scaleform/locale/quests.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:34 EST

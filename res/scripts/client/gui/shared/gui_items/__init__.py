@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:47 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/__init__.py
 import BigWorld
 from debug_utils import *
 from helpers import i18n
@@ -255,7 +257,7 @@ class FittingItem(GUIItem, HasIntCD):
     Root item which can be bought and installed.
     """
 
-    def __init__(self, intCompactDescr, proxy = None):
+    def __init__(self, intCompactDescr, proxy = None, isBoughtForCredits = False):
         """
         @param intCompactDescr: item's int compact descriptor
         @param proxy: instance of ItemsRequester
@@ -267,9 +269,11 @@ class FittingItem(GUIItem, HasIntCD):
         self.actionPrice = (0, 0)
         self.isHidden = False
         self.inventoryCount = 0
+        self.sellForGold = False
         self.isUnlocked = False
+        self.isBoughtForCredits = isBoughtForCredits
         if proxy is not None:
-            self.buyPrice, self.isHidden = self._getShopData(proxy)
+            self.buyPrice, self.isHidden, self.sellForGold = proxy.shop.getItem(self.intCompactDescr)
             if self.buyPrice is None:
                 self.buyPrice = (0, 0)
             self.sellPrice = BigWorld.player().shop.getSellPrice(self.buyPrice, proxy.shop.sellPriceModifiers(intCompactDescr), self.itemTypeID)
@@ -287,15 +291,6 @@ class FittingItem(GUIItem, HasIntCD):
         @return:
         """
         return buyPrice
-
-    def _getShopData(self, proxy):
-        """
-        This method requests shop data by item values. Can be
-        overriden by inherited classes.
-        
-        @return: ( buy price, hidden in shop )
-        """
-        return proxy.shop.getItems(self.itemTypeID, self.nationID, self.intCompactDescr)
 
     @property
     def descriptor(self):
@@ -349,6 +344,10 @@ class FittingItem(GUIItem, HasIntCD):
     def level(self):
         """ Returns item's level number value. """
         return self.descriptor.get('level', 0)
+
+    @property
+    def isInInventory(self):
+        return self.inventoryCount > 0
 
     def _getShortInfo(self, vehicle = None):
         """
@@ -497,3 +496,6 @@ class FittingItem(GUIItem, HasIntCD):
         self.sellPrice = d.get('sellPrice', (0, 0))
         self.inventoryCount = d.get('inventoryCount', 0)
         self.isHidden = d.get('isHidden', False)
+# okay decompyling res/scripts/client/gui/shared/gui_items/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:47 EST

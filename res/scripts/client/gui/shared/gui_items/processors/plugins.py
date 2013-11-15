@@ -1,9 +1,11 @@
+# 2013.11.15 11:26:50 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/processors/plugins.py
 from collections import namedtuple
+from account_shared import LayoutIterator
 from adisp import process, async
 from gui import DialogsInterface
 from gui.shared import g_itemsCache, REQ_CRITERIA
-from gui.shared.gui_items import GUI_ITEM_TYPE
-from gui.Scaleform.daapi.view.dialogs import I18nConfirmDialogMeta, I18nInfoDialogMeta, DIALOG_BUTTON_ID, IconPriceDialogMeta, IconDialogMeta, DemountDeviceDialogMeta, DestroyDeviceDialogMeta, DismissTankmanDialogMeta
+from gui.Scaleform.daapi.view.dialogs import I18nConfirmDialogMeta, I18nInfoDialogMeta, DIALOG_BUTTON_ID, IconPriceDialogMeta, IconDialogMeta, DemountDeviceDialogMeta, DestroyDeviceDialogMeta, DismissTankmanDialogMeta, HtmlMessageDialogMeta
 PluginResult = namedtuple('PluginResult', 'success errorMsg ctx')
 
 def makeSuccess(**kwargs):
@@ -80,31 +82,22 @@ class AsyncConfirmator(ProcessorPlugin):
 
 class VehicleValidator(SyncValidator):
 
-    def __init__(self, vehicle, isEnabled = True):
+    def __init__(self, vehicle, setAll = True, prop = {}, isEnabled = True):
         super(VehicleValidator, self).__init__(isEnabled)
         self.vehicle = vehicle
+        self.isBroken = prop.get('isBroken', False) or setAll
+        self.isLocked = prop.get('isLocked', False) or setAll
+        self.isInInventory = prop.get('isInInventory', False) or setAll
 
     def _validate(self):
         if not self.vehicle:
             return makeError('invalid_vehicle')
-        if self.vehicle.isBroken:
+        if self.isBroken and self.vehicle.isBroken:
             return makeError('vehicle_need_repair')
-        if self.vehicle.isLocked:
+        if self.isLocked and self.vehicle.isLocked:
             return makeError('vehicle_locked')
-        return makeSuccess()
-
-
-class VehicleLockValidator(SyncValidator):
-
-    def __init__(self, vehicle, isEnabled = True):
-        super(VehicleLockValidator, self).__init__(isEnabled)
-        self.vehicle = vehicle
-
-    def _validate(self):
-        if not self.vehicle:
-            return makeError('invalid_vehicle')
-        if self.vehicle.isLocked:
-            return makeError('vehicle_locked')
+        if self.isInInventory and not self.vehicle.isInInventory:
+            return makeError('vehicle_not_found_in_inventory')
         return makeSuccess()
 
 
@@ -200,8 +193,22 @@ class MoneyValidator(SyncValidator):
         stats = g_itemsCache.items.stats
         if stats.credits < self.price[0]:
             return makeError('not_enough_credits')
+        if self.price[1] and not stats.mayConsumeWalletResources:
+            return makeError('wallet_not_available')
         if stats.gold < self.price[1]:
             return makeError('not_enough_gold')
+        return makeSuccess()
+
+
+class WalletValidator(SyncValidator):
+
+    def __init__(self, isEnabled = True):
+        super(WalletValidator, self).__init__(isEnabled)
+
+    def _validate(self):
+        stats = g_itemsCache.items.stats
+        if not stats.mayConsumeWalletResources:
+            return makeError('wallet_not_available')
         return makeSuccess()
 
 
@@ -214,6 +221,28 @@ class VehicleSellsLeftValidator(SyncValidator):
     def _validate(self):
         if g_itemsCache.items.stats.vehicleSellsLeft <= 0:
             return makeError('vehicle_sell_limit')
+        return makeSuccess()
+
+
+class VehicleLayoutValidator(SyncValidator):
+
+    def __init__(self, shellsPrice, eqsPrice):
+        super(VehicleLayoutValidator, self).__init__()
+        self.shellsPrice = shellsPrice
+        self.eqsPrice = eqsPrice
+
+    def _validate(self):
+        credits, gold = g_itemsCache.items.stats.money
+        if gold < self.shellsPrice[1]:
+            return makeError('SHELLS_NO_GOLD')
+        gold -= self.shellsPrice[1]
+        if credits < self.shellsPrice[0]:
+            return makeError('SHELLS_NO_CREDITS')
+        credits -= self.shellsPrice[0]
+        if gold < self.eqsPrice[1]:
+            return makeError('EQS_NO_GOLD')
+        if credits < self.eqsPrice[0]:
+            return makeError('EQS_NO_CREDITS')
         return makeSuccess()
 
 
@@ -284,6 +313,18 @@ class MessageConfirmator(I18nMessageAbstractConfirmator):
 
     def _makeMeta(self):
         return I18nConfirmDialogMeta(self.localeKey, self.ctx, self.ctx, focusedID=DIALOG_BUTTON_ID.SUBMIT)
+
+
+class HtmlMessageConfirmator(I18nMessageAbstractConfirmator):
+
+    def __init__(self, localeKey, metaPath, metaKey, ctx = None, activeHandler = None, isEnabled = True):
+        super(HtmlMessageConfirmator, self).__init__(localeKey, ctx, activeHandler, isEnabled)
+        self.metaPath = metaPath
+        self.metaKey = metaKey
+        self.ctx = ctx
+
+    def _makeMeta(self):
+        return I18nConfirmDialogMeta(self.localeKey, self.ctx, self.ctx, meta=HtmlMessageDialogMeta(self.metaPath, self.metaKey, self.ctx), focusedID=DIALOG_BUTTON_ID.SUBMIT)
 
 
 class DismissTankmanConfirmator(I18nMessageAbstractConfirmator):
@@ -367,3 +408,6 @@ class VehicleFreeLimitConfirmator(MessageInformator):
 
     def _activeHandler(self):
         return self.vehicle.buyPrice == (0, 0) and self.crewType < 1 and not g_itemsCache.items.stats.freeVehiclesLeft
+# okay decompyling res/scripts/client/gui/shared/gui_items/processors/plugins.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:51 EST

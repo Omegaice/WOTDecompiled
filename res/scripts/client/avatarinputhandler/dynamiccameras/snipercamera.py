@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:26 EST
+# Embedded file name: scripts/client/AvatarInputHandler/DynamicCameras/SniperCamera.py
 import BigWorld
 import Math
 from Math import Vector2, Vector3, Matrix
@@ -17,18 +19,11 @@ from debug_utils import LOG_WARNING, LOG_DEBUG
 from AvatarInputHandler.DynamicCameras import CameraDynamicConfig
 
 class SniperCamera(ICamera, CallbackDelayer):
-    REASON_MULTIPLIERS = {ImpulseReason.MY_SHOT: 'sensitivityToShot',
-     ImpulseReason.ME_HIT: 'sensitivityToHit',
-     ImpulseReason.OTHER_SHOT: 'sensitivityToOtherShot',
-     ImpulseReason.SPLASH: 'sensitivityToSplash',
-     ImpulseReason.COLLISION: 'sensitivityToCollision',
-     ImpulseReason.VEHICLE_EXPLOSION: 'sensitivityToExplosion'}
     _DYNAMIC_ENABLED = True
 
     @staticmethod
     def enableDynamicCamera(enable):
         SniperCamera._DYNAMIC_ENABLED = enable
-        SniperAimingSystem.USE_DAMPING = enable
 
     @staticmethod
     def isCameraDynamic():
@@ -407,3 +402,6 @@ class SniperCamera(ICamera, CallbackDelayer):
         ds.writeFloat('sniperMode/camera/sensitivity', ucfg['sensitivity'])
         ds.writeFloat('sniperMode/camera/scrollSensitivity', ucfg['scrollSensitivity'])
         ds.writeFloat('sniperMode/camera/zoom', self.__cfg['zoom'])
+# okay decompyling res/scripts/client/avatarinputhandler/dynamiccameras/snipercamera.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:27 EST

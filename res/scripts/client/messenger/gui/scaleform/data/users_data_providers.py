@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:13 EST
+# Embedded file name: scripts/client/messenger/gui/Scaleform/data/users_data_providers.py
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.framework.entities.DAAPIDataProvider import DAAPIDataProvider
 from messenger import g_settings
@@ -55,7 +57,7 @@ class UsersDataProvider(DAAPIDataProvider):
         return makeEmptyUserItem()
 
     def buildList(self):
-        self._list = map(makeUserItem, sorted(self._getRosterList(), cmp=getUsersCmp()))
+        self._list = map(self._makeUserItem, sorted(self._getRosterList(), cmp=getUsersCmp()))
 
     def init(self, flashObject, onlineMode = None):
         self.setFlashObject(flashObject)
@@ -93,6 +95,9 @@ class UsersDataProvider(DAAPIDataProvider):
     def _onUserRosterChanged(self, action, user):
         self.buildList()
         self.refresh()
+
+    def _makeUserItem(self, user):
+        return makeUserItem(user)
 
 
 class FriendsDataProvider(UsersDataProvider):
@@ -152,3 +157,6 @@ class ClanMembersDataProvider(UsersDataProvider):
     def _onClanMembersStatusesChanged(self):
         self.buildList()
         self.refresh()
+# okay decompyling res/scripts/client/messenger/gui/scaleform/data/users_data_providers.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:13 EST

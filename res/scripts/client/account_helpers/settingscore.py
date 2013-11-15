@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:11 EST
+# Embedded file name: scripts/client/account_helpers/SettingsCore.py
 import weakref
 import Event
 from Vibroeffects import VibroManager
@@ -45,6 +47,7 @@ class _SettingsCore(object):
          (GAME.VIBRO_CONNECTED, options.ReadOnlySetting(lambda : VibroManager.g_instance.connect())),
          (GAME.SHOW_VEHICLES_COUNTER, options.StorageAccountSetting(GAME.SHOW_VEHICLES_COUNTER, storage=weakref.proxy(GAME_SETTINGS_STORAGE))),
          (GAME.DYNAMIC_CAMERA, options.DynamicCamera(GAME.DYNAMIC_CAMERA, storage=weakref.proxy(GAME_SETTINGS_STORAGE))),
+         (GAME.SNIPER_MODE_STABILIZATION, options.SniperModeStabilization(GAME.SNIPER_MODE_STABILIZATION, storage=weakref.proxy(GAME_SETTINGS_STORAGE))),
          (GAME.VIBRO_GAIN, options.VibroSetting('master')),
          (GAME.VIBRO_ENGINE, options.VibroSetting('engine')),
          (GAME.VIBRO_ACCELERATION, options.VibroSetting('acceleration')),
@@ -67,7 +70,7 @@ class _SettingsCore(object):
          (GAME.GAMEPLAY_CTF, options.GameplaySetting(GAME.GAMEPLAY_MASK, 'ctf', storage=weakref.proxy(GAME_SETTINGS_STORAGE))),
          (GAME.GAMEPLAY_DOMINATION, options.GameplaySetting(GAME.GAMEPLAY_MASK, 'domination', storage=weakref.proxy(GAME_SETTINGS_STORAGE))),
          (GAME.GAMEPLAY_ASSAULT, options.GameplaySetting(GAME.GAMEPLAY_MASK, 'assault', storage=weakref.proxy(GAME_SETTINGS_STORAGE))),
-         (GRAPHICS.MONITOR, options.MonitorSetting()),
+         (GRAPHICS.MONITOR, options.MonitorSetting(storage=weakref.proxy(VIDEO_SETTINGS_STORAGE))),
          (GRAPHICS.WINDOW_SIZE, options.WindowSizeSetting()),
          (GRAPHICS.RESOLUTION, options.VideoModeSetting(storage=weakref.proxy(VIDEO_SETTINGS_STORAGE))),
          (GRAPHICS.FULLSCREEN, options.FullscreenSetting(storage=weakref.proxy(VIDEO_SETTINGS_STORAGE))),
@@ -162,7 +165,6 @@ class _SettingsCore(object):
     def applyStorages(self):
         for storage in self.__storages.values():
             storage.apply()
-            storage.clear()
 
     def clearStorages(self):
         for storage in self.__storages.values():
@@ -174,3 +176,6 @@ class _SettingsCore(object):
 
 
 g_settingsCore = _SettingsCore()
+# okay decompyling res/scripts/client/account_helpers/settingscore.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:12 EST

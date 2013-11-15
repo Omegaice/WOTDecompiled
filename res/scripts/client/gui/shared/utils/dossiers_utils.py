@@ -1,24 +1,87 @@
-import BigWorld
+# 2013.11.15 11:26:56 EST
+# Embedded file name: scripts/client/gui/shared/utils/dossiers_utils.py
 import pickle
-import dossiers
-from gui.Scaleform.locale.MENU import MENU
+import BigWorld
 from gui import GUI_NATIONS_ORDER_INDEX, nationCompareByIndex
+from gui.Scaleform.locale.MENU import MENU
+from gui.shared.gui_items import GUI_ITEM_TYPE
 from helpers.i18n import makeString
 from gui.shared.utils.RareAchievementsCache import g_rareAchievesCache
 from constants import DOSSIER_TYPE, CLAN_MEMBER_FLAGS
 from items.vehicles import getVehicleType, VEHICLE_CLASS_TAGS
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION
-from dossiers.achievements import ACHIEVEMENTS, ACHIEVEMENT_SECTIONS_ORDER, DEFAULT_WEIGHT, ACHIEVEMENT_TYPE
-from dossiers.dependences import getTankExpertRequirements, getMechanicEngineerRequirements
-ACHIEVEMENT_VEHICLES_MAX = 16
-ACHIEVEMENT_VEHICLES_SHOW = 10
+from dossiers2.ui.achievements import ACHIEVEMENTS, ACHIEVEMENT_SECTIONS_ORDER, DEFAULT_WEIGHT, ACHIEVEMENT_TYPE
+from dossiers2.custom.helpers import getTankExpertRequirements, getMechanicEngineerRequirements, getRecordMaxValue
+from dossiers2.custom.cache import getCache as getDossiersCache
+from dossiers2.custom.layouts import ACCOUNT_ACHIEVEMENTS_BLOCK_LAYOUT, VEHICLE_ACHIEVEMENTS_BLOCK_LAYOUT, TMAN_ACHIEVEMENTS_BLOCK_LAYOUT
+from dossiers2.custom.config import RECORD_CONFIGS
+ACHIEVEMENT_VEHICLES_MAX = 5
+ACHIEVEMENT_VEHICLES_SHOW = 5
+ACHIEVEMENTS_IN_ACCOUNT_DOSSIER = ACCOUNT_ACHIEVEMENTS_BLOCK_LAYOUT + ['mechanicEngineer',
+ 'mechanicEngineer0',
+ 'mechanicEngineer1',
+ 'mechanicEngineer2',
+ 'mechanicEngineer3',
+ 'mechanicEngineer4',
+ 'mechanicEngineer5',
+ 'mechanicEngineer6',
+ 'mechanicEngineer7',
+ 'mechanicEngineer8',
+ 'mechanicEngineer9',
+ 'mechanicEngineer10',
+ 'mechanicEngineer11',
+ 'mechanicEngineer12',
+ 'mechanicEngineer13',
+ 'mechanicEngineer14'] + ['tankExpert',
+ 'tankExpert0',
+ 'tankExpert1',
+ 'tankExpert2',
+ 'tankExpert3',
+ 'tankExpert4',
+ 'tankExpert5',
+ 'tankExpert6',
+ 'tankExpert7',
+ 'tankExpert8',
+ 'tankExpert9',
+ 'tankExpert10',
+ 'tankExpert11',
+ 'tankExpert12',
+ 'tankExpert13',
+ 'tankExpert14']
+ACHIEVEMENTS_IN_VEHICLE_DOSSIER = VEHICLE_ACHIEVEMENTS_BLOCK_LAYOUT + ['tankExpert',
+ 'tankExpert0',
+ 'tankExpert1',
+ 'tankExpert2',
+ 'tankExpert3',
+ 'tankExpert4',
+ 'tankExpert5',
+ 'tankExpert6',
+ 'tankExpert7',
+ 'tankExpert8',
+ 'tankExpert9',
+ 'tankExpert10',
+ 'tankExpert11',
+ 'tankExpert12',
+ 'tankExpert13',
+ 'tankExpert14']
+ACHIEVEMENTS_IN_TANKMAN_DOSSIER = TMAN_ACHIEVEMENTS_BLOCK_LAYOUT
 TANK_EXPERT_GROUP = ['tankExpert']
 MECH_ENGINEER_GROUP = ['mechanicEngineer']
 for name, nationID in GUI_NATIONS_ORDER_INDEX.iteritems():
     TANK_EXPERT_GROUP.append('tankExpert%d' % nationID)
     MECH_ENGINEER_GROUP.append('mechanicEngineer%d' % nationID)
 
-EXCLUDED_ACHIEVES = ('lumberjack', 'alaric', 'tankExpert6', 'mechanicEngineer6')
+EXCLUDED_ACHIEVES = ('lumberjack', 'alaric', 'tankExpert6', 'mechanicEngineer6', 'markOfMastery')
+
+def isAchieveValid(achieveName, dossierItem):
+    if achieveName == 'rareAchievements' and dossierItem.isInRoaming:
+        return False
+    if achieveName == 'whiteTiger' and (not checkWhiteTigerMedal(dossierItem.dossier) or dossierItem.isInRoaming):
+        return False
+    if achieveName == 'medalWittmann' and not checkWittmannMedal(dossierItem.dossier):
+        return False
+    return True
+
 
 def __defineMedalsBlocks():
     global ACCOUNT_MEDALS_LAYOUT
@@ -83,11 +146,11 @@ def getVehiclesAchievementsLayout():
 
 
 def getAchievementsLayout(dossierType):
-    if dossierType == DOSSIER_TYPE.ACCOUNT:
+    if dossierType == GUI_ITEM_TYPE.ACCOUNT_DOSSIER:
         return getAccountAchievementsLayout()
-    if dossierType == DOSSIER_TYPE.TANKMAN:
+    if dossierType == GUI_ITEM_TYPE.TANKMAN_DOSSIER:
         return getTankmenAchievementsLayout()
-    if dossierType == DOSSIER_TYPE.VEHICLE:
+    if dossierType == GUI_ITEM_TYPE.VEHICLE_DOSSIER:
         return getVehiclesAchievementsLayout()
     return tuple()
 
@@ -128,15 +191,15 @@ def getAchievementWeight(name):
 
 
 def isAccountMedal(name):
-    return name in dossiers._ACCOUNT_RECORDS_LAYOUT[0] or name == 'rareAchievements' or name == 'whiteTiger'
+    return name in ACHIEVEMENTS_IN_ACCOUNT_DOSSIER or name == 'rareAchievements' or name == 'whiteTiger'
 
 
 def isVehicleMedal(name):
-    return name in dossiers._VEHICLE_RECORDS_LAYOUT[0] and getAchievementType(name) != ACHIEVEMENT_TYPE.CLASS
+    return name in ACHIEVEMENTS_IN_VEHICLE_DOSSIER and getAchievementType(name) != ACHIEVEMENT_TYPE.CLASS
 
 
 def isTankmanMedal(name):
-    return name in dossiers._TANKMAN_RECORDS_LAYOUT[0]
+    return name in ACHIEVEMENTS_IN_TANKMAN_DOSSIER
 
 
 MEDALS_UNIC_FOR_RANK = ('medalKay', 'medalCarius', 'medalKnispel', 'medalPoppel', 'medalAbrams', 'medalLeClerc', 'medalLavrinenko', 'medalEkins', 'markOfMastery')
@@ -160,11 +223,11 @@ def getCommonInfo(userName, dossier, clanInfo, clanEmblemFile):
     clanPositionProp = 'clanPosition'
     clanEmblemProp = 'clanEmblem'
     import cgi
-    lastBattleTimeUserString = makeString(MENU.ACCOUNT_PROFILE_EMPTYBATTLELIST)
-    if dossier['lastBattleTime']:
-        lastBattleTimeUserString = '%s %s' % (BigWorld.wg_getLongDateFormat(dossier['lastBattleTime']), BigWorld.wg_getLongTimeFormat(dossier['lastBattleTime']))
+    lastBattleTimeUserString = None
+    if dossier['total']['lastBattleTime']:
+        lastBattleTimeUserString = '%s' % BigWorld.wg_getLongDateFormat(dossier['total']['lastBattleTime'])
     value = {'name': userName,
-     'registrationDate': '%s %s' % (BigWorld.wg_getLongDateFormat(dossier['creationTime']), BigWorld.wg_getLongTimeFormat(dossier['creationTime'])),
+     'registrationDate': '%s' % BigWorld.wg_getLongDateFormat(dossier['total']['creationTime']),
      'lastBattleDate': lastBattleTimeUserString,
      clanNameProp: '',
      clanNameDescrProp: '',
@@ -190,8 +253,8 @@ def getCommonInfo(userName, dossier, clanInfo, clanEmblemFile):
 
 
 def getDossierVehicleList(dossier, isOnlyTotal = False):
-    battlesCount = float(dossier['battlesCount'])
-    winsCount = float(dossier['wins'])
+    battlesCount = float(dossier['a15x15']['battlesCount'])
+    winsCount = float(dossier['a15x15']['wins'])
     data = ['ALL',
      '#menu:profile/list/totalName',
      None,
@@ -201,7 +264,7 @@ def getDossierVehicleList(dossier, isOnlyTotal = False):
      '%d%%' % round(100 * winsCount / battlesCount) if battlesCount != 0 else '',
      0]
     if not isOnlyTotal:
-        vehList = dossier['vehDossiersCut'].items()
+        vehList = dossier['a15x15Cut'].items()
         vehList.sort(cmp=__dossierComparator)
         for vehTypeCompactDesr, battles in vehList:
             try:
@@ -229,14 +292,14 @@ def __vehiclesListSort(i1, i2):
 
 
 def checkTankExpertActivity(type, dossier):
-    res = getTankExpertRequirements(dossiers.g_cache, dossier['vehTypeFrags'])
+    res = getTankExpertRequirements(dossier['vehTypeFrags'])
     if not len(res.get(type, [])):
-        return (bool(dossier[type]), None, 0)
+        return (bool(dossier['achievements'][type]), None, 0)
     else:
         vList = __makeVehiclesList(res.get(type, []))
         vList.sort(__vehiclesListSort)
         fullVehListLength = len(vList)
-        isActive = bool(dossier[type])
+        isActive = bool(dossier['achievements'][type])
         if fullVehListLength >= ACHIEVEMENT_VEHICLES_MAX:
             vList = vList[:ACHIEVEMENT_VEHICLES_SHOW]
         return (isActive, vList, fullVehListLength)
@@ -247,8 +310,8 @@ def checkTechEngineerActivity(type, dossier, nationID, unlocks = None):
     if nationID > -1:
         achieveName = '%s%d' % (achieveName, nationID)
     if unlocks is None:
-        unlocks = dossiers.g_cache['vehiclesInTrees']
-    res = getMechanicEngineerRequirements(dossiers.g_cache, set(), unlocks, nationID)
+        unlocks = getDossiersCache()['vehiclesInTrees']
+    res = getMechanicEngineerRequirements(set(), unlocks, nationID)
     if not len(res.get(achieveName, list())):
         return (True, None, 0)
     else:
@@ -269,7 +332,8 @@ def __makeVehiclesList(vTypeCompDescrs):
             vehiclesList.append({'name': vType.userString,
              'nation': vType.id[0],
              'level': vType.level,
-             'type': classTag})
+             'type': classTag,
+             'icon': '../maps/icons/vehicle/small/%s.png' % vType.name.replace(':', '-')})
         except Exception:
             LOG_CURRENT_EXCEPTION()
             continue
@@ -358,6 +422,13 @@ def checkWhiteTigerMedal(dossier):
         return 0
 
 
+def checkWittmannMedal(dossier):
+    try:
+        return bool(dossier['achievements']['medalWittmann'])
+    except Exception:
+        return False
+
+
 def getRareAchievementMedalData(dossier, medalId):
     import imghdr, uuid
     type = str(medalId)
@@ -386,48 +457,43 @@ def getMedalHeroInfo(medalName):
     return msg
 
 
+def getMedalCondition(medalName):
+    infoKey = '%s_condition' % medalName
+    msg = makeString('#achievements:%s' % infoKey)
+    if msg == infoKey:
+        return ''
+    return msg
+
+
 def getMedalValue(medalName, dossier):
     if dossier is None:
         return 0
-    elif medalName == 'whiteTiger':
+    achieves = dossier['achievements']
+    if medalName == 'whiteTiger':
         return checkWhiteTigerMedal(dossier)
     elif getAchievementType(medalName) == 'class':
-        if not dossier[medalName]:
+        if not achieves[medalName]:
             return 5
         if getAchievementType(medalName) == 'series':
-            return dossier[ACHIEVEMENTS[medalName]['record']]
-        max_value = dossiers.getRecordMaxValue(medalName)
-        return dossier[medalName] >= max_value and makeString('#achievements:achievement/maxMedalValue') % (max_value - 1)
+            return achieves[ACHIEVEMENTS[medalName]['record']]
+        max_value = getRecordMaxValue('achievements', medalName)
+        return achieves[medalName] >= max_value and makeString('#achievements:achievement/maxMedalValue') % (max_value - 1)
     else:
-        return dossier[medalName]
+        return achieves[medalName]
 
 
-def getDossierMedals(dossier, dossier_type = DOSSIER_TYPE.ACCOUNT, unlocks = None):
-    medals = [dossier_type, pickle.dumps(dossier.makeCompDescr())]
-    blocks = getAchievementsLayout(dossier_type)
-    for group in blocks:
-        for type in group:
-            if type == 'markOfMastery':
-                continue
-            if type == 'whiteTiger':
-                if checkWhiteTigerMedal(dossier):
-                    medals.extend(getWhiteTigerMedalData(dossier=dossier))
-            elif type == 'rareAchievements':
-                for a in dossier[type]:
-                    medals.extend(getRareAchievementMedalData(dossier, a))
-
-            elif dossier[type]:
-                iconFileName = type
-                if type in MEDALS_UNIC_FOR_RANK:
-                    iconFileName = '%s%d' % (iconFileName, dossier[type])
-                handler = ACTIVITY_HANDLERS.get(type, lambda *args: (True, None))
-                isActive, vehiclesNames = handler(type, dossier, unlocks)
-                medals.extend(__packMedalData(type=type, isActive=isActive, icon='../maps/icons/achievement/%s.png' % iconFileName, value=getMedalValue(type, dossier), isUnic=type in MEDALS_UNIC_FOR_RANK, isTitle=type in MEDALS_TITLES, descr=getMedalDescription(type), vehiclesList=vehiclesNames))
-
-        if len(medals) > 2:
-            medals[-1] = blocks[-1] != group
-
-    return medals
+def isInDossier(medalName, dossier):
+    if dossier is None:
+        return False
+    achieves = dossier['achievements']
+    if medalName == 'whiteTiger':
+        return bool(checkWhiteTigerMedal(dossier))
+    elif getAchievementType(medalName) == 'class':
+        return bool(achieves[medalName])
+    elif getAchievementType(medalName) == 'series':
+        return bool(achieves[ACHIEVEMENTS[medalName]['record']])
+    else:
+        return bool(achieves[medalName])
 
 
 def getMedal(achievementType, rank = None, rareAchieveId = None):
@@ -486,26 +552,26 @@ def getDossierVehicleBlocks(dossier, vehTypeId):
 
 def __getData(fieldType, dossier):
     if fieldType == 'effectiveShots':
-        if dossier['shots'] != 0:
-            return '%d%%' % round(float(dossier['hits']) / dossier['shots'] * 100)
+        if dossier['a15x15']['shots'] != 0:
+            return '%d%%' % round(float(dossier['a15x15']['hits']) / dossier['a15x15']['shots'] * 100)
         return '0%'
     if fieldType == 'avgExperience':
-        if dossier['battlesCount'] != 0:
-            return BigWorld.wg_getIntegralFormat(round(float(dossier['xp']) / dossier['battlesCount']))
+        if dossier['a15x15']['battlesCount'] != 0:
+            return BigWorld.wg_getIntegralFormat(round(float(dossier['a15x15']['xp']) / dossier['a15x15']['battlesCount']))
         return BigWorld.wg_getIntegralFormat(0)
-    return BigWorld.wg_getIntegralFormat(dossier[fieldType])
+    return BigWorld.wg_getIntegralFormat(dossier['achievements'][fieldType])
 
 
 def __getDataExtra(blockType, fieldType, dossier, isTotal = False, isCompact = False):
     extra = ''
     if blockType == 'common':
-        if fieldType != 'battlesCount' and dossier['battlesCount'] != 0:
-            extra = '(%d%%)' % round(float(dossier[fieldType]) / dossier['battlesCount'] * 100)
+        if fieldType != 'battlesCount' and dossier['a15x15']['battlesCount'] != 0:
+            extra = '(%d%%)' % round(float(dossier[fieldType]) / dossier['a15x15']['battlesCount'] * 100)
     if isTotal:
-        if fieldType == 'maxFrags' and dossier['maxFrags'] != 0:
-            extra = getVehicleType(dossier['maxFragsVehicle']).userString if not isCompact else getVehicleType(dossier['maxFragsVehicle']).shortUserString
-        if fieldType == 'maxXP' and dossier['maxXP'] != 0:
-            extra = getVehicleType(dossier['maxXPVehicle']).userString if not isCompact else getVehicleType(dossier['maxXPVehicle']).shortUserString
+        if fieldType == 'maxFrags' and dossier['max15x15']['maxFrags'] != 0:
+            extra = getVehicleType(dossier['max15x15']['maxFragsVehicle']).userString if not isCompact else getVehicleType(dossier['max15x15']['maxFragsVehicle']).shortUserString
+        if fieldType == 'maxXP' and dossier['max15x15']['maxXP'] != 0:
+            extra = getVehicleType(dossier['max15x15']['maxXPVehicle']).userString if not isCompact else getVehicleType(dossier['max15x15']['maxXPVehicle']).shortUserString
     return extra
 
 
@@ -522,10 +588,10 @@ def __dossierComparator(x1, x2):
 
 
 def __getMedalKayNextLevelValue(dossier):
-    medalKayCfg = dossiers.RECORD_CONFIGS['medalKay']
-    battleHeroes = dossier['battleHeroes']
+    medalKayCfg = RECORD_CONFIGS['medalKay']
+    battleHeroes = dossier['achievements']['battleHeroes']
     maxMedalClass = len(medalKayCfg)
-    if not dossier['medalKay']:
+    if not dossier['achievements']['medalKay']:
         curClass = 5
         return curClass == 1 and None
     else:
@@ -534,10 +600,10 @@ def __getMedalKayNextLevelValue(dossier):
 
 
 def __getMedalCariusNextLevelValue(dossier):
-    medalCariusCfg = dossiers.RECORD_CONFIGS['medalCarius']
-    frags = dossier['frags']
+    medalCariusCfg = RECORD_CONFIGS['medalCarius']
+    frags = dossier['a15x15']['frags'] + dossier['a7x7']['frags']
     maxMedalClass = len(medalCariusCfg)
-    if not dossier['medalCarius']:
+    if not dossier['achievements']['medalCarius']:
         curClass = 5
         return curClass == 1 and None
     else:
@@ -546,11 +612,11 @@ def __getMedalCariusNextLevelValue(dossier):
 
 
 def __getMedalKnispelNextLevelValue(dossier):
-    medalKnispelCfg = dossiers.RECORD_CONFIGS['medalKnispel']
-    damageDealt = dossier['damageDealt']
-    damageReceived = dossier['damageReceived']
+    medalKnispelCfg = RECORD_CONFIGS['medalKnispel']
+    damageDealt = dossier['a15x15']['damageDealt'] + dossier['a7x7']['damageDealt']
+    damageReceived = dossier['a15x15']['damageReceived'] + dossier['a7x7']['damageReceived']
     maxMedalClass = len(medalKnispelCfg)
-    if not dossier['medalKnispel']:
+    if not dossier['achievements']['medalKnispel']:
         curClass = 5
         return curClass == 1 and None
     else:
@@ -559,10 +625,10 @@ def __getMedalKnispelNextLevelValue(dossier):
 
 
 def __getMedalPoppelNextLevelValue(dossier):
-    medalPoppelCfg = dossiers.RECORD_CONFIGS['medalPoppel']
-    spotted = dossier['spotted']
+    medalPoppelCfg = RECORD_CONFIGS['medalPoppel']
+    spotted = dossier['a15x15']['spotted'] + dossier['a7x7']['spotted']
     maxMedalClass = len(medalPoppelCfg)
-    if not dossier['medalPoppel']:
+    if not dossier['achievements']['medalPoppel']:
         curClass = 5
         return curClass == 1 and None
     else:
@@ -571,10 +637,10 @@ def __getMedalPoppelNextLevelValue(dossier):
 
 
 def __getMedalAbramsNextLevelValue(dossier):
-    medalAbramsCfg = dossiers.RECORD_CONFIGS['medalAbrams']
-    winAndSurvived = dossier['winAndSurvived']
+    medalAbramsCfg = RECORD_CONFIGS['medalAbrams']
+    winAndSurvived = dossier['a15x15']['winAndSurvived'] + dossier['a7x7']['winAndSurvived']
     maxMedalClass = len(medalAbramsCfg)
-    if not dossier['medalAbrams']:
+    if not dossier['achievements']['medalAbrams']:
         curClass = 5
         return curClass == 1 and None
     else:
@@ -583,10 +649,10 @@ def __getMedalAbramsNextLevelValue(dossier):
 
 
 def __getMedalLeClercNextLevelValue(dossier):
-    medalLeClercCfg = dossiers.RECORD_CONFIGS['medalLeClerc']
-    capturePoints = dossier['capturePoints']
+    medalLeClercCfg = RECORD_CONFIGS['medalLeClerc']
+    capturePoints = dossier['a15x15']['capturePoints'] + dossier['a7x7']['capturePoints']
     maxMedalClass = len(medalLeClercCfg)
-    if not dossier['medalLeClerc']:
+    if not dossier['achievements']['medalLeClerc']:
         curClass = 5
         return curClass == 1 and None
     else:
@@ -595,10 +661,10 @@ def __getMedalLeClercNextLevelValue(dossier):
 
 
 def __getMedalLavrinenkoNextLevelValue(dossier):
-    medalLavrinenkoCfg = dossiers.RECORD_CONFIGS['medalLavrinenko']
-    droppedCapturePoints = dossier['droppedCapturePoints']
+    medalLavrinenkoCfg = RECORD_CONFIGS['medalLavrinenko']
+    droppedCapturePoints = dossier['a15x15']['droppedCapturePoints'] + dossier['a7x7']['droppedCapturePoints']
     maxMedalClass = len(medalLavrinenkoCfg)
-    if not dossier['medalLavrinenko']:
+    if not dossier['achievements']['medalLavrinenko']:
         curClass = 5
         return curClass == 1 and None
     else:
@@ -607,10 +673,10 @@ def __getMedalLavrinenkoNextLevelValue(dossier):
 
 
 def __getMedalEkinsNextLevelValue(dossier):
-    medalEkinsCfg = dossiers.RECORD_CONFIGS['medalEkins']
-    frags = dossier['frags8p']
+    medalEkinsCfg = RECORD_CONFIGS['medalEkins']
+    frags = dossier['a15x15']['frags8p'] + dossier['a7x7']['frags8p']
     maxMedalClass = len(medalEkinsCfg)
-    if not dossier['medalEkins']:
+    if not dossier['achievements']['medalEkins']:
         curClass = 5
         return curClass == 1 and None
     else:
@@ -619,15 +685,15 @@ def __getMedalEkinsNextLevelValue(dossier):
 
 
 def __getMedalBeasthunterNextLevelValue(dossier):
-    minFrags = dossiers.RECORD_CONFIGS['beasthunter']
-    beastFrags = dossier['fragsBeast']
+    minFrags = RECORD_CONFIGS['beasthunter']
+    beastFrags = dossier['achievements']['fragsBeast']
     medals, series = divmod(beastFrags, minFrags)
     return minFrags - medals
 
 
 def __getMedalMousebanNextLevelValue(dossier):
-    minFrags = dossiers.RECORD_CONFIGS['mousebane']
-    mausFrags = dossier['vehTypeFrags'].get(dossiers.g_cache['mausTypeCompDescr'], 0)
+    minFrags = RECORD_CONFIGS['mousebane']
+    mausFrags = dossier['vehTypeFrags'].get(getDossiersCache()['mausTypeCompDescr'], 0)
     medals, series = divmod(mausFrags, minFrags)
     return minFrags - medals
 
@@ -652,3 +718,6 @@ ACHIEVEMENTS_NEXT_LEVEL_VALUES = {'medalKay': {'name': 'heroesLeft',
                  'func': __getMedalBeasthunterNextLevelValue},
  'mousebane': {'name': 'vehiclesLeft',
                'func': __getMedalMousebanNextLevelValue}}
+# okay decompyling res/scripts/client/gui/shared/utils/dossiers_utils.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:57 EST

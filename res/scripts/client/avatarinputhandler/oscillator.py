@@ -1,11 +1,13 @@
-import BigWorld
-import Math
-from Math import Vector3, Matrix
-import functools
+# 2013.11.15 11:25:27 EST
+# Embedded file name: scripts/client/AvatarInputHandler/Oscillator.py
 import math
 import random
 import sys
+import BigWorld
+import Math
+from Math import Vector3, Matrix
 from AvatarInputHandler import mathUtils
+from AvatarInputHandler.mathUtils import matrixScale
 
 class IOscillator(object):
 
@@ -62,7 +64,7 @@ class Oscillator(IOscillator):
         self.velocity += velocity
 
     def __calcForce(self):
-        return self.externalForce - _matrixScale(self.deviation, self.stiffness) - _matrixScale(self.velocity, self.drag)
+        return self.externalForce - matrixScale(self.deviation, self.stiffness) - matrixScale(self.velocity, self.drag)
 
 
 class OscillationsSolver(object):
@@ -166,7 +168,7 @@ def RandomNoiseOscillatorFlat(mass, stiffness, drag, restEpsilon = 0.01):
 
 
 def RandomNoiseOscillatorSpherical(mass, stiffness, drag, scaleCoeff = Vector3(1.0, 1.0, 1.0), restEpsilon = 0.01):
-    randomFunc = lambda deviation, generator: _matrixScale(mathUtils.RandomVectors.random3(deviation, generator), scaleCoeff)
+    randomFunc = lambda deviation, generator: matrixScale(mathUtils.RandomVectors.random3(deviation, generator), scaleCoeff)
     return RandomNoiseOscillator(mass, stiffness, drag, randomFunc, restEpsilon)
 
 
@@ -237,7 +239,6 @@ class HarmonicOscillator(object):
             self.__amplitude = self.__nextAmplitude
             self.__amplitudeChangeVelocity = 0.0
         self.deviation = self.__amplitude * math.sin(self.__omega * self.__time)
-
-
-def _matrixScale(vector, scaleCoeff):
-    return Vector3(vector.x * scaleCoeff.x, vector.y * scaleCoeff.y, vector.z * scaleCoeff.z)
+# okay decompyling res/scripts/client/avatarinputhandler/oscillator.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:28 EST

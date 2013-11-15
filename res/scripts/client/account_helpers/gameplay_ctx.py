@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:08 EST
+# Embedded file name: scripts/client/account_helpers/gameplay_ctx.py
 import ArenaType
 import constants
 from debug_utils import LOG_DEBUG, LOG_ERROR, LOG_WARNING
@@ -30,3 +32,6 @@ def setMaskByNames(names):
     LOG_DEBUG('Set gameplay (names, mask)', gameplayNames, gameplayMask)
     from account_helpers.SettingsCore import g_settingsCore
     g_settingsCore.serverSettings.setGameSettings({'gameplayMask': gameplayMask})
+# okay decompyling res/scripts/client/account_helpers/gameplay_ctx.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:08 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:19 EST
+# Embedded file name: scripts/client/SoundGroups.py
 import BigWorld
 import FMOD
 import Settings
@@ -227,13 +229,17 @@ class SoundModes():
         arena = getattr(BigWorld.player(), 'arena', None)
         if arena is not None:
             inTutorial = arena.guiType is constants.ARENA_GUI_TYPE.TUTORIAL
+            inTutorial and self.setMode(SoundModes.DEFAULT_MODE_NAME)
+            return
+        else:
             nationToQueue = nation
-            if nation not in self.__nationToSoundModeMapping or inTutorial:
+            if nation not in self.__nationToSoundModeMapping:
                 nationToQueue = SoundModes.DEFAULT_NATION
             soundMode = self.__nationToSoundModeMapping.get(nationToQueue)
-            success = soundMode is not None and self.setMode(soundMode)
-            success or self.setNationalMappingByMode(SoundModes.DEFAULT_MODE_NAME)
-        return success
+            if soundMode is not None:
+                success = self.setMode(soundMode)
+                success or self.setNationalMappingByMode(SoundModes.DEFAULT_MODE_NAME)
+            return success
 
     def setNationalMapping(self, nationToSoundModeMapping):
         for soundModeName in nationToSoundModeMapping.itervalues():
@@ -435,3 +441,6 @@ class SoundGroups(object):
             self.__isWindowVisible = isWindowVisible
             self.applyPreferences()
         self.__muteCallbackID = BigWorld.callback(0.25, self.__muteByWindowVisibility)
+# okay decompyling res/scripts/client/soundgroups.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:19 EST

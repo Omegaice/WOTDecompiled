@@ -1,61 +1,66 @@
+# 2013.11.15 11:26:05 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/header/LobbyHeader.py
 import datetime
-from gui.Scaleform.daapi.view.meta.LobbyHeaderMeta import LobbyHeaderMeta
-from gui.shared import events
-from gui.shared.event_bus import EVENT_BUS_SCOPE
-from debug_utils import LOG_DEBUG, LOG_ERROR
-from CurrentVehicle import g_currentVehicle
-from adisp import process, async
-from gui.Scaleform.daapi.settings.views import VIEW_ALIAS
+import BigWorld
 import constants
-from gui.Scaleform.Waiting import Waiting
 import account_helpers
+from ConnectionManager import connectionManager
+from CurrentVehicle import g_currentVehicle
+from predefined_hosts import g_preDefinedHosts
+from adisp import process, async
+from PlayerEvents import g_playerEvents
+from helpers.i18n import makeString
+from helpers.links import openPaymentWebsite
+from helpers.time_utils import makeLocalServerTime
+from debug_utils import LOG_DEBUG, LOG_ERROR
+from gui import makeHtmlString, GUI_SETTINGS, game_control, DialogsInterface
+from gui.LobbyContext import g_lobbyContext
+from gui.shared import events
+from gui.Scaleform.daapi.view.meta.LobbyHeaderMeta import LobbyHeaderMeta
+from gui.shared import g_itemsCache
+from gui.shared.event_bus import EVENT_BUS_SCOPE
+from gui.shared.events import StatsStorageEvent, ShowWindowEvent
 from gui.shared.utils.HangarSpace import g_hangarSpace
 from gui.shared.utils.requesters import StatsRequester
-from gui.Scaleform.managers.SoundEventManager import SoundEventManager
-from gui.ClientUpdateManager import g_clientUpdateManager
-from PlayerEvents import g_playerEvents
-import BigWorld
-from helpers.i18n import makeString
 from gui.shared.utils.functions import makeTooltip
-from gui import makeHtmlString, GUI_SETTINGS
-from gui.shared.events import StatsStorageEvent, ShowWindowEvent
-from helpers.time_utils import makeLocalServerTime
+from gui.ClientUpdateManager import g_clientUpdateManager
+from gui.Scaleform.Waiting import Waiting
+from gui.Scaleform.daapi.settings.views import VIEW_ALIAS
 from gui.Scaleform.framework import g_entitiesFactories, VIEW_TYPE, AppRef
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
-from helpers.links import openPaymentWebsite
+from gui.Scaleform.managers.SoundEventManager import SoundEventManager
 
 class LobbyHeader(LobbyHeaderMeta, DAAPIModule, AppRef):
-    __isSubscribe = False
 
     def __init__(self):
         super(LobbyHeader, self).__init__()
         self.eventSoundChecker = None
         self.currentInterface = VIEW_ALIAS.LOBBY_HANGAR
+        self.__isSubscribe = False
+        self.__statsCallbackID = None
         return
 
     def _populate(self):
         super(LobbyHeader, self)._populate()
         self.addListener(events.LobbySimpleEvent.UPDATE_TANK_PARAMS, self.__onUpdateTankParamsHandler, scope=EVENT_BUS_SCOPE.LOBBY)
         self.app.containerManager.onViewAddedToContainer += self.__onViewAddedToContainer
+        self.as_setWalletStatusS(game_control.g_instance.wallet.componentsStatuses)
+        self.addListener(events.FightButtonEvent.FIGHT_BUTTON_UPDATE, self.__updateRoamingCtrl, scope=EVENT_BUS_SCOPE.LOBBY)
         self.processLobby()
 
     def _dispose(self):
         super(LobbyHeader, self)._dispose()
         self._unsubscribe()
+        self.removeListener(events.FightButtonEvent.FIGHT_BUTTON_UPDATE, self.__updateRoamingCtrl, scope=EVENT_BUS_SCOPE.LOBBY)
         if self.eventSoundChecker is not None:
             self.eventSoundChecker.cleanUp()
             self.eventSoundChecker = None
+        if self.__statsCallbackID is not None:
+            BigWorld.cancelCallback(self.__statsCallbackID)
+            self.__statsCallbackID = None
         self.removeListener(events.LobbySimpleEvent.UPDATE_TANK_PARAMS, self.__onUpdateTankParamsHandler, scope=EVENT_BUS_SCOPE.LOBBY)
         self.app.containerManager.onViewAddedToContainer -= self.__onViewAddedToContainer
         return
-
-    def __onViewAddedToContainer(self, _, pyEntity):
-        settings = pyEntity.settings
-        if settings.type is VIEW_TYPE.LOBBY_SUB:
-            if settings.alias == VIEW_ALIAS.BATTLE_QUEUE:
-                self.as_doDisableNavigationS()
-            else:
-                self.as_setScreenS(settings.alias)
 
     @process
     def processLobby(self):
@@ -67,10 +72,8 @@ class LobbyHeader(LobbyHeaderMeta, DAAPIModule, AppRef):
         Waiting.hide('enter')
 
     @async
-    @process
     def __populateData(self, callback):
-        credits = yield StatsRequester().getCredits()
-        gold = yield StatsRequester().getGold()
+        credits, gold = g_itemsCache.items.stats.actualMoney
         self.eventSoundChecker = SoundEventManager(credits, gold)
         callback(True)
 
@@ -83,50 +86,70 @@ class LobbyHeader(LobbyHeaderMeta, DAAPIModule, AppRef):
          'stats.freeXP': self.setFreeXP,
          'stats.clanInfo': self.setClanInfo,
          'stats.denunciationsLeft': self.setDenunciationsCount,
-         'stats.hasFinPassword': self.onMoneyTransferUpdate,
          'account': self.onAccountChanged,
-         'shop.exchangeRate': self.setExchangeRate,
-         'inventory.8.compDescr': self.onTankmanChanged,
          'stats.eliteVehicles': self.onVehicleBecomeElite})
         g_playerEvents.onServerStatsReceived += self.onStatsReceived
+        game_control.g_instance.wallet.onWalletStatusChanged += self.onWalletChanged
 
     def _unsubscribe(self):
         if not self.__isSubscribe:
             return
         self.__isSubscribe = False
+        game_control.g_instance.wallet.onWalletStatusChanged -= self.onWalletChanged
         g_playerEvents.onServerStatsReceived -= self.onStatsReceived
         g_clientUpdateManager.removeObjectCallbacks(self)
 
     def __requestServerStats(self):
-        self.statsCallbackId = None
+        self.__statsCallbackID = None
         if hasattr(BigWorld.player(), 'requestServerStats'):
             BigWorld.player().requestServerStats()
         return
 
+    @process
+    def relogin(self, peripheryID):
+        if g_preDefinedHosts.isRoamingPeriphery(peripheryID):
+            success = yield DialogsInterface.showI18nConfirmDialog('changeRoamingPeriphery')
+        else:
+            success = yield DialogsInterface.showI18nConfirmDialog('changePeriphery')
+        if success:
+            game_control.g_instance.roaming.relogin(peripheryID)
+        self.as_setPeripheryChangingS(success)
+
+    def getServers(self):
+        result = []
+        predefined = tuple((host.url for host in g_preDefinedHosts.peripheries()))
+        hosts = g_preDefinedHosts.peripheries()
+        for h in g_preDefinedHosts.roamingHosts():
+            if h.url not in predefined:
+                hosts.append(h)
+
+        for host in hosts:
+            result.append({'label': host.name,
+             'id': host.peripheryID,
+             'selected': connectionManager.peripheryID == host.peripheryID})
+
+        if connectionManager.peripheryID == 0:
+            result.insert(0, {'label': connectionManager.serverUserName,
+             'id': 0,
+             'selected': True})
+        return result
+
     def onStatsReceived(self, stats):
         if constants.IS_SHOW_SERVER_STATS:
             self.as_setServerStatsS(dict(stats))
-            self.statsCallbackId = BigWorld.callback(5, self.__requestServerStats)
+            self.__statsCallbackID = BigWorld.callback(5, self.__requestServerStats)
 
-    @process
     def updateAccountInfo(self):
-        exchangeRate = yield StatsRequester().getExchangeRate()
-        self.setExchangeRate(exchangeRate)
         self.updateMoneyStats()
         self.updateXPInfo()
         self.updateClanInfo()
         self.updateAccountAttrs()
         self.setServerInfo()
 
-    @process
     def updateMoneyStats(self):
-        credits = yield StatsRequester().getCredits()
+        credits, gold = g_itemsCache.items.stats.actualMoney
         self.setCredits(credits)
-        gold = yield StatsRequester().getGold()
         self.setGold(gold)
-
-    def setExchangeRate(self, exchangeRate):
-        pass
 
     @process
     def updateXPInfo(self):
@@ -157,8 +180,8 @@ class LobbyHeader(LobbyHeaderMeta, DAAPIModule, AppRef):
             serverName = makeHtmlString('html_templates:lobby/header', 'server-name', {'value': connectionManager.serverUserName})
             self.as_setServerInfoS(serverName, tooltipFullData)
 
-    def setCredits(self, credits):
-        self.as_creditsResponseS(BigWorld.wg_getIntegralFormat(credits))
+    def setCredits(self, accCredits):
+        self.as_creditsResponseS(BigWorld.wg_getIntegralFormat(accCredits))
 
     def setGold(self, gold):
         self.gold = gold
@@ -174,9 +197,7 @@ class LobbyHeader(LobbyHeaderMeta, DAAPIModule, AppRef):
         name = BigWorld.player().name
         isTeamKiller = yield StatsRequester().isTeamKiller()
         clanDBID = yield StatsRequester().getClanDBID()
-        if clanInfo is not None and len(clanInfo) > 1:
-            name = '%s [%s]' % (name, clanInfo[1])
-        self.as_nameResponseS(name, isTeamKiller, clanInfo is not None)
+        self.as_nameResponseS(g_lobbyContext.getPlayerFullName(name, clanInfo=clanInfo), isTeamKiller, clanInfo is not None)
         if clanDBID is not None and clanDBID != 0:
             tID = 'clanInfo' + name
             success = yield StatsRequester().getClanEmblemTextureID(clanDBID, False, tID)
@@ -264,20 +285,10 @@ class LobbyHeader(LobbyHeaderMeta, DAAPIModule, AppRef):
             LOG_ERROR("Passed alias '{1}' is not listed in alias to event dictionary!".format(alias))
         return
 
-    def onMoneyTransferUpdate(self, *args):
-        pass
-
-    def onTankmanChanged(self, args):
-        for id, compDescr in args.iteritems():
-            self.__notifyFlashTankmanChange(id)
-
     def onVehicleBecomeElite(self, eliteVehicles):
         if g_currentVehicle.isPresent():
             if g_currentVehicle.item.intCD in eliteVehicles:
                 self.__updateTankParams()
-
-    def __notifyFlashTankmanChange(self, tankmanID):
-        pass
 
     def onAccountChanged(self, args):
         if 'attrs' in args or 'premiumExpiryTime' in args:
@@ -287,8 +298,28 @@ class LobbyHeader(LobbyHeaderMeta, DAAPIModule, AppRef):
                 attrs |= constants.ACCOUNT_ATTR.PREMIUM
             self.setAccountsAttrs(attrs, premiumExpiryTime=expiryTime)
 
-    def setDemonstratorButton(self, maps):
-        LOG_DEBUG('LobbyView.setDemonstratorButton')
+    def onWalletChanged(self, status):
+        self.as_goldResponseS(BigWorld.wg_getGoldFormat(g_itemsCache.items.stats.actualGold))
+        self.as_setFreeXPS(BigWorld.wg_getIntegralFormat(g_itemsCache.items.stats.actualFreeXP))
+        self.as_setWalletStatusS(status)
 
-    def readyToFight(self, isReadyToFight, msg, msgLvl, isPresent, isMemberReady, isCrewFull):
-        LOG_DEBUG('LobbyView.readyToFight')
+    def __onViewAddedToContainer(self, _, pyEntity):
+        settings = pyEntity.settings
+        if settings.type is VIEW_TYPE.LOBBY_SUB:
+            if settings.alias == VIEW_ALIAS.BATTLE_QUEUE:
+                self.as_doDisableNavigationS()
+            else:
+                self.as_setScreenS(settings.alias)
+
+    def __updateRoamingCtrl(self, event):
+        from gui.prb_control.dispatcher import g_prbLoader
+        dispatcher = g_prbLoader.getDispatcher()
+        isRoamingCtrlDisabled = False
+        if dispatcher:
+            prbFunctional = dispatcher.getPrbFunctional()
+            unitFunctional = dispatcher.getUnitFunctional()
+            isRoamingCtrlDisabled = prbFunctional and prbFunctional.hasLockedState() or unitFunctional and unitFunctional.hasLockedState()
+        self.as_disableRoamingDDS(isRoamingCtrlDisabled)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/header/lobbyheader.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:05 EST

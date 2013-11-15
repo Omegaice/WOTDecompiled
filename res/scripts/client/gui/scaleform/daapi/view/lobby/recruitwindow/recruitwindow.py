@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:13 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/recruitWindow/RecruitWindow.py
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG
 from gui.ClientUpdateManager import g_clientUpdateManager
 import nations
@@ -15,7 +17,7 @@ from gui.shared import g_itemsCache, REQ_CRITERIA
 from gui.shared.utils import decorators
 from gui.shared.utils.requesters import StatsRequester, Requester, ItemsRequester
 from gui.shared.gui_items import GUI_ITEM_TYPE
-from gui.shared.gui_items.processors.tankman import TankmanRecruit, TankmanEquip
+from gui.shared.gui_items.processors.tankman import TankmanRecruit, TankmanEquip, TankmanRecruitAndEquip
 
 class RecruitWindow(View, RecruitWindowMeta):
 
@@ -32,11 +34,12 @@ class RecruitWindow(View, RecruitWindowMeta):
         if self._currentVehicleInvId != -1:
             g_clientUpdateManager.addCallbacks({'inventory': self.onInventoryChanged})
         g_clientUpdateManager.addCallbacks({'stats.credits': self.onCreditsChange,
-         'stats.gold': self.onGoldChange})
+         'stats.gold': self.onGoldChange,
+         'cache.mayConsumeWalletResources': self.onGoldChange})
 
     def onGoldChange(self, value):
         if self._currentVehicleInvId is not None:
-            self.as_setGoldChangedS(value)
+            self.as_setGoldChangedS(g_itemsCache.items.stats.gold)
         return
 
     def onCreditsChange(self, value):
@@ -57,8 +60,7 @@ class RecruitWindow(View, RecruitWindowMeta):
 
     @process
     def __getInitialData(self):
-        credits = yield StatsRequester().getCredits()
-        gold = yield StatsRequester().getGold()
+        credits, gold = g_itemsCache.items.stats.money
         upgradeParams = yield StatsRequester().getTankmanCost()
         data = {'credits': credits,
          'gold': gold,
@@ -71,7 +73,7 @@ class RecruitWindow(View, RecruitWindowMeta):
     @process
     def updateAllDropdowns(self, nationID, tankType, typeID, roleType):
         nationsDP = [{'id': None,
-          'label': MENU.NATIONS_ALL}, {'id': nationID,
+          'label': DIALOGS.RECRUITWINDOW_MENUEMPTYROW}, {'id': nationID,
           'label': MENU.nations(nations.NAMES[int(nationID)])}]
         classesDP = [{'id': None,
           'label': DIALOGS.RECRUITWINDOW_MENUEMPTYROW}, {'id': tankType,
@@ -101,7 +103,7 @@ class RecruitWindow(View, RecruitWindowMeta):
         try:
             vehsItems = g_itemsCache.items.getVehicles(REQ_CRITERIA.UNLOCKED)
             data = [{'id': None,
-              'label': MENU.NATIONS_ALL}]
+              'label': DIALOGS.RECRUITWINDOW_MENUEMPTYROW}]
             for name in GUI_NATIONS:
                 nationIdx = nations.INDICES[name]
                 vehiclesAvailable = len(vehsItems.filter(REQ_CRITERIA.NATIONS([nationIdx]))) > 0
@@ -200,11 +202,23 @@ class RecruitWindow(View, RecruitWindowMeta):
             SystemMessages.pushI18nMessage(result.userMsg, type=result.sysMsgType)
         callback(result.success)
 
+    @async
+    @process
+    def __buyAndEquipTankman(self, vehicle, slot, studyType, callback):
+        result = yield TankmanRecruitAndEquip(vehicle, slot, studyType).request()
+        if len(result.userMsg):
+            SystemMessages.pushI18nMessage(result.userMsg, type=result.sysMsgType)
+        callback(result.success)
+
     @decorators.process('recruting')
     def buyTankman(self, nationID, vehTypeID, role, studyType, slot):
-        tankman = yield self.__buyTankman(int(nationID), int(vehTypeID), role, int(studyType))
-        if slot is not None and slot != -1 and tankman is not None:
+        if slot is not None and slot != -1:
             vehicle = g_itemsCache.items.getVehicle(self._currentVehicleInvId)
-            _ = yield self.__equipTankman(tankman, vehicle, int(slot))
+            yield self.__buyAndEquipTankman(vehicle, int(slot), int(studyType))
+        else:
+            yield self.__buyTankman(int(nationID), int(vehTypeID), role, int(studyType))
         self.onWindowClose()
         return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/recruitwindow/recruitwindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:13 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:17 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/data.py
 import BigWorld
 from AccountCommands import LOCK_REASON
 from CurrentVehicle import g_currentVehicle
@@ -204,11 +206,12 @@ class _ItemsData(object):
     def _invalidateXP(self, nodes):
         result = []
         xpGetter = self._xps.get
+        freeXP = max(self._accFreeXP, 0)
         for node in nodes:
             state = node['state']
             props = node['unlockProps']
             xp = xpGetter(props.parentID, 0)
-            if self._accFreeXP + xp >= props.xpCost:
+            if freeXP + xp >= props.xpCost:
                 state = NODE_STATE.add(state, NODE_STATE.ENOUGH_XP)
             else:
                 state = NODE_STATE.remove(state, NODE_STATE.ENOUGH_XP)
@@ -343,18 +346,19 @@ class ResearchItemsData(_ItemsData):
     def _findNext2UnlockItems(self, nodes):
         result = []
         topLevelCDs = self._topLevelCDs.keys()
+        freeXP = max(self._accFreeXP, 0)
         for node in nodes:
             nodeCD = node['id']
             state = node['state']
             itemTypeID, _, _ = vehicles.parseIntCompactDescr(nodeCD)
             if itemTypeID == _VEHICLE and nodeCD in topLevelCDs:
-                available, unlockProps = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=self._accFreeXP)
-                xp = self._accFreeXP + self._xps.get(unlockProps.parentID, 0)
+                available, unlockProps = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=freeXP)
+                xp = freeXP + self._xps.get(unlockProps.parentID, 0)
             else:
                 unlockProps = node['unlockProps']
                 required = unlockProps.required
                 available = len(required) and required.issubset(self._unlocks) and nodeCD not in self._unlocks
-                xp = self._accFreeXP + self._earnedXP
+                xp = freeXP + self._earnedXP
             if available and state & NODE_STATE.LOCKED > 0:
                 state ^= NODE_STATE.LOCKED
                 state = NODE_STATE.addIfNot(state, NODE_STATE.NEXT_2_UNLOCK)
@@ -388,10 +392,11 @@ class ResearchItemsData(_ItemsData):
         itemTypeID, _, _ = vehicles.parseIntCompactDescr(nodeCD)
         available = False
         xp = 0
+        freeXP = max(self._accFreeXP, 0)
         state = NODE_STATE.LOCKED
         if topLevel and itemTypeID == _VEHICLE:
-            available, unlockProps = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=self._accFreeXP)
-            xp = self._accFreeXP + self._xps.get(unlockProps.parentID, 0)
+            available, unlockProps = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=freeXP)
+            xp = freeXP + self._xps.get(unlockProps.parentID, 0)
         if nodeCD in self._unlocks:
             state = NODE_STATE.UNLOCKED
             if nodeCD in self._installed:
@@ -408,11 +413,10 @@ class ResearchItemsData(_ItemsData):
         elif not topLevel:
             if unlockProps.required.issubset(self._unlocks):
                 available = self._rootCD in self._unlocks
-                xp = self._accFreeXP + self._earnedXP
+                xp = freeXP + self._earnedXP
             if available:
                 state = NODE_STATE.NEXT_2_UNLOCK
-                if xp >= unlockProps.xpCost:
-                    state |= NODE_STATE.ENOUGH_XP
+                xp >= unlockProps.xpCost and state |= NODE_STATE.ENOUGH_XP
         if nodeCD in self._elite:
             state |= NODE_STATE.ELITE
         if renderer is None:
@@ -477,7 +481,7 @@ class ResearchItemsData(_ItemsData):
         if itemTypeID == _VEHICLE:
             topLevelCDs = map(lambda node: node['id'], self._topLevel)
         if nodeCD in topLevelCDs:
-            result, _ = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=self._accFreeXP)
+            result, _ = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=max(self._accFreeXP, 0))
         else:
             try:
                 node = self._nodes[self._nodesIdx[nodeCD]]
@@ -564,11 +568,11 @@ class NationTreeData(_ItemsData):
         super(NationTreeData, self).__init__()
         self._displaySettings = {}
         self._scrollIndex = -1
-        self._hidden = {}
+        self._hidden = set()
 
     def _changeNext2Unlock(self, nodeCD, unlockProps):
         state = NODE_STATE.NEXT_2_UNLOCK
-        totalXP = self._accFreeXP + self._xps.get(unlockProps.parentID, 0)
+        totalXP = max(self._accFreeXP, 0) + self._xps.get(unlockProps.parentID, 0)
         if totalXP >= unlockProps.xpCost:
             state = NODE_STATE.addIfNot(state, NODE_STATE.ENOUGH_XP)
         else:
@@ -596,8 +600,9 @@ class NationTreeData(_ItemsData):
     def _getNodeData(self, nodeCD, displayInfo, invCDs):
         earnedXP = self._xps.get(nodeCD, 0)
         gameCredits, gold = self.getShopPrice(nodeCD)
+        freeXP = max(self._accFreeXP, 0)
         state = NODE_STATE.LOCKED
-        available, unlockProps = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=self._accFreeXP)
+        available, unlockProps = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=freeXP)
         if nodeCD in self._unlocks:
             state = NODE_STATE.UNLOCKED
             if nodeCD in invCDs:
@@ -610,7 +615,7 @@ class NationTreeData(_ItemsData):
                 state |= NODE_STATE.WAS_IN_BATTLE
         elif available:
             state = NODE_STATE.NEXT_2_UNLOCK
-            totalXP = self._accFreeXP + self._xps.get(unlockProps.parentID, 0)
+            totalXP = freeXP + self._xps.get(unlockProps.parentID, 0)
             if totalXP >= unlockProps.xpCost:
                 state |= NODE_STATE.ENOUGH_XP
         if nodeCD in self._elite:
@@ -632,13 +637,13 @@ class NationTreeData(_ItemsData):
         invCDs = self._invItems.keys()
         getDisplayInfo = g_techTreeDP.getDisplayInfo
         selectedID = ResearchItemsData.getRootCD()
-        hidden = self._hidden.get(nationID, set())
+        hidden = self._hidden
         for item in vehicleList:
             nodeCD = item['compactDescr']
             displayInfo = getDisplayInfo(nodeCD)
             if displayInfo is not None:
                 index = len(self._nodes)
-                if item['id'] in hidden:
+                if nodeCD in hidden:
                     continue
                 if nodeCD == selectedID:
                     self._scrollIndex = index
@@ -668,17 +673,17 @@ class NationTreeData(_ItemsData):
         return
 
     def isNext2Unlock(self, nodeCD):
-        result, _ = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=self._accFreeXP)
+        result, _ = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=max(self._accFreeXP, 0))
         return result
 
-    def addHidden(self, nationID, indexes):
-        self._hidden[nationID] = indexes
+    def addHidden(self, nodeCD):
+        self._hidden.add(nodeCD)
 
     def invalidateUnlocks(self, unlocks):
         self._unlocks |= unlocks
         next2Unlock = []
         unlocked = []
-        items = g_techTreeDP.getNext2UnlockByItems(unlocks, unlocked=self._unlocks, xps=self._xps, freeXP=self._accFreeXP)
+        items = g_techTreeDP.getNext2UnlockByItems(unlocks, unlocked=self._unlocks, xps=self._xps, freeXP=max(self._accFreeXP, 0))
         if len(items):
             next2Unlock = map(lambda item: (item[0], self._changeNext2Unlock(item[0], item[1]), item[1]._makeTuple()), items.iteritems())
         filtered = filter(lambda unlock: getTypeOfCompactDescr(unlock) == _VEHICLE, unlocks)
@@ -692,7 +697,7 @@ class NationTreeData(_ItemsData):
         for node in nodes:
             nodeCD = node['id']
             props = node['unlockProps']
-            _, newProps = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=self._accFreeXP)
+            _, newProps = g_techTreeDP.isNext2Unlock(nodeCD, unlocked=self._unlocks, xps=self._xps, freeXP=max(self._accFreeXP, 0))
             if newProps.parentID != props.parentID:
                 node['unlockProps'] = newProps
                 result.append((nodeCD, newProps))
@@ -715,3 +720,6 @@ class NationTreeData(_ItemsData):
 
     def _canSell(self, nodeCD):
         return self.getInvItem(nodeCD).canSell
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/techtree/data.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:18 EST

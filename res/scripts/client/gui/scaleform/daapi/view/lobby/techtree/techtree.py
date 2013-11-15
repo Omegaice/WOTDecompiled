@@ -1,4 +1,5 @@
-from functools import partial
+# 2013.11.15 11:26:20 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/TechTree.py
 import weakref
 import BigWorld
 from AccountCommands import RES_SUCCESS
@@ -7,15 +8,16 @@ from PlayerEvents import g_playerEvents
 from adisp import process
 from constants import IS_DEVELOPMENT
 from debug_utils import LOG_DEBUG, LOG_ERROR
+from gui import game_control
 from gui.Scaleform.daapi.view.lobby.techtree import custom_items
 from gui.Scaleform.daapi.view.lobby.techtree.ResearchView import ResearchView
 from gui.Scaleform.daapi.view.meta.TechTreeMeta import TechTreeMeta
-from gui.shared.utils.requesters import StatsRequester
+from gui.shared.utils.requesters import StatsRequester, ShopDataParser
 from gui.Scaleform.daapi.view.lobby.techtree import dumpers, SelectedNation, _VEHICLE, USE_XML_DUMPING
 from gui.Scaleform.daapi.view.lobby.techtree.data import NationTreeData
 from gui.Scaleform.daapi.view.lobby.techtree.listeners import StatsListener, InventoryListener, INV_ITEM_VCDESC_KEY
 from gui.Scaleform.daapi.view.lobby.techtree.techtree_dp import g_techTreeDP
-from gui.shared import events, EVENT_BUS_SCOPE
+from gui.shared import events, EVENT_BUS_SCOPE, g_itemsCache
 from items import ITEM_TYPE_NAMES, vehicles
 import nations
 
@@ -52,6 +54,7 @@ class TechTree(ResearchView, TechTreeMeta):
         self._invListener.startListen(selfProxy)
         g_playerEvents.onShopResync += self.__shop_onResync
         g_playerEvents.onCenterIsLongDisconnected += self.__center_onIsLongDisconnected
+        game_control.g_instance.wallet.onWalletStatusChanged += self.__setWalletCallback
         if IS_DEVELOPMENT:
             from gui import InputHandler
             InputHandler.g_instance.onKeyUp += self.__handleReloadData
@@ -61,6 +64,7 @@ class TechTree(ResearchView, TechTreeMeta):
         self._invListener.stopListen()
         g_playerEvents.onShopResync -= self.__shop_onResync
         g_playerEvents.onCenterIsLongDisconnected -= self.__center_onIsLongDisconnected
+        game_control.g_instance.wallet.onWalletStatusChanged -= self.__setWalletCallback
         if IS_DEVELOPMENT:
             from gui import InputHandler
             InputHandler.g_instance.onKeyUp -= self.__handleReloadData
@@ -140,12 +144,12 @@ class TechTree(ResearchView, TechTreeMeta):
         self._data._xps = yield StatsRequester().getVehicleTypeExperiences()
         self._data._unlocks = yield StatsRequester().getUnlocks()
         self._data._elite = yield StatsRequester().getEliteVehicles()
-        self._data._accFreeXP = yield StatsRequester().getFreeExperience()
-        self._data._accCredits = yield StatsRequester().getCredits()
-        self._data._accGold = yield StatsRequester().getGold()
+        self._data._accFreeXP = g_itemsCache.items.stats.actualFreeXP
+        self._data._accCredits = g_itemsCache.items.stats.credits
+        self._data._accGold = g_itemsCache.items.stats.gold
         accDossier = yield StatsRequester().getAccountDossier()
-        if accDossier and accDossier['vehDossiersCut']:
-            self._data._wereInBattle = set(accDossier['vehDossiersCut'].keys())
+        if accDossier and accDossier['a15x15Cut']:
+            self._data._wereInBattle = set(accDossier['a15x15Cut'].keys())
         self.__requestVehiclesFromInv()
 
     def __requestVehiclesFromInv(self):
@@ -156,45 +160,46 @@ class TechTree(ResearchView, TechTreeMeta):
             LOG_ERROR('Server return error inventory vehicle items request: responseCode=', resultID)
             data = {INV_ITEM_VCDESC_KEY: {}}
         self.setInvVehicles(data)
-        self.__requestVehiclesFromShop(nations.INDICES.values())
+        self.__requestVehiclesFromShop()
 
-    def __requestVehiclesFromShop(self, nationIDs):
-        if len(nationIDs) > 0:
-            nextNationID = nationIDs.pop()
-            BigWorld.player().shop.getItems(_VEHICLE, nextNationID, partial(self.__onGetVehiclesFromShop, nextNationID, nationIDs))
-        else:
-            self.__stopDataCollect()
+    def __requestVehiclesFromShop(self):
+        BigWorld.player().shop.getAllItems(self.__onGetVehiclesFromShop)
 
-    def __onGetVehiclesFromShop(self, nationID, nationIDs, resultID, data, _):
+    def __onGetVehiclesFromShop(self, resultID, data, _):
         if resultID < RES_SUCCESS:
             LOG_ERROR('Server return error shop vehicles request: responseCode=' % resultID)
             data = {}
-        dataLen = len(data)
-        prices = data[0].iteritems() if dataLen else []
-        if dataLen > 1 and 'notInShop' in data[1]:
-            self._data.addHidden(nationID, data[1]['notInShop'])
-        else:
-            self._data.addHidden(nationID, set())
-        for innationID, price in prices:
-            intCD = vehicles.makeIntCompactDescrByID(ITEM_TYPE_NAMES[_VEHICLE], nationID, innationID)
-            self._data.setShopPrice(intCD, price)
+        parser = ShopDataParser(data)
+        setShopPrice = self._data.setShopPrice
+        addHidden = self._data.addHidden
+        for intCD, price, isHidden, _ in parser.getItemsIterator(itemTypeID=_VEHICLE):
+            setShopPrice(intCD, price)
+            if isHidden:
+                addHidden(intCD)
 
-        self.__requestVehiclesFromShop(nationIDs)
+        self.__stopDataCollect()
 
     def __stopDataCollect(self):
         self.as_setAvailableNationsS(g_techTreeDP.getAvailableNations())
         self.as_setSelectedNationS(SelectedNation.getName())
 
     def __shop_onResync(self):
-        self.__requestVehiclesFromShop(nations.INDICES.values())
+        self.__requestVehiclesFromShop()
         self.as_refreshNationTreeDataS(SelectedNation.getName())
 
     def __center_onIsLongDisconnected(self, isLongDisconnected):
         if not isLongDisconnected:
-            self.__requestVehiclesFromShop(nations.INDICES.values())
+            self.__requestVehiclesFromShop()
         self.as_refreshNationTreeDataS(SelectedNation.getName())
+
+    def __setWalletCallback(self, status):
+        self.invalidateFreeXP(g_itemsCache.items.stats.actualFreeXP)
+        self.invalidateGold(g_itemsCache.items.stats.actualGold)
 
     def __handleReloadData(self, event):
         if event.key is Keys.KEY_R:
             g_techTreeDP.load(isReload=True)
             self.as_refreshNationTreeDataS(SelectedNation.getName())
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/techtree/techtree.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:20 EST

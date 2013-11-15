@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:29 EST
+# Embedded file name: scripts/client/WebBrowser.py
 import BigWorld
 import Keys
 from gui.Scaleform.CursorDelegator import CursorDelegator
@@ -185,6 +187,10 @@ class WebBrowser(AppRef):
         if self.hasBrowser and self.isFocused:
             self.app.cursorMgr.setCursorForced(self.__browser.script.cursorType)
 
+    def executeJavascript(self, script, frame):
+        if self.hasBrowser:
+            self.__browser.executeJavascript(script, frame)
+
 
 class ChinaWebBrowser(WebBrowser):
     battlesCounter = 0
@@ -226,6 +232,14 @@ class ChinaWebBrowser(WebBrowser):
 
     def onBrowserHide(self):
         self.__customUrl = self.baseUrl
+
+    def handleKeyEvent(self, event):
+        if self.hasBrowser:
+            if self.isFocused:
+                return self.enableUpdate or False
+            superRes = super(ChinaWebBrowser, self).handleKeyEvent(event)
+            return superRes and event.key == Keys.KEY_ESCAPE and False
+        return True
 
     def getRequestParams(self):
         urlParams = CHINA_BROWSER_PARAMS
@@ -274,6 +288,9 @@ class EventListener:
     def onFailLoadingFrame(self, frameId, isMainFrame, errorCode, url):
         if isMainFrame:
             self.onLoadEnd()
+
+    def onAddConsoleMessage(self, message, lineNumber, source):
+        pass
 
 
 class WebBrowserManager:
@@ -382,3 +399,6 @@ class CURSOR_TYPES:
     Grab = 41
     Grabbing = 42
     Custom = 43
+# okay decompyling res/scripts/client/webbrowser.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:30 EST

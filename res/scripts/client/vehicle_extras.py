@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:24 EST
+# Embedded file name: scripts/client/vehicle_extras.py
 import BigWorld
 import random
 from AvatarInputHandler import ShakeReason
@@ -112,7 +114,9 @@ class ShowShooting(EntityExtra):
             return
         else:
             node = gunModel.node('HP_gunFire')
-            gunPos = Math.Matrix(node).translation
+            gunMatr = Math.Matrix(node)
+            gunPos = gunMatr.translation
+            gunDir = gunMatr.applyVector((0, 0, 1))
             upVec = Math.Matrix(vehicle.matrix).applyVector(Math.Vector3(0, 1, 0))
             if upVec.y != 0:
                 centerToGun = gunPos - vehicle.position
@@ -125,7 +129,7 @@ class ShowShooting(EntityExtra):
                 return
             position = testRes[0]
             stages, effects, _ = gunDescr['groundWave']
-            BigWorld.player().terrainEffects.addNew(position, effects, stages, None, dir=testRes[1], start=position + Math.Vector3(0, 0.5, 0), end=position - Math.Vector3(0, 0.5, 0))
+            BigWorld.player().terrainEffects.addNew(position, effects, stages, None, dir=gunDir, surfaceMatKind=testRes[2], start=position + Math.Vector3(0, 0.5, 0), end=position - Math.Vector3(0, 0.5, 0))
             return
 
 
@@ -239,3 +243,6 @@ class Fire(EntityExtra):
             data['_effects'] = effects
             effects.attachTo(vehicle.appearance.modelsDesc['hull']['model'], data, 'fire')
         data['wasUnderwater'] = isVehicleUnderwater
+# okay decompyling res/scripts/client/vehicle_extras.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:25 EST

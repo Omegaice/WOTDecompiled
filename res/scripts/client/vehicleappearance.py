@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:25 EST
+# Embedded file name: scripts/client/VehicleAppearance.py
 import BigWorld
 import ResMgr
 import Math
@@ -216,7 +218,7 @@ class VehicleAppearance(object):
 
         vDesc = vehicle.typeDescriptor
         out.append(vDesc.type.camouflageExclusionMask)
-        customization = items.vehicles.g_cache.customization(vDesc.type.id[0])
+        customization = items.vehicles.g_cache.customization(vDesc.type.customizationNationID)
         camouflageParams = self.__getCamouflageParams(vehicle)
         if camouflageParams is not None and customization is not None:
             camouflageId = camouflageParams[0]
@@ -622,7 +624,7 @@ class VehicleAppearance(object):
         camouflagePresent = False
         vDesc = self.__vehicle.typeDescriptor
         camouflageParams = self.__getCamouflageParams(self.__vehicle)
-        customization = items.vehicles.g_cache.customization(vDesc.type.id[0])
+        customization = items.vehicles.g_cache.customization(vDesc.type.customizationNationID)
         defaultTiling = None
         if camouflageParams is not None and customization is not None:
             camouflage = customization['camouflages'].get(camouflageParams[0])
@@ -713,7 +715,7 @@ class VehicleAppearance(object):
                      'gold': 54,
                      'red': 55,
                      'silver': 57}}
-                camouflIds = camouflIdsByNation.get(vDesc.type.id[0])
+                camouflIds = camouflIdsByNation.get(vDesc.type.customizationNationID)
                 if camouflIds is not None:
                     ret = camouflIds.get(camouflagePseudoname)
                     if ret is not None:
@@ -1528,3 +1530,6 @@ def _validateCfgPos(srcModelDesc, dstModelDesc, cfgPos, paramName, vehicle, stat
          modelState))
         dstModelDesc['model'].visibleAttachments = True
         dstModelDesc['model'].visible = False
+# okay decompyling res/scripts/client/vehicleappearance.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:27 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:43 EST
+# Embedded file name: scripts/client/gui/Scaleform/managers/VoiceChatManager.py
 import BigWorld
 import Settings
 import constants
@@ -172,3 +174,6 @@ class VoiceChatManager(VoiceChatManagerMeta):
 
     def isVOIPEnabled(self):
         return GUI_SETTINGS.voiceChat
+# okay decompyling res/scripts/client/gui/scaleform/managers/voicechatmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:43 EST

@@ -1,9 +1,11 @@
+# 2013.11.15 11:26:29 EST
+# Embedded file name: scripts/client/gui/Scaleform/framework/managers/loaders.py
 from collections import namedtuple
 import uuid
 import Event
 import constants
 from debug_utils import LOG_ERROR, LOG_WARNING
-from gui.Scaleform.framework import g_entitiesFactories, ViewSettings, AppRef
+from gui.Scaleform.framework import g_entitiesFactories, ViewSettings, AppRef, VIEW_SCOPE
 from gui.Scaleform.framework.entities.View import View
 from gui.Scaleform.framework.entities.EventSystemEntity import EventSystemEntity
 from gui.Scaleform.framework.entities.abstract.LoaderManagerMeta import LoaderManagerMeta
@@ -61,7 +63,7 @@ class LoaderManager(LoaderManagerMeta):
         if item is not None:
             settings = item.pyEntity.settings
             if constants.IS_DEVELOPMENT and settings.url != NO_IMPL_URL:
-                g_entitiesFactories.addSettings(ViewSettings(NO_IMPL_ALIAS, View, NO_IMPL_URL, settings.type, None))
+                g_entitiesFactories.addSettings(ViewSettings(NO_IMPL_ALIAS, View, NO_IMPL_URL, settings.type, None, VIEW_SCOPE.DEFAULT))
                 LOG_WARNING('Try to load noImpl swf...')
                 self.__loadViewForToken(NO_IMPL_ALIAS, item.name, token)
         return
@@ -121,3 +123,6 @@ class PackageBusinessHandler(SequenceIDLoader):
         while len(self._listeners):
             eventType, listener = self._listeners.pop()
             self.removeListener(eventType, listener, self._scope)
+# okay decompyling res/scripts/client/gui/scaleform/framework/managers/loaders.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:29 EST

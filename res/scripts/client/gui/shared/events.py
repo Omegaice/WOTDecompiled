@@ -1,5 +1,8 @@
+# 2013.11.15 11:26:46 EST
+# Embedded file name: scripts/client/gui/shared/events.py
 from gui.shared.event_bus import SharedEvent
-__all__ = ['LoadEvent',
+__all__ = ['ArgsEvent',
+ 'LoadEvent',
  'ShowViewEvent',
  'ShowDialogEvent',
  'LoginEvent',
@@ -23,6 +26,14 @@ class HasCtxEvent(SharedEvent):
 
 class GUICommonEvent(SharedEvent):
     APP_STARTED = 'appStarted'
+
+
+class ArgsEvent(HasCtxEvent):
+    UPDATE_ARGS = 'updateArguments'
+
+    def __init__(self, eventType = None, alias = '', ctx = None):
+        super(ArgsEvent, self).__init__(eventType, ctx)
+        self.alias = alias
 
 
 class LoadEvent(HasCtxEvent):
@@ -143,6 +154,9 @@ class ShowWindowEvent(HasCtxEvent):
     SHOW_CONNECT_TO_SECURE_CHANNEL_WINDOW = 'showConnectToSecureChannelWindow'
     SHOW_ELITE_VEHICLE_WINDOW = 'showEliteVehicleWindow'
     SHOW_CONTACTS_WINDOW = 'showWindowEvent'
+    SHOW_UNIT_WINDOW = 'showUnitWindow'
+    SHOW_ROSTER_SLOT_SETTINGS_WINDOW = 'showRosterSlotSettingsWindow'
+    SHOW_VEHICLE_SELECTOR_WINDOW = 'showVehicleSelectorWindow'
 
 
 class HideWindowEvent(HasCtxEvent):
@@ -150,6 +164,9 @@ class HideWindowEvent(HasCtxEvent):
     HIDE_COMPANY_WINDOW = 'hideCompanyWindow'
     HIDE_BATTLE_SESSION_WINDOW = 'hideBattleSessionWindow'
     HIDE_NOTIFICATION_INVITES_WINDOW = 'hideNotificationInvitesWindow'
+    HIDE_UNIT_WINDOW = 'hideUnitWindow'
+    HIDE_VEHICLE_SELECTOR_WINDOW = 'showVehicleSelectorWindow'
+    HIDE_ROSTER_SLOT_SETTINGS_WINDOW = 'showRosterSlotSettingsWindow'
 
 
 class StatsStorageEvent(HasCtxEvent):
@@ -170,7 +187,7 @@ class LobbySimpleEvent(HasCtxEvent):
     HIGHLIGHT_TANK_PARAMS = 'highlightTankParams'
     SHOW_HELPLAYOUT = 'showHelplayout'
     CLOSE_HELPLAYOUT = 'closeHelplayout'
-    QUEST_VISITED = 'questVisited'
+    QUESTS_UPDATED = 'questUpdated'
 
 
 class FightButtonDisablingEvent(LobbySimpleEvent):
@@ -263,3 +280,20 @@ class AutoInviteEvent(SharedEvent):
     def __init__(self, invite, eventType = None):
         super(AutoInviteEvent, self).__init__(eventType)
         self.invite = invite
+
+
+class CSVehicleSelectEvent(HasCtxEvent):
+    VEHICLE_SELECTED = 'vehicleSelected'
+
+    def __init__(self, eventType = None, ctx = None):
+        super(CSVehicleSelectEvent, self).__init__(eventType, ctx)
+
+
+class CSRosterSlotSettingsWindow(HasCtxEvent):
+    APPLY_SLOT_SETTINGS = 'applySlotSettings'
+
+    def __init__(self, eventType = None, ctx = None):
+        super(CSRosterSlotSettingsWindow, self).__init__(eventType, ctx)
+# okay decompyling res/scripts/client/gui/shared/events.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:47 EST

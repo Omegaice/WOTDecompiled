@@ -1,8 +1,11 @@
+# 2013.11.15 11:27:22 EST
+# Embedded file name: scripts/client/tutorial/gui/__init__.py
 import BigWorld
 from ConnectionManager import connectionManager
 from PlayerEvents import g_playerEvents
 import Event
 from debug_utils import LOG_ERROR
+from gui.prb_control import getClientUnitMgr
 
 class GUIEvent(object):
 
@@ -205,6 +208,12 @@ class LobbyDispatcher(GUIDispatcher):
         g_playerEvents.onPrebattleLeft += self.__pe_onPrebattleLeft
         g_playerEvents.onKickedFromPrebattle += self.__pe_onKickedFromPrebattle
         connectionManager.onDisconnected += self.__cm_onDisconnected
+        unitMgr = getClientUnitMgr()
+        if unitMgr:
+            unitMgr.onUnitJoined += self.__cum_onUnitJoined
+            unitMgr.onUnitLeft += self.__cum_onUnitLeft
+        else:
+            LOG_ERROR('Unit manager is not defined')
 
     def _unsubscribe(self):
         g_playerEvents.onEnqueuedRandom -= self.__pe_onEnqueued
@@ -214,6 +223,10 @@ class LobbyDispatcher(GUIDispatcher):
         g_playerEvents.onPrebattleLeft -= self.__pe_onPrebattleLeft
         g_playerEvents.onKickedFromPrebattle -= self.__pe_onKickedFromPrebattle
         connectionManager.onDisconnected -= self.__cm_onDisconnected
+        unitMgr = getClientUnitMgr()
+        if unitMgr:
+            unitMgr.onUnitJoined -= self.__cum_onUnitJoined
+            unitMgr.onUnitLeft -= self.__cum_onUnitLeft
 
     def __pe_onEnqueued(self, *args):
         self.setDisabled(True)
@@ -235,3 +248,12 @@ class LobbyDispatcher(GUIDispatcher):
 
     def __cm_onDisconnected(self):
         self.clearChapterInfo()
+
+    def __cum_onUnitJoined(self, unitMgrID, unitIdx):
+        self.setDisabled(True)
+
+    def __cum_onUnitLeft(self, unitMgrID, unitIdx):
+        self.setDisabled(False)
+# okay decompyling res/scripts/client/tutorial/gui/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:23 EST

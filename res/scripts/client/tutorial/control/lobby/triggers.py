@@ -1,11 +1,14 @@
+# 2013.11.15 11:27:21 EST
+# Embedded file name: scripts/client/tutorial/control/lobby/triggers.py
 import BigWorld
-import dossiers
+import dossiers2
 from account_helpers.Inventory import _VEHICLE, _TANKMAN
 from AccountCommands import RES_SUCCESS
 from CurrentVehicle import g_currentVehicle
 from PlayerEvents import g_playerEvents
 from items import vehicles, ITEM_TYPE_NAMES, tankmen
 from gui.ClientUpdateManager import g_clientUpdateManager
+from gui.shared.utils.requesters import ShopDataParser
 from tutorial.control.triggers import _Trigger, _TriggerWithValidateVar
 from tutorial.logger import LOG_ERROR
 __all__ = ['BonusTrigger',
@@ -74,8 +77,8 @@ class BattleCountRequester(_TriggerWithValidateVar):
             LOG_ERROR('Server return error on request dossier', resultID, dossierCompDescr)
             self.isRunning = False
             return
-        dossierDescr = dossiers.getAccountDossierDescr(dossierCompDescr)
-        self.toggle(isOn=self.isOn(dossierDescr['battlesCount']))
+        dossierDescr = dossiers2.getAccountDossierDescr(dossierCompDescr)
+        self.toggle(isOn=self.isOn(dossierDescr['a15x15']['battlesCount']))
 
 
 class ItemUnlockedTrigger(_TriggerWithValidateVar):
@@ -323,14 +326,14 @@ class ItemPriceTrigger(_TriggerWithValidateVar):
         self._accCredits = credits
         self._gui.showWaiting('request-shop')
         itemTypeID, nationID, _ = vehicles.parseIntCompactDescr(self.getVar())
-        BigWorld.player().shop.getItems(itemTypeID, nationID, self.__cb_onShopItemsReceived)
+        BigWorld.player().shop.getAllItems(self.__cb_onShopItemsReceived)
 
     def __cb_onShopItemsReceived(self, resultID, data, _):
         self._gui.hideWaiting('request-shop')
         if resultID < 0:
             LOG_ERROR('Server return error shop %s items request:', resultID, data)
             data = ({}, set([]))
-        self._itemPrice = data[0].get(self.getVar())
+        self._itemPrice = ShopDataParser(data).getPrice(self.getVar())
         self.toggle(isOn=self.isOn())
 
     def onCreditsChanged(self, credits):
@@ -763,3 +766,6 @@ class FreeVehicleSlotTrigger(_Trigger):
         else:
             self.toggle(isOn=self.isOn())
         return
+# okay decompyling res/scripts/client/tutorial/control/lobby/triggers.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:22 EST

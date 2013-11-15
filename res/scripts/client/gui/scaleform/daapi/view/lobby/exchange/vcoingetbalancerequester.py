@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:01 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/exchange/VcoinGetBalanceRequester.py
 import time
 import BigWorld
 import Event
@@ -48,7 +50,7 @@ class _VcoinGetBalanceRequester(object):
             self.__isWaitForSync = False
             self.__updateBalanceCooldown()
             items = len(self.error) == 0 and (yield ItemsRequester().request())
-            self.goldBalance = items.stats.gold
+            self.goldBalance = items.stats.actualGold
             self.exchangeRate = items.shop.ebankVCoinExchangeRate
             self.minTransactVal = items.shop.ebankMinTransactionValue
             self.maxTransactVal = items.shop.ebankMaxTransactionValue
@@ -65,3 +67,6 @@ class _VcoinGetBalanceRequester(object):
 
 
 g_instance = _VcoinGetBalanceRequester()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/exchange/vcoingetbalancerequester.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:02 EST

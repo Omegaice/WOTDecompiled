@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:02 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/exchange/VcoinUpdateBalanceRequester.py
 import time
 import BigWorld
 import Event
@@ -37,3 +39,6 @@ class _VcoinUpdateBalanceRequester(object):
 
 
 g_instance = _VcoinUpdateBalanceRequester()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/exchange/vcoinupdatebalancerequester.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:02 EST

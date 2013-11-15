@@ -1,8 +1,11 @@
+# 2013.11.15 11:26:54 EST
+# Embedded file name: scripts/client/gui/shared/personality.py
 import SoundGroups
 import BigWorld
 import MusicController
 from account_helpers.SettingsCache import g_settingsCache
 from account_helpers.SettingsCore import g_settingsCore
+from gui.LobbyContext import g_lobbyContext
 from gui.Scaleform.LogitechMonitor import LogitechMonitor
 from helpers import isPlayerAccount
 from adisp import process
@@ -21,28 +24,17 @@ from gui.Scaleform.Waiting import Waiting
 from gui.shared.utils import ParametersCache
 from gui.shared.utils.HangarSpace import g_hangarSpace
 from gui.shared.utils.RareAchievementsCache import g_rareAchievesCache
-__guiContext = {}
-
-def _updateGuiCtx(data):
-    __guiContext.update(data)
-
-
-def _clearGuiCtx():
-    __guiContext.clear()
-
-
-def _getGuiCtx():
-    return __guiContext
-
 
 @process
 def onAccountShowGUI(ctx):
-    _updateGuiCtx(ctx)
+    g_lobbyContext.onAccountShowGUI(ctx)
     yield g_itemsCache.update()
     yield g_questsCache.update()
     yield g_settingsCache.update()
+    if not g_itemsCache.isSynced():
+        return
     g_settingsCore.serverSettings.applySettings()
-    game_control.g_instance.onAccountShowGUI(_getGuiCtx())
+    game_control.g_instance.onAccountShowGUI(g_lobbyContext.getGuiCtx())
     accDossier = g_itemsCache.items.getAccountDossier()
     g_rareAchievesCache.request(accDossier.getRecord('rareAchievements'))
     MusicController.g_musicController.setAccountAttrs(g_itemsCache.items.stats.attributes)
@@ -54,13 +46,12 @@ def onAccountShowGUI(ctx):
     else:
         g_hangarSpace.init(premium)
     g_currentVehicle.init()
-    g_windowsManager.onAccountShowGUI(_getGuiCtx())
+    g_windowsManager.onAccountShowGUI(g_lobbyContext.getGuiCtx())
     yield g_windowsManager.window.tooltipManager.request()
-    g_prbLoader.onAccountShowGUI(_getGuiCtx())
+    g_prbLoader.onAccountShowGUI(g_lobbyContext.getGuiCtx())
     SoundGroups.g_instance.enableLobbySounds(True)
     onCenterIsLongDisconnected(True)
     Waiting.hide('enter')
-    _clearGuiCtx()
 
 
 def onAccountBecomeNonPlayer():
@@ -78,16 +69,19 @@ def onAvatarBecomePlayer():
     game_control.g_instance.onAvatarBecomePlayer()
 
 
+def onAccountBecomePlayer():
+    game_control.g_instance.onAccountBecomePlayer()
+
+
 @process
 def onClientUpdate(diff):
+    yield lambda callback: callback(None)
     if isPlayerAccount():
         yield g_itemsCache.update(diff)
         yield g_questsCache.update()
         MusicController.g_musicController.setAccountAttrs(g_itemsCache.items.stats.attributes, True)
         MusicController.g_musicController.play(MusicController.MUSIC_EVENT_LOBBY)
         MusicController.g_musicController.play(MusicController.MUSIC_EVENT_LOBBY)
-    else:
-        yield lambda callback: callback(None)
     g_clientUpdateManager.update(diff)
 
 
@@ -98,6 +92,8 @@ def onShopResyncStarted():
 @process
 def onShopResync():
     yield g_itemsCache.update()
+    if not g_itemsCache.isSynced():
+        return
     Waiting.hide('sinhronize')
     import time
     now = time.time()
@@ -113,13 +109,14 @@ def onCenterIsLongDisconnected(isLongDisconnected):
 
 
 def onIGRTypeChanged(roomType, xpFactor):
-    _updateGuiCtx({'igrData': {'roomType': roomType,
+    g_lobbyContext.updateGuiCtx({'igrData': {'roomType': roomType,
                  'igrXPFactor': xpFactor}})
 
 
 def init(loadingScreenGUI = None):
     g_playerEvents.onAccountShowGUI += onAccountShowGUI
     g_playerEvents.onAccountBecomeNonPlayer += onAccountBecomeNonPlayer
+    g_playerEvents.onAccountBecomePlayer += onAccountBecomePlayer
     g_playerEvents.onAvatarBecomePlayer += onAvatarBecomePlayer
     g_playerEvents.onClientUpdated += onClientUpdate
     g_playerEvents.onShopResyncStarted += onShopResyncStarted
@@ -161,6 +158,7 @@ def fini():
     g_playerEvents.onAccountShowGUI -= onAccountShowGUI
     g_playerEvents.onAccountBecomeNonPlayer -= onAccountBecomeNonPlayer
     g_playerEvents.onAvatarBecomePlayer -= onAvatarBecomePlayer
+    g_playerEvents.onAccountBecomePlayer -= onAccountBecomePlayer
     g_playerEvents.onClientUpdated -= onClientUpdate
     g_playerEvents.onShopResyncStarted -= onShopResyncStarted
     g_playerEvents.onShopResync -= onShopResync
@@ -175,6 +173,7 @@ def onDisconnected():
     g_prbLoader.onDisconnected()
     game_control.g_instance.onDisconnected()
     g_itemsCache.clear()
+    g_lobbyContext.clear()
 
 
 def onRecreateDevice():
@@ -183,3 +182,6 @@ def onRecreateDevice():
             c()
         except Exception:
             LOG_CURRENT_EXCEPTION()
+# okay decompyling res/scripts/client/gui/shared/personality.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:54 EST

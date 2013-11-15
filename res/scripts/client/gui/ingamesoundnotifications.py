@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:35 EST
+# Embedded file name: scripts/client/gui/IngameSoundNotifications.py
 import BigWorld
 import ResMgr
 import BattleReplay
@@ -104,6 +106,11 @@ class IngameSoundNotifications(object):
         if not isEnabled:
             for category in ('fx', 'voice'):
                 self.__clearQueue(category)
+
+    def clear(self):
+        if self.__isEnabled:
+            self.enable(False)
+            self.enable(True)
 
     def enableFX(self, isEnabled):
         self.enableCategory('fx', isEnabled)
@@ -267,3 +274,6 @@ class __SightNotifications(object):
         else:
             self.____isOneKilled = False
         return
+# okay decompyling res/scripts/client/gui/ingamesoundnotifications.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:36 EST

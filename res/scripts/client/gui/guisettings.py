@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:35 EST
+# Embedded file name: scripts/client/gui/GuiSettings.py
 import ResMgr
 from debug_utils import *
 from helpers import getClientLanguage
@@ -201,7 +203,11 @@ keyReaders = {'nations_order': GuiSettings.readStringsList,
  'specPrebatlesVisible': GuiSettings.readBoolean,
  'battleStatsInHangar': GuiSettings.readBoolean,
  'freeXpToTankman': GuiSettings.readBoolean,
+ 'roaming': GuiSettings.readBoolean,
  'movingText': GuiSettings.readMovingText,
  'eula': GuiSettings.readEULA,
  'igrCredentialsReset': GuiSettings.readBoolean}
 externalReaders = {'video': lambda : VideoSettings().read(VIDEO_SETTINGS_FILE_PATH)}
+# okay decompyling res/scripts/client/gui/guisettings.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:35 EST

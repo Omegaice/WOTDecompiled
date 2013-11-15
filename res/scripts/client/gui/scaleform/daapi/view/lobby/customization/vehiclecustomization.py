@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:00 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/VehicleCustomization.py
 import gui
 from CurrentVehicle import g_currentVehicle
 from PlayerEvents import g_playerEvents
@@ -13,7 +15,7 @@ from gui.Scaleform.framework import AppRef
 from gui.Scaleform.daapi.view.dialogs import I18nConfirmDialogMeta, I18nInfoDialogMeta
 from gui.Scaleform.framework.entities.View import View
 from gui.Scaleform.locale.SYSTEM_MESSAGES import SYSTEM_MESSAGES
-from gui.shared import events
+from gui.shared import events, g_itemsCache
 from gui.shared.event_bus import EVENT_BUS_SCOPE
 from gui.shared.utils.HangarSpace import g_hangarSpace
 from gui.shared.utils.requesters import StatsRequester
@@ -39,15 +41,14 @@ class VehicleCustomization(VehicleCustomizationMeta, View, AppRef):
     def getInterface(self, section):
         return self.__interfaces.get(section)
 
-    @process
     def _populate(self):
         View._populate(self)
-        credits = yield StatsRequester().getCredits()
-        gold = yield StatsRequester().getGold()
+        credits, gold = g_itemsCache.items.stats.money
         self.as_setCreditsS(credits)
         self.as_setGoldS(gold)
         g_clientUpdateManager.addCallbacks({'stats.gold': self.onGoldUpdate,
          'stats.credits': self.onCreditsUpdate,
+         'cache.mayConsumeWalletResources': self.onGoldUpdate,
          'account.attrs': self.onCameraUpdate,
          'inventory.1.compDescr': self.onVehiclesUpdate})
         g_playerEvents.onShopResync += self.__pe_onShopResync
@@ -61,7 +62,7 @@ class VehicleCustomization(VehicleCustomizationMeta, View, AppRef):
         self.__steps = len(_VEHICLE_CUSTOMIZATIONS)
         for customization in _VEHICLE_CUSTOMIZATIONS:
             sectionName = customization['sectionName']
-            interface = customization['interface'](sectionName, vehDescr.type.id[0], customization['position'])
+            interface = customization['interface'](sectionName, vehDescr.type.customizationNationID, customization['position'])
             interface.onDataInited += self.__ci_onDataInited
             interface.onCustomizationChangeSuccess += self.__ci_onCustomizationChangeSuccess
             interface.onCustomizationChangeFailed += self.__ci_onCustomizationChangeFailed
@@ -115,10 +116,8 @@ class VehicleCustomization(VehicleCustomizationMeta, View, AppRef):
             self.__setPreviewMode()
             self.__onceDataInited = True
 
-    @process
     def __requestMoney(self):
-        self.__credits = yield StatsRequester().getCredits()
-        self.__gold = yield StatsRequester().getGold()
+        self.__credits, self.__gold = g_itemsCache.items.stats.money
 
     def _getSections(self):
         res = []
@@ -184,10 +183,12 @@ class VehicleCustomization(VehicleCustomizationMeta, View, AppRef):
         SystemMessages.pushMessage(message, type=SystemMessages.SM_TYPE.Information)
 
     def onGoldUpdate(self, value):
+        value = g_itemsCache.items.stats.gold
         self.__gold = value
         self.as_setGoldS(value)
 
     def onCreditsUpdate(self, value):
+        value = g_itemsCache.items.stats.credits
         self.__credits = value
         self.as_setCreditsS(value)
 
@@ -295,20 +296,20 @@ class VehicleCustomization(VehicleCustomizationMeta, View, AppRef):
         if len(notSelected) > 0:
             DialogsInterface.showI18nInfoDialog('customization/selectNewItems', lambda success: None, I18nInfoDialogMeta('customization/selectNewItems', messageCtx={'items': ', '.join(notSelected)}))
             yield lambda callback = None: callback
-        creditsNotEnough = totalCredits > self.__credits
-        goldNotEnough = totalGold > self.__gold
-        if creditsNotEnough or goldNotEnough:
-            if creditsNotEnough and goldNotEnough:
-                key = SYSTEM_MESSAGES.CUSTOMIZATION_CREDITS_AND_GOLD_NOT_ENOUGH
-            elif goldNotEnough:
-                key = SYSTEM_MESSAGES.CUSTOMIZATION_GOLD_NOT_ENOUGH
-            else:
-                key = SYSTEM_MESSAGES.CUSTOMIZATION_CREDITS_NOT_ENOUGH
-            SystemMessages.pushI18nMessage(key, type=SystemMessages.SM_TYPE.Error)
-            yield lambda callback = None: callback
         isConfirmed = yield DialogsInterface.showDialog(I18nConfirmDialogMeta('customization/changeConfirmation', messageCtx={'selected': ', '.join(selected),
          'remove': '\n'.join(remove)}))
         if isConfirmed:
+            creditsNotEnough = totalCredits > self.__credits
+            goldNotEnough = totalGold > self.__gold
+            if creditsNotEnough or goldNotEnough:
+                if creditsNotEnough and goldNotEnough:
+                    key = SYSTEM_MESSAGES.CUSTOMIZATION_CREDITS_AND_GOLD_NOT_ENOUGH
+                elif goldNotEnough:
+                    key = SYSTEM_MESSAGES.CUSTOMIZATION_GOLD_NOT_ENOUGH
+                else:
+                    key = SYSTEM_MESSAGES.CUSTOMIZATION_CREDITS_NOT_ENOUGH
+                SystemMessages.pushI18nMessage(key, type=SystemMessages.SM_TYPE.Error)
+                yield lambda callback = None: callback
             self.__returnHangar = True
             vehInvID = g_currentVehicle.invID
             self.__steps = 0
@@ -354,3 +355,6 @@ class VehicleCustomization(VehicleCustomizationMeta, View, AppRef):
                 else:
                     LOG_ERROR('Drop operation, section not found', section)
             return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/customization/vehiclecustomization.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:01 EST

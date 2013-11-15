@@ -1,7 +1,11 @@
+# 2013.11.15 11:27:23 EST
+# Embedded file name: scripts/client/tutorial/gui/Scaleform/lobby/SfLobbyDispatcher.py
 import weakref
+from gui import game_control
 from gui.Scaleform.Waiting import Waiting
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.framework import AppRef, VIEW_TYPE
+from gui.prb_control import getUnitMgrID
 from gui.shared import g_eventBus, EVENT_BUS_SCOPE
 from gui.shared.events import TutorialEvent, ShowWindowEvent
 from tutorial import GlobalStorage, LOG_MEMORY, LOG_ERROR
@@ -36,7 +40,7 @@ class SfLobbyDispatcher(LobbyDispatcher, AppRef):
         addListener(TutorialEvent.REFUSE, self.__handleRefuseTraining, scope=EVENT_BUS_SCOPE.GLOBAL)
         addListener(TutorialEvent.RESTART, self.__handleRestartTraining, scope=EVENT_BUS_SCOPE.GLOBAL)
         addListener(ShowWindowEvent.SHOW_TUTORIAL_BATTLE_HISTORY, self.__handleHistoryShow, scope=EVENT_BUS_SCOPE.DEFAULT)
-        self.setDisabled(ctx.isInPrebattle or ctx.isInRandomQueue)
+        self.setDisabled(ctx.isInPrebattle or ctx.isInRandomQueue or game_control.g_instance.roaming.isInRoaming() or getUnitMgrID() > 0)
         self._subscribe()
 
     def stop(self):
@@ -152,3 +156,6 @@ class SfLobbyDispatcher(LobbyDispatcher, AppRef):
                 from tutorial.loader import g_loader
                 g_loader.tutorial.invalidateFlags()
             return
+# okay decompyling res/scripts/client/tutorial/gui/scaleform/lobby/sflobbydispatcher.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:23 EST

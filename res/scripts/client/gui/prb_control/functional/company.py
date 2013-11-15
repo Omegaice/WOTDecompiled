@@ -1,7 +1,8 @@
+# 2013.11.15 11:25:40 EST
+# Embedded file name: scripts/client/gui/prb_control/functional/company.py
 import BigWorld
 from PlayerEvents import g_playerEvents
 from account_helpers import gameplay_ctx
-from account_helpers.AccountSettings import AccountSettings
 from constants import PREBATTLE_TYPE, PREBATTLE_CACHE_KEY, JOIN_FAILURE
 from constants import PREBATTLE_COMPANY_DIVISION, REQUEST_COOLDOWN
 from debug_utils import LOG_ERROR, LOG_DEBUG
@@ -9,6 +10,7 @@ from gui import SystemMessages, prb_control, DialogsInterface
 from gui.Scaleform.daapi.view.dialogs import I18nConfirmDialogMeta
 from gui.prb_control.context import CompanySettingsCtx
 from gui.prb_control.formatters import messages
+from gui.prb_control.functional.decorators import vehicleAmmoCheck
 from gui.prb_control.functional.interfaces import IPrbListRequester
 from gui.prb_control.info import setRequestCoolDown, isRequestInCoolDown, PlayerPrbInfo
 from gui.prb_control.sequences import PrbListIterator
@@ -16,11 +18,11 @@ from gui.shared import g_eventBus, EVENT_BUS_SCOPE
 from gui.shared.events import ChannelCarouselEvent
 from gui.prb_control import events_dispatcher, info, context
 from gui.prb_control.restrictions.limits import CompanyLimits
-from gui.prb_control.settings import PREBATTLE_REQUEST, PREBATTLE_ROSTER
+from gui.prb_control.settings import REQUEST_TYPE, PREBATTLE_ROSTER
 from gui.prb_control.settings import PREBATTLE_SETTING_NAME
-from gui.prb_control.prb_helpers import vehicleAmmoCheck
 from gui.prb_control.functional.default import PrbEntry, PrbFunctional
-from gui.prb_control.restrictions.permissions import CompanyPermissions
+from gui.prb_control.restrictions.permissions import CompanyPrbPermissions
+from prebattle_shared import decodeRoster
 
 class CompanyEntry(PrbEntry):
 
@@ -33,14 +35,14 @@ class CompanyEntry(PrbEntry):
             LOG_ERROR('Invalid context to create company', ctx)
             if callback:
                 callback(False)
-        elif info.isRequestInCoolDown(PREBATTLE_REQUEST.CREATE):
+        elif info.isRequestInCoolDown(REQUEST_TYPE.CREATE):
             SystemMessages.pushMessage(messages.getJoinFailureMessage(JOIN_FAILURE.COOLDOWN), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
         elif prb_control.getClientPrebattle() is None or ctx.isForced():
             ctx.startProcessing(callback=callback)
             BigWorld.player().prb_createCompany(ctx.isOpened(), ctx.getComment(), ctx.getDivision())
-            info.setRequestCoolDown(PREBATTLE_REQUEST.CREATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_CREATION)
+            info.setRequestCoolDown(REQUEST_TYPE.CREATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_CREATION)
         else:
             LOG_ERROR('First, player has to confirm exit from the current prebattle', prb_control.getPrebattleType())
             if callback:
@@ -70,11 +72,11 @@ class CompanyListRequester(IPrbListRequester):
         return
 
     def request(self, ctx = None):
-        if isRequestInCoolDown(PREBATTLE_REQUEST.PREBATTLES_LIST):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.PREBATTLES_LIST), type=SystemMessages.SM_TYPE.Error)
+        if isRequestInCoolDown(REQUEST_TYPE.PREBATTLES_LIST):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.PREBATTLES_LIST), type=SystemMessages.SM_TYPE.Error)
             return
         LOG_DEBUG('Request prebattle', ctx)
-        setRequestCoolDown(PREBATTLE_REQUEST.PREBATTLES_LIST)
+        setRequestCoolDown(REQUEST_TYPE.PREBATTLES_LIST)
         if ctx.byDivision():
             BigWorld.player().requestPrebattlesByDivision(ctx.isNotInBattle, ctx.division)
         elif ctx.byName():
@@ -92,28 +94,36 @@ class CompanyListRequester(IPrbListRequester):
 class CompanyFunctional(PrbFunctional):
 
     def __init__(self, settings):
-        requests = {PREBATTLE_REQUEST.ASSIGN: self.assign,
-         PREBATTLE_REQUEST.SET_TEAM_STATE: self.setTeamState,
-         PREBATTLE_REQUEST.SET_PLAYER_STATE: self.setPlayerState,
-         PREBATTLE_REQUEST.CHANGE_OPENED: self.changeOpened,
-         PREBATTLE_REQUEST.CHANGE_COMMENT: self.changeComment,
-         PREBATTLE_REQUEST.CHANGE_DIVISION: self.changeDivision,
-         PREBATTLE_REQUEST.KICK: self.kickPlayer,
-         PREBATTLE_REQUEST.SEND_INVITE: self.sendInvites}
-        super(CompanyFunctional, self).__init__(settings, permClass=CompanyPermissions, limits=CompanyLimits(self), requestHandlers=requests)
+        requests = {REQUEST_TYPE.ASSIGN: self.assign,
+         REQUEST_TYPE.SET_TEAM_STATE: self.setTeamState,
+         REQUEST_TYPE.SET_PLAYER_STATE: self.setPlayerState,
+         REQUEST_TYPE.CHANGE_OPENED: self.changeOpened,
+         REQUEST_TYPE.CHANGE_COMMENT: self.changeComment,
+         REQUEST_TYPE.CHANGE_DIVISION: self.changeDivision,
+         REQUEST_TYPE.KICK: self.kickPlayer,
+         REQUEST_TYPE.SEND_INVITE: self.sendInvites}
+        super(CompanyFunctional, self).__init__(settings, permClass=CompanyPrbPermissions, limits=CompanyLimits(self), requestHandlers=requests)
         self.__doTeamReady = False
 
     def init(self, clientPrb = None, ctx = None):
         super(CompanyFunctional, self).init(clientPrb=clientPrb)
         isInvitesOpen = False
         if ctx is not None:
-            isInvitesOpen = ctx.getRequestType() is PREBATTLE_REQUEST.CREATE
+            isInvitesOpen = ctx.getRequestType() is REQUEST_TYPE.CREATE
+        playerInfo = self.getPlayerInfo()
+        if self.getTeamState(team=1).isInQueue() and playerInfo.isReady() and playerInfo.roster == PREBATTLE_ROSTER.ASSIGNED_IN_TEAM1:
+            events_dispatcher.loadBattleQueue()
+        else:
+            events_dispatcher.loadHangar()
         events_dispatcher.loadCompany(isInvitesOpen=isInvitesOpen)
         g_eventBus.addListener(ChannelCarouselEvent.CAROUSEL_INITED, self.__handleCarouselInited, scope=EVENT_BUS_SCOPE.LOBBY)
         return
 
+    def isGUIProcessed(self):
+        return True
+
     def fini(self, clientPrb = None, woEvents = False):
-        super(CompanyFunctional, self).fini(clientPrb=clientPrb)
+        super(CompanyFunctional, self).fini(clientPrb=clientPrb, woEvents=woEvents)
         if not woEvents:
             events_dispatcher.unloadCompany()
         else:
@@ -146,8 +156,11 @@ class CompanyFunctional(PrbFunctional):
 
     def canPlayerDoAction(self):
         isValid, notValidReason = True, ''
+        team, assigned = decodeRoster(self.getRosterKey())
         if self.isCreator():
             isValid, notValidReason = self._limits.isTeamValid()
+        elif self.getTeamState().isInQueue() and assigned:
+            isValid = False
         return (isValid, notValidReason)
 
     def doAction(self, action = None, dispatcher = None):
@@ -180,7 +193,7 @@ class CompanyFunctional(PrbFunctional):
         events_dispatcher.loadCompany()
 
     def changeOpened(self, ctx, callback = None):
-        if ctx.getRequestType() != PREBATTLE_REQUEST.CHANGE_OPENED:
+        if ctx.getRequestType() != REQUEST_TYPE.CHANGE_OPENED:
             LOG_ERROR('Invalid context for request changeOpened', ctx)
             if callback:
                 callback(False)
@@ -189,8 +202,8 @@ class CompanyFunctional(PrbFunctional):
             if callback:
                 callback(False)
             return
-        if isRequestInCoolDown(PREBATTLE_REQUEST.CHANGE_SETTINGS):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.CHANGE_SETTINGS), type=SystemMessages.SM_TYPE.Error)
+        if isRequestInCoolDown(REQUEST_TYPE.CHANGE_SETTINGS):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.CHANGE_SETTINGS), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
@@ -202,10 +215,10 @@ class CompanyFunctional(PrbFunctional):
             return
         ctx.startProcessing(callback)
         BigWorld.player().prb_changeOpenStatus(ctx.isOpened(), ctx.onResponseReceived)
-        setRequestCoolDown(PREBATTLE_REQUEST.CHANGE_SETTINGS)
+        setRequestCoolDown(REQUEST_TYPE.CHANGE_SETTINGS)
 
     def changeComment(self, ctx, callback = None):
-        if ctx.getRequestType() != PREBATTLE_REQUEST.CHANGE_COMMENT:
+        if ctx.getRequestType() != REQUEST_TYPE.CHANGE_COMMENT:
             LOG_ERROR('Invalid context for request changeComment', ctx)
             if callback:
                 callback(False)
@@ -214,8 +227,8 @@ class CompanyFunctional(PrbFunctional):
             if callback:
                 callback(False)
             return
-        if isRequestInCoolDown(PREBATTLE_REQUEST.CHANGE_SETTINGS):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.CHANGE_SETTINGS), type=SystemMessages.SM_TYPE.Error)
+        if isRequestInCoolDown(REQUEST_TYPE.CHANGE_SETTINGS):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.CHANGE_SETTINGS), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
@@ -227,10 +240,10 @@ class CompanyFunctional(PrbFunctional):
             return
         ctx.startProcessing(callback)
         BigWorld.player().prb_changeComment(ctx.getComment(), ctx.onResponseReceived)
-        setRequestCoolDown(PREBATTLE_REQUEST.CHANGE_SETTINGS)
+        setRequestCoolDown(REQUEST_TYPE.CHANGE_SETTINGS)
 
     def changeDivision(self, ctx, callback = None):
-        if ctx.getRequestType() != PREBATTLE_REQUEST.CHANGE_DIVISION:
+        if ctx.getRequestType() != REQUEST_TYPE.CHANGE_DIVISION:
             LOG_ERROR('Invalid context for request changeDivision', ctx)
             if callback:
                 callback(False)
@@ -239,8 +252,8 @@ class CompanyFunctional(PrbFunctional):
             if callback:
                 callback(False)
             return
-        if isRequestInCoolDown(PREBATTLE_REQUEST.CHANGE_SETTINGS):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.CHANGE_SETTINGS), type=SystemMessages.SM_TYPE.Error)
+        if isRequestInCoolDown(REQUEST_TYPE.CHANGE_SETTINGS):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.CHANGE_SETTINGS), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
@@ -262,7 +275,7 @@ class CompanyFunctional(PrbFunctional):
             return
         ctx.startProcessing(callback)
         BigWorld.player().prb_changeDivision(ctx.getDivision(), ctx.onResponseReceived)
-        setRequestCoolDown(PREBATTLE_REQUEST.CHANGE_SETTINGS)
+        setRequestCoolDown(REQUEST_TYPE.CHANGE_SETTINGS)
 
     def prb_onSettingUpdated(self, settingName):
         super(CompanyFunctional, self).prb_onSettingUpdated(settingName)
@@ -286,6 +299,7 @@ class CompanyFunctional(PrbFunctional):
 
     def prb_onTeamStatesReceived(self):
         super(CompanyFunctional, self).prb_onTeamStatesReceived()
+        events_dispatcher.updateUI()
         playerInfo = self.getPlayerInfo()
         if playerInfo.isReady() or self.isCreator():
             if self.getTeamState(team=1).isInQueue() and playerInfo.roster == PREBATTLE_ROSTER.ASSIGNED_IN_TEAM1:
@@ -318,3 +332,6 @@ class CompanyFunctional(PrbFunctional):
 
     def __handleCarouselInited(self, _):
         events_dispatcher.addCompanyToCarousel()
+# okay decompyling res/scripts/client/gui/prb_control/functional/company.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:41 EST

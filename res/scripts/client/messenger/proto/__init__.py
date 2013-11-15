@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:15 EST
+# Embedded file name: scripts/client/messenger/proto/__init__.py
 from messenger.ext.ROPropertyMeta import ROPropertyMeta
 from messenger.m_constants import PROTO_TYPE, PROTO_TYPE_NAMES
 from messenger.proto.bw import BWProtoPlugin
@@ -35,3 +37,6 @@ class ProtoPluginsDecorator(IProtoPlugin):
     def clear(self):
         for plugin in self.__readonly__.itervalues():
             plugin.clear()
+# okay decompyling res/scripts/client/messenger/proto/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:15 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:10 EST
+# Embedded file name: scripts/client/messenger/ext/channel_num_gen.py
 import BigWorld
 from constants import PREBATTLE_TYPE
 from ids_generators import SequenceIDGenerator
@@ -69,8 +71,9 @@ def isClientIDValid(clientID):
     if clientID > 0:
         result = True
     elif clientID < 0:
-        if clientID in _PRB_CLIENT_IDS.values():
-            result = True
-        elif clientID in _LAZY_CLIENT_IDS.values():
+        if clientID in _PRB_CLIENT_IDS.values() or clientID in _LAZY_CLIENT_IDS.values():
             result = True
     return result
+# okay decompyling res/scripts/client/messenger/ext/channel_num_gen.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:10 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:44 EST
+# Embedded file name: scripts/client/gui/Scaleform/SettingsInterface.py
 import sys
 from functools import partial
 import BigWorld
@@ -89,14 +91,16 @@ class SettingsInterface(UIInterface):
      'net': 3,
      'reloader': 0,
      'condition': 0,
-     'cassette': 0}
+     'cassette': 0,
+     'reloaderTimer': 0}
     SNIPER_VALUES = {'snpMixing': 3,
      'snpGunTag': 6,
      'snpCentralTag': 8,
      'snpNet': 3,
      'snpReloader': 0,
      'snpCondition': 0,
-     'snpCassette': 0}
+     'snpCassette': 0,
+     'snpReloaderTimer': 0}
     MARKER_VALUES = {'Hp': 4,
      'Name': 3}
     MARKER_TYPES = ['Base', 'Alt']
@@ -297,6 +301,7 @@ class SettingsInterface(UIInterface):
          'invitesFromFriendsOnly': g_settingsCore.getSetting('invitesFromFriendsOnly'),
          'storeReceiverInBattle': g_settingsCore.getSetting('storeReceiverInBattle'),
          'dynamicCamera': g_settingsCore.getSetting('dynamicCamera'),
+         'horStabilizationSnp': g_settingsCore.getSetting('horStabilizationSnp'),
          'enableVoIP': VOIP.getVOIPManager().channelsMgr.enabled,
          'enablePostMortemEffect': g_settingsCore.getSetting('enablePostMortemEffect'),
          'nationalVoices': AccountSettings.getSettings('nationalVoices'),
@@ -510,6 +515,7 @@ class SettingsInterface(UIInterface):
         g_settingsCore.applySetting('dead', settings['markers']['dead'])
         g_settingsCore.applySetting('ally', settings['markers']['ally'])
         g_settingsCore.applySetting('dynamicCamera', settings['dynamicCamera'])
+        g_settingsCore.applySetting('horStabilizationSnp', settings['horStabilizationSnp'])
         if self.__altVoiceSetting.isOptionEnabled():
             altVoices = settings.get('alternativeVoices')
             if altVoices is not None:
@@ -633,3 +639,6 @@ class SettingsInterface(UIInterface):
             self.__settingsUI.script = None
             self.__settingsUI = None
         return
+# okay decompyling res/scripts/client/gui/scaleform/settingsinterface.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:45 EST

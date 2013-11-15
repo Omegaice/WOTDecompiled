@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:27 EST
+# Embedded file name: scripts/client/VehicleGunRotator.py
 import BigWorld, Math
 import weakref
 import math
@@ -13,7 +15,7 @@ from ModelHitTester import segmentMayHitVehicle
 import BattleReplay
 from gun_rotation_shared import calcPitchLimitsFromDesc
 from account_helpers.AccountSettings import AccountSettings
-_ENABLE_TURRET_ROTATOR_SOUND = False
+_ENABLE_TURRET_ROTATOR_SOUND = True
 
 class VehicleGunRotator(object):
     __INSUFFICIENT_TIME_DIFF = 0.02
@@ -603,3 +605,6 @@ class _PlayerTurretRotationSoundEffect(CallbackDelayer, TimeDeltaMeter):
                 param.value = value
 
         return
+# okay decompyling res/scripts/client/vehiclegunrotator.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:28 EST

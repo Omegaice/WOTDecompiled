@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:30 EST
+# Embedded file name: scripts/common/ArenaType.py
 import ResMgr
 from constants import IS_CLIENT, IS_BASEAPP, IS_WEB, IS_CELLAPP, ARENA_TYPE_XML_PATH, ARENA_GAMEPLAY_NAMES, ARENA_GAMEPLAY_IDS
 from items.vehicles import CAMOUFLAGE_KINDS
@@ -276,12 +278,12 @@ def __readMinMaxPlayersInTeam(section, defaultXml):
 def __readMapActivitiesTimeframes(section):
     mapActivitiesXML = section['mapActivities']
     if not mapActivitiesXML:
-        return {}
-    timeframes = {}
+        return []
+    timeframes = []
     for activityXML in mapActivitiesXML.values():
-        preset = activityXML.readString('preset')
-        timeframe = activityXML.readVector2('startTime')
-        timeframes[preset] = timeframe
+        startTimes = activityXML.readVector2('startTime')
+        possibility = activityXML.readFloat('possibility', 1.0)
+        timeframes.append((startTimes[0], startTimes[1], possibility))
 
     return timeframes
 
@@ -345,3 +347,6 @@ def __readTeamSpawPoints(section):
             teamSpawnPoints[teamIdx].extend(s.readVector2s('position'))
 
         return teamSpawnPoints
+# okay decompyling res/scripts/common/arenatype.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:31 EST

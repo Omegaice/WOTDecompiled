@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:34 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/SETTINGS.py
 
 
 class SETTINGS(object):
@@ -59,6 +61,7 @@ class SETTINGS(object):
     EFFECTS_QUALITY = '#settings:EFFECTS_QUALITY'
     VEHICLE_TRACES_ENABLED = '#settings:VEHICLE_TRACES_ENABLED'
     DYNAMICCAMERA = '#settings:dynamicCamera'
+    GAME_HORSTABILIZATIONSNP = '#settings:game/horStabilizationSnp'
     POST_PROCESSING_QUALITY = '#settings:POST_PROCESSING_QUALITY'
     RESOLUTION = '#settings:resolution'
     GAME_REPLAYENABLED = '#settings:game/replayEnabled'
@@ -166,7 +169,6 @@ class SETTINGS(object):
     ARCADE_GUNTAG_TYPE3 = '#settings:arcade/gunTag/type3'
     ARCADE_GUNTAG_TYPE4 = '#settings:arcade/gunTag/type4'
     ARCADE_GUNTAG_TYPE5 = '#settings:arcade/gunTag/type5'
-    ARCADE_GUNTAG_TYPE6 = '#settings:arcade/gunTag/type6'
     ARCADE_CENTRALTAG = '#settings:arcade/centralTag'
     ARCADE_CENTRALTAG_TYPE0 = '#settings:arcade/centralTag/type0'
     ARCADE_CENTRALTAG_TYPE1 = '#settings:arcade/centralTag/type1'
@@ -176,13 +178,12 @@ class SETTINGS(object):
     ARCADE_CENTRALTAG_TYPE5 = '#settings:arcade/centralTag/type5'
     ARCADE_CENTRALTAG_TYPE6 = '#settings:arcade/centralTag/type6'
     ARCADE_CENTRALTAG_TYPE7 = '#settings:arcade/centralTag/type7'
-    ARCADE_CENTRALTAG_TYPE8 = '#settings:arcade/centralTag/type8'
     ARCADE_NET = '#settings:arcade/net'
     ARCADE_NET_TYPE0 = '#settings:arcade/net/type0'
     ARCADE_NET_TYPE1 = '#settings:arcade/net/type1'
     ARCADE_NET_TYPE2 = '#settings:arcade/net/type2'
-    ARCADE_NET_TYPE3 = '#settings:arcade/net/type3'
     ARCADE_RELOADER = '#settings:arcade/reloader'
+    ARCADE_RELOADERTIMER = '#settings:arcade/reloaderTimer'
     ARCADE_CONDITION = '#settings:arcade/condition'
     ARCADE_CASSETTE = '#settings:arcade/cassette'
     SNIPER_NET = '#settings:sniper/net'
@@ -198,8 +199,8 @@ class SETTINGS(object):
     SNIPER_CENTRALTAG_TYPE5 = '#settings:sniper/centralTag/type5'
     SNIPER_CENTRALTAG_TYPE6 = '#settings:sniper/centralTag/type6'
     SNIPER_CENTRALTAG_TYPE7 = '#settings:sniper/centralTag/type7'
-    SNIPER_CENTRALTAG_TYPE8 = '#settings:sniper/centralTag/type8'
     SNIPER_RELOADER = '#settings:sniper/reloader'
+    SNIPER_RELOADERTIMER = '#settings:sniper/reloaderTimer'
     SNIPER_CONDITION = '#settings:sniper/condition'
     SNIPER_MIXING = '#settings:sniper/mixing'
     SNIPER_MIXING_TYPE0 = '#settings:sniper/mixing/type0'
@@ -336,7 +337,6 @@ class SETTINGS(object):
      ARCADE_GUNTAG_TYPE3,
      ARCADE_GUNTAG_TYPE4,
      ARCADE_GUNTAG_TYPE5,
-     ARCADE_GUNTAG_TYPE6,
      ARCADE_CENTRALTAG,
      ARCADE_CENTRALTAG_TYPE0,
      ARCADE_CENTRALTAG_TYPE1,
@@ -346,13 +346,12 @@ class SETTINGS(object):
      ARCADE_CENTRALTAG_TYPE5,
      ARCADE_CENTRALTAG_TYPE6,
      ARCADE_CENTRALTAG_TYPE7,
-     ARCADE_CENTRALTAG_TYPE8,
      ARCADE_NET,
      ARCADE_NET_TYPE0,
      ARCADE_NET_TYPE1,
      ARCADE_NET_TYPE2,
-     ARCADE_NET_TYPE3,
      ARCADE_RELOADER,
+     ARCADE_RELOADERTIMER,
      ARCADE_CONDITION,
      ARCADE_CASSETTE)
     GRAPHICSQUALITY_ENUM = (GRAPHICSQUALITY_DEFERRED,
@@ -470,3 +469,6 @@ class SETTINGS(object):
         if outcome not in SETTINGS.KEYBOARD_KEYSBLOCKS_GROUP_ENUM:
             raise Exception, 'locale key "' + outcome + '" was not found'
         return outcome
+# okay decompyling res/scripts/client/gui/scaleform/locale/settings.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:35 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:07 EST
+# Embedded file name: scripts/client/helpers/EdgeDetectColorController.py
 import BigWorld, ResMgr, Math
 from account_helpers.SettingsCore import g_settingsCore
 g_instance = None
@@ -29,3 +31,6 @@ class EdgeDetectColorController:
         cType = 'colorBlind' if diff['isColorBlind'] else 'common'
         colors = self.__colors[cType]
         BigWorld.wgSetEdgeDetectColors((colors['self'], colors['enemy'], colors['friend']))
+# okay decompyling res/scripts/client/helpers/edgedetectcolorcontroller.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:07 EST

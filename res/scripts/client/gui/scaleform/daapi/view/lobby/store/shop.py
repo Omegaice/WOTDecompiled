@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:16 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/store/Shop.py
 from PlayerEvents import g_playerEvents
 from gui.Scaleform.daapi.view.dialogs.ConfirmModuleMeta import BuyModuleMeta
 from gui.Scaleform.genConsts.STORE_TYPES import STORE_TYPES
@@ -28,7 +30,9 @@ class Shop(Store, ShopMeta):
 
     def _populate(self):
         g_clientUpdateManager.addCallbacks({'stats.credits': self._onTableUpdate,
-         'stats.gold': self._onTableUpdate})
+         'stats.gold': self._onTableUpdate,
+         'cache.mayConsumeWalletResources': self._onTableUpdate,
+         'inventory.1': self._onTableUpdate})
         g_playerEvents.onCenterIsLongDisconnected += self._update
         super(Shop, self)._populate()
 
@@ -274,3 +278,6 @@ class Shop(Store, ShopMeta):
 
     def getName(self):
         return STORE_TYPES.SHOP
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/store/shop.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:16 EST

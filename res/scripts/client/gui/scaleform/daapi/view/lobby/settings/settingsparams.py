@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:15 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/SettingsParams.py
 import BigWorld
 from account_helpers.SettingsCore import g_settingsCore
 from gui.Scaleform.daapi.view.lobby.settings import constants
@@ -62,11 +64,12 @@ class SettingsParams(AppRef):
 
     def apply(self, diff):
         diff = self.__settingsDiffPreprocessing(diff)
-        applyMethod = self.SETTINGS.apply(diff)
+        applyMethod = self.getApplyMethod(diff)
+        self.SETTINGS.apply(diff)
         g_settingsCore.applyStorages()
         if len(set(graphics.GRAPHICS_SETTINGS.ALL()) & set(diff.keys())):
             BigWorld.commitPendingGraphicsSettings()
-        return options.APPLY_METHOD.RESTART in applyMethod
+        return applyMethod == options.APPLY_METHOD.RESTART
 
     def getApplyMethod(self, diff):
         newMonitorIndex = diff.get(constants.GRAPHICS.MONITOR)
@@ -76,3 +79,6 @@ class SettingsParams(AppRef):
             return isFullscreen and isMonitorChanged and options.APPLY_METHOD.RESTART
         else:
             return self.SETTINGS.getApplyMethod(diff.keys())
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/settings/settingsparams.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:15 EST

@@ -1,3 +1,6 @@
+# 2013.11.15 11:26:10 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfilePage.py
+import BigWorld
 from gui.Scaleform.daapi import LobbySubView
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.daapi.view.meta.ProfileMeta import ProfileMeta
@@ -11,26 +14,28 @@ class ProfilePage(LobbySubView, ProfileMeta):
 
     def __init__(self):
         LobbySubView.__init__(self, 0)
+        self.__tabNavigator = None
+        return
 
-    def _populate(self):
-        super(ProfilePage, self)._populate()
-        g_clientUpdateManager.addCallbacks({'stats.dossier': self.__dossierUpdateCallBack})
-        self.__updateData()
+    def registerFlashComponent(self, component, alias, *args):
+        if alias == VIEW_ALIAS.PROFILE_TAB_NAVIGATOR:
+            player = BigWorld.player()
+            super(ProfilePage, self).registerFlashComponent(component, alias, player.name, None, player.databaseID, {'sectionsData': [self.__getSectionDataObject(PROFILE.SECTION_SUMMARY_TITLE, PROFILE.PROFILE_TABS_TOOLTIP_SUMMARY, VIEW_ALIAS.PROFILE_SUMMARY_PAGE),
+                              self.__getSectionDataObject(PROFILE.SECTION_AWARDS_TITLE, PROFILE.PROFILE_TABS_TOOLTIP_AWARDS, VIEW_ALIAS.PROFILE_AWARDS),
+                              self.__getSectionDataObject(PROFILE.SECTION_STATISTICS_TITLE, PROFILE.PROFILE_TABS_TOOLTIP_STATISTICS, VIEW_ALIAS.PROFILE_STATISTICS),
+                              self.__getSectionDataObject(PROFILE.SECTION_TECHNIQUE_TITLE, PROFILE.PROFILE_TABS_TOOLTIP_TECHNIQUE, VIEW_ALIAS.PROFILE_TECHNIQUE_PAGE)]})
+        else:
+            super(ProfilePage, self).registerFlashComponent(component, alias)
+        return
 
     def __dossierUpdateCallBack(self, dif):
-        self.__updateData()
-
-    def __updateData(self):
-        self.as_updateS(None)
-        return
+        self.__tabNavigator.invokeUpdate()
 
     def _onRegisterFlashComponent(self, viewPy, alias):
         super(ProfilePage, self)._onRegisterFlashComponent(viewPy, alias)
         if alias == VIEW_ALIAS.PROFILE_TAB_NAVIGATOR:
-            viewPy.as_setInitDataS({'sectionsData': [self.__getSectionDataObject(PROFILE.SECTION_SUMMARY_TITLE, PROFILE.PROFILE_TABS_TOOLTIP_SUMMARY, VIEW_ALIAS.PROFILE_SUMMARY_PAGE),
-                              self.__getSectionDataObject(PROFILE.SECTION_AWARDS_TITLE, PROFILE.PROFILE_TABS_TOOLTIP_AWARDS, VIEW_ALIAS.PROFILE_AWARDS),
-                              self.__getSectionDataObject(PROFILE.SECTION_STATISTICS_TITLE, PROFILE.PROFILE_TABS_TOOLTIP_STATISTICS, VIEW_ALIAS.PROFILE_STATISTICS),
-                              self.__getSectionDataObject(PROFILE.SECTION_TECHNIQUE_TITLE, PROFILE.PROFILE_TABS_TOOLTIP_TECHNIQUE, VIEW_ALIAS.PROFILE_TECHNIQUE_PAGE)]})
+            self.__tabNavigator = viewPy
+            g_clientUpdateManager.addCallbacks({'stats.dossier': self.__dossierUpdateCallBack})
 
     def __getSectionDataObject(self, label, tooltip, alias):
         return {'label': makeString(label),
@@ -42,4 +47,9 @@ class ProfilePage(LobbySubView, ProfileMeta):
 
     def _dispose(self):
         g_clientUpdateManager.removeObjectCallbacks(self)
+        self.__tabNavigator = None
         super(ProfilePage, self)._dispose()
+        return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/profile/profilepage.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:10 EST

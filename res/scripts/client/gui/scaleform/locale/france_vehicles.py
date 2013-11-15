@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:32 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/FRANCE_VEHICLES.py
 
 
 class FRANCE_VEHICLES(object):
@@ -123,6 +125,7 @@ class FRANCE_VEHICLES(object):
     C_100MM_SA_47 = '#france_vehicles:_100mm_SA_47'
     C_120MM_SA_46 = '#france_vehicles:_120mm_SA_46'
     TURRET_1_AMX_50_120 = '#france_vehicles:Turret_1_AMX_50_120'
+    CHASSIS_AMX_50_120 = '#france_vehicles:Chassis_AMX_50_120'
     CHASSIS_AMX_50_120_2 = '#france_vehicles:Chassis_AMX_50_120_2'
     MAYBACH_HL_295 = '#france_vehicles:Maybach_HL_295'
     AMX_50_120_SHORT = '#france_vehicles:AMX_50_120_short'
@@ -476,3 +479,6 @@ class FRANCE_VEHICLES(object):
     MAYBACH_HL_230_TRM_P30_SHORT = '#france_vehicles:Maybach_HL_230_TRM_P30_short'
     MAYBACH_850CV = '#france_vehicles:Maybach_850CV'
     MAYBACH_850CV_SHORT = '#france_vehicles:Maybach_850CV_short'
+# okay decompyling res/scripts/client/gui/scaleform/locale/france_vehicles.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:32 EST

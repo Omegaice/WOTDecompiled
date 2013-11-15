@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:34 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/PREBATTLE.py
 
 
 class PREBATTLE(object):
@@ -37,3 +39,6 @@ class PREBATTLE(object):
     LABELS_COMPANY_PLAYERS_BOTTOM = '#prebattle:labels/company/players/bottom'
     LABELS_COMPANY_STATS_COUNT = '#prebattle:labels/company/stats/count'
     LABELS_COMPANY_QUEUE = '#prebattle:labels/company/queue'
+# okay decompyling res/scripts/client/gui/scaleform/locale/prebattle.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:34 EST

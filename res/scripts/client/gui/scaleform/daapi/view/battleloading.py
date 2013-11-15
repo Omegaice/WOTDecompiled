@@ -1,8 +1,11 @@
+# 2013.11.15 11:25:52 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/BattleLoading.py
 import BigWorld
 from chat_shared import USERS_ROSTER_VOICE_MUTED
 import constants
 from debug_utils import LOG_DEBUG
 from gui import makeHtmlString
+from gui.BattleContext import g_battleContext
 from gui.prb_control.formatters import getPrebattleFullDescription
 from helpers import tips, i18n
 from gui.shared.utils.functions import getBattleSubTypeWinText, getArenaSubTypeName, isBaseExists
@@ -26,6 +29,8 @@ class BattleLoading(LobbySubView, BattleLoadingMeta):
         self.__arena = getattr(BigWorld.player(), 'arena', None)
         self.__progress = 0
         self.__winTextInit = False
+        self.__logArenaUniID = False
+        self.__needArenaTypeUpdate = True
         return
 
     @storage_getter('users')
@@ -108,17 +113,38 @@ class BattleLoading(LobbySubView, BattleLoadingMeta):
             if descExtra:
                 self.as_setBattleTypeNameS(descExtra)
                 self.as_setBattleTypeFrameNumS(arena.guiType + 1)
+                self.__needArenaTypeUpdate = False
             elif arena.guiType == constants.ARENA_GUI_TYPE.RANDOM:
                 self.as_setBattleTypeNameS('#arenas:type/%s/name' % arenaSubType)
-                self.as_setBattleTypeFrameNameS(arenaSubType)
+                if arenaSubType != 'assault':
+                    self.as_setBattleTypeFrameNameS(arenaSubType)
+                    self.__needArenaTypeUpdate = False
             else:
+                self.__needArenaTypeUpdate = False
                 self.as_setBattleTypeNameS('#menu:loading/battleTypes/%d' % arena.guiType)
                 self.as_setBattleTypeFrameNumS(arena.guiType + 1)
+                if arena.guiType == constants.ARENA_GUI_TYPE.TRAINING and self.__logArenaUniID == False:
+                    self.__logArenaUniID = True
+                    from time import strftime, localtime
+                    from debug_utils import LOG_NOTE
+                    LOG_NOTE('arenaUniqueID: %d | timestamp: %s' % (arena.arenaUniqueID, strftime('%d.%m.%Y %H:%M:%S', localtime())))
         self.as_setTipS(tips.getTip())
         self.__updatePlayers()
         return
 
     def __updatePlayers(self, *args):
+        if self.__needArenaTypeUpdate:
+            arena = getattr(BigWorld.player(), 'arena', None)
+            if arena:
+                descExtra = getPrebattleFullDescription(arena.extraData or {})
+                if not descExtra:
+                    arenaSubType = getArenaSubTypeName(BigWorld.player().arenaTypeID)
+                    if arenaSubType == 'assault':
+                        team = getattr(BigWorld.player(), 'team', None)
+                        if team:
+                            arenaSubType += '1' if isBaseExists(BigWorld.player().arenaTypeID, team) else '2'
+                            self.as_setBattleTypeFrameNameS(arenaSubType)
+                            self.__needArenaTypeUpdate = False
         stat = {1: [],
          2: []}
         squads = {1: {},
@@ -133,7 +159,10 @@ class BattleLoading(LobbySubView, BattleLoadingMeta):
             userGetter = self.usersStorage.getUser
             for vId, vData in vehicles.items():
                 team = vData['team']
-                name = vData['name'] if vData['name'] is not None else i18n.makeString('#ingame_gui:players_panel/unknown_name')
+                if 'name' in vData:
+                    name = g_battleContext.getFullPlayerName(vData, showVehShortName=False)
+                else:
+                    name = i18n.makeString('#ingame_gui:players_panel/unknown_name')
                 if vData['vehicleType'] is not None:
                     vShortName = vData['vehicleType'].type.shortUserString
                     vName = vData['vehicleType'].type.userString
@@ -263,3 +292,6 @@ def _playerComparator(x1, x2):
     if x1[9] > x2[9]:
         return 1
     return 0
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/battleloading.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:53 EST

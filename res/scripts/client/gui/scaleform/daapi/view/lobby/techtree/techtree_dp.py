@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:20 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/techtree_dp.py
 from collections import defaultdict
 from constants import IS_DEVELOPMENT
 from debug_utils import LOG_ERROR
@@ -455,5 +457,11 @@ class _TechTreeDataProvider(object):
             self.__availableNations = self.__readAvailableNations(xmlCtx, section)
         return self.__availableNations[:]
 
+    def getAvailableNationsIndices(self):
+        return map(lambda nation: nations.INDICES[nation], self.getAvailableNations())
+
 
 g_techTreeDP = _TechTreeDataProvider()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/techtree/techtree_dp.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:21 EST

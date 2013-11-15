@@ -1,4 +1,7 @@
+# 2013.11.15 11:27:15 EST
+# Embedded file name: scripts/client/messenger/proto/entities.py
 from collections import deque
+from gui.LobbyContext import g_lobbyContext
 from messenger.m_constants import USER_GUI_TYPE, MESSAGES_HISTORY_MAX_LEN
 from messenger.proto.events import ChannelEvents, MemberEvents
 
@@ -190,6 +193,13 @@ class MemberEntity(ChatEntity, MemberEvents):
     def clear(self):
         super(MemberEntity, self).clear()
 
+    def getFullName(self, isClan = True, isRegion = True):
+        if isRegion:
+            pDBID = self._memberID
+        else:
+            pDBID = None
+        return g_lobbyContext.getPlayerFullName(self._nickName, pDBID=pDBID)
+
 
 class UserEntity(ChatEntity):
     __slots__ = ('_databaseID', '_name', '_roster', '_isOnline', '_clanAbbrev')
@@ -217,12 +227,16 @@ class UserEntity(ChatEntity):
     def getName(self):
         return self._name
 
-    def getFullName(self):
-        if self._clanAbbrev:
-            fullName = '{0:>s}[{1:>s}]'.format(self._name, self._clanAbbrev)
+    def getFullName(self, isClan = True, isRegion = True):
+        if isClan:
+            clanAbbrev = self._clanAbbrev
         else:
-            fullName = self._name
-        return fullName
+            clanAbbrev = None
+        if isRegion:
+            pDBID = self._databaseID
+        else:
+            pDBID = None
+        return g_lobbyContext.getPlayerFullName(self._name, clanAbbrev=clanAbbrev, pDBID=pDBID)
 
     def getRoster(self):
         return self._roster
@@ -289,3 +303,6 @@ class CurrentUserEntity(UserEntity):
 
     def isCurrentPlayer(self):
         return True
+# okay decompyling res/scripts/client/messenger/proto/entities.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:16 EST

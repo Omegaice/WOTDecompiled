@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:27 EST
+# Embedded file name: scripts/client/AvatarInputHandler/mathUtils.py
 import BigWorld
 import Math
 from Math import Vector2, Vector3, Matrix
@@ -56,9 +58,13 @@ def clampVectorLength(minLength, maxLength, vector):
     if not almostZero(length):
         if minLength > length:
             return vector / length * minLength
-        if maxLength < length:
+        if maxLength is not None and maxLength < length:
             return vector / length * maxLength
     return vector * 1.0
+
+
+def matrixScale(vector, scaleCoeff):
+    return Vector3(vector.x * scaleCoeff.x, vector.y * scaleCoeff.y, vector.z * scaleCoeff.z)
 
 
 def almostZero(val, epsilon = 0.0004):
@@ -137,6 +143,7 @@ class LowPassFilter(object):
 
 
 class RangeFilter(object):
+    value = property(lambda self: self.filter.value)
 
     def __init__(self, minThreshold, maxLength, cutOffThreshold, filter):
         self.minThreshold = minThreshold
@@ -155,3 +162,6 @@ class RangeFilter(object):
         if valueLength > self.maxLength:
             valueToAdd *= self.maxLength / valueLength
         return self.filter.add(valueToAdd)
+# okay decompyling res/scripts/client/avatarinputhandler/mathutils.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:27 EST

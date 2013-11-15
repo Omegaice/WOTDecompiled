@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:33 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/MENU.py
 from debug_utils import LOG_WARNING
 
 class MENU(object):
@@ -33,6 +35,7 @@ class MENU(object):
     LOGIN_STATUS_LOGIN_REJECTED_NO_SUCH_USER = '#menu:login/status/LOGIN_REJECTED_NO_SUCH_USER'
     LOGIN_STATUS_LOGIN_REJECTED_ACTIVATING = '#menu:login/status/LOGIN_REJECTED_ACTIVATING'
     LOGIN_STATUS_LOGIN_REJECTED_INVALID_PASSWORD = '#menu:login/status/LOGIN_REJECTED_INVALID_PASSWORD'
+    LOGIN_STATUS_LOGIN_REJECTED_NO_BASEAPP_RESPONSE = '#menu:login/status/LOGIN_REJECTED_NO_BASEAPP_RESPONSE'
     LOGIN_STATUS_LOGIN_REJECTED_ILLEGAL_CHARACTERS = '#menu:login/status/LOGIN_REJECTED_ILLEGAL_CHARACTERS'
     LOGIN_STATUS_LOGIN_BAD_PROTOCOL_VERSION = '#menu:login/status/LOGIN_BAD_PROTOCOL_VERSION'
     LOGIN_STATUS_LOGIN_REJECTED_BAD_DIGEST = '#menu:login/status/LOGIN_REJECTED_BAD_DIGEST'
@@ -63,6 +66,7 @@ class MENU(object):
     LOGIN_STATUS_LOGIN_REJECTED_NICKNAME_ALREADY_EXIST = '#menu:login/status/LOGIN_REJECTED_NICKNAME_ALREADY_EXIST'
     LOGIN_STATUS_LOGIN_REJECTED_UNABLE_TO_PARSE_JSON = '#menu:login/status/LOGIN_REJECTED_UNABLE_TO_PARSE_JSON'
     LOGIN_STATUS_LOGIN_REJECTED_REGISTRATION_NOT_ALLOWED = '#menu:login/status/LOGIN_REJECTED_REGISTRATION_NOT_ALLOWED'
+    LOGIN_STATUS_LOGIN_REJECTED_INACCESSIBLE_REALM = '#menu:login/status/LOGIN_REJECTED_INACCESSIBLE_REALM'
     LOGIN_UPDATEURLAVAIALBLEAT = '#menu:login/updateURLAvaialbleAt'
     LOGIN_STATUS_LAUNCHERNOTFOUND = '#menu:login/status/launchernotfound'
     LOGIN_STATUS_SESSION_END = '#menu:login/status/SESSION_END'
@@ -79,6 +83,8 @@ class MENU(object):
     LOADING_BATTLETYPES_DESC_3 = '#menu:loading/battleTypes/desc/3'
     LOADING_BATTLETYPES_4 = '#menu:loading/battleTypes/4'
     LOADING_BATTLETYPES_DESC_4 = '#menu:loading/battleTypes/desc/4'
+    LOADING_BATTLETYPES_5 = '#menu:loading/battleTypes/5'
+    LOADING_BATTLETYPES_DESC_5 = '#menu:loading/battleTypes/desc/5'
     LOADING_TEAM1 = '#menu:loading/team1'
     LOADING_TEAM2 = '#menu:loading/team2'
     LOADING_HELPTIP = '#menu:loading/helpTip'
@@ -161,8 +167,10 @@ class MENU(object):
     TANKCAROUSEL_VEHICLESTATES_EXPLODED = '#menu:tankCarousel/vehicleStates/exploded'
     TANKCAROUSEL_VEHICLESTATES_NOTPRESENT = '#menu:tankCarousel/vehicleStates/notpresent'
     TANKCAROUSEL_VEHICLESTATES_UNDAMAGED = '#menu:tankCarousel/vehicleStates/undamaged'
+    TANKCAROUSEL_VEHICLESTATES_SERVERRESTRICTION = '#menu:tankCarousel/vehicleStates/serverRestriction'
     TANKCAROUSEL_VEHICLESTATES_CREWNOTFULL = '#menu:tankCarousel/vehicleStates/crewNotFull'
     CURRENTVEHICLESTATUS_BATTLE = '#menu:currentVehicleStatus/battle'
+    CURRENTVEHICLESTATUS_SERVERRESTRICTION = '#menu:currentVehicleStatus/serverRestriction'
     CURRENTVEHICLESTATUS_LOCKED = '#menu:currentVehicleStatus/locked'
     CURRENTVEHICLESTATUS_CLANLOCKED = '#menu:currentVehicleStatus/clanLocked'
     CURRENTVEHICLESTATUS_AMMONOTFULL = '#menu:currentVehicleStatus/ammoNotFull'
@@ -289,20 +297,38 @@ class MENU(object):
     DESCRIPTIONS_SHELL = '#menu:descriptions/shell'
     DESCRIPTIONS_SHELLFULL = '#menu:descriptions/shellFull'
     HEADERBUTTONS_BATTLE_TYPES_STANDART = '#menu:headerButtons/battle/types/standart'
+    HEADERBUTTONS_BATTLE_TYPES_STANDART_DESCR = '#menu:headerButtons/battle/types/standart/descr'
+    HEADERBUTTONS_BATTLE_TYPES_STANDARTLEAVE_DESCR = '#menu:headerButtons/battle/types/standartLeave/descr'
     HEADERBUTTONS_BATTLE_TYPES_SQUAD = '#menu:headerButtons/battle/types/squad'
-    HEADERBUTTONS_BATTLE_TYPES_SQUADBATTLE = '#menu:headerButtons/battle/types/squadBattle'
     HEADERBUTTONS_BATTLE_TYPES_SQUADLEAVEOWNER = '#menu:headerButtons/battle/types/squadLeaveOwner'
     HEADERBUTTONS_BATTLE_TYPES_SQUADLEAVE = '#menu:headerButtons/battle/types/squadLeave'
-    HEADERBUTTONS_BATTLE_TYPES_TEAMLEAVEOWNER = '#menu:headerButtons/battle/types/teamLeaveOwner'
-    HEADERBUTTONS_BATTLE_TYPES_TEAMLEAVE = '#menu:headerButtons/battle/types/teamLeave'
+    HEADERBUTTONS_BATTLE_TYPES_SQUAD_DESCR = '#menu:headerButtons/battle/types/squad/descr'
+    HEADERBUTTONS_BATTLE_TYPES_SQUADLEAVE_DESCR = '#menu:headerButtons/battle/types/squadLeave/descr'
+    HEADERBUTTONS_BATTLE_TYPES_SQUADBATTLE = '#menu:headerButtons/battle/types/squadBattle'
     HEADERBUTTONS_BATTLE_TYPES_TRAINING = '#menu:headerButtons/battle/types/training'
+    HEADERBUTTONS_BATTLE_TYPES_TRAINING_DESCR = '#menu:headerButtons/battle/types/training/descr'
+    HEADERBUTTONS_BATTLE_TYPES_LEAVETRAINING_DESCR = '#menu:headerButtons/battle/types/leaveTraining/descr'
+    HEADERBUTTONS_BATTLE_TYPES_TRAININGLEAVEOWNER = '#menu:headerButtons/battle/types/trainingLeaveOwner'
+    HEADERBUTTONS_BATTLE_TYPES_TRAININGLEAVE = '#menu:headerButtons/battle/types/trainingLeave'
     HEADERBUTTONS_BATTLE_TYPES_SPEC = '#menu:headerButtons/battle/types/spec'
+    HEADERBUTTONS_BATTLE_TYPES_SPEC_DESCR = '#menu:headerButtons/battle/types/spec/descr'
+    HEADERBUTTONS_BATTLE_TYPES_LEAVESPEC_DESCR = '#menu:headerButtons/battle/types/leaveSpec/descr'
+    HEADERBUTTONS_BATTLE_TYPES_SPECLEAVE = '#menu:headerButtons/battle/types/specLeave'
     HEADERBUTTONS_BATTLE_TYPES_COMPANY = '#menu:headerButtons/battle/types/company'
+    HEADERBUTTONS_BATTLE_TYPES_COMPANY_DESCR = '#menu:headerButtons/battle/types/company/descr'
+    HEADERBUTTONS_BATTLE_TYPES_LEAVECOMPANY_DESCR = '#menu:headerButtons/battle/types/leaveCompany/descr'
+    HEADERBUTTONS_BATTLE_TYPES_COMPANYLEAVEOWNER = '#menu:headerButtons/battle/types/companyLeaveOwner'
+    HEADERBUTTONS_BATTLE_TYPES_COMPANYLEAVE = '#menu:headerButtons/battle/types/companyLeave'
+    HEADERBUTTONS_BATTLE_TYPES_UNIT = '#menu:headerButtons/battle/types/unit'
+    HEADERBUTTONS_BATTLE_TYPES_UNIT_DESCR = '#menu:headerButtons/battle/types/unit/descr'
+    HEADERBUTTONS_BATTLE_TYPES_LEAVEUNIT_DESCR = '#menu:headerButtons/battle/types/leaveUnit/descr'
+    HEADERBUTTONS_BATTLE_TYPES_UNITLEAVE = '#menu:headerButtons/battle/types/unitLeave'
     HEADERBUTTONS_BATTLE_MENU_STANDART = '#menu:headerButtons/battle/menu/standart'
     HEADERBUTTONS_BATTLE_MENU_SQUAD = '#menu:headerButtons/battle/menu/squad'
     HEADERBUTTONS_BATTLE_MENU_TRAINING = '#menu:headerButtons/battle/menu/training'
     HEADERBUTTONS_BATTLE_MENU_TEAM = '#menu:headerButtons/battle/menu/team'
     HEADERBUTTONS_BATTLE_MENU_BATTLE_SESSION = '#menu:headerButtons/battle/menu/battle_session'
+    HEADERBUTTONS_BATTLE_MENU_UNIT = '#menu:headerButtons/battle/menu/unit'
     HEADERBUTTONS_HANGAR = '#menu:headerButtons/hangar'
     HEADERBUTTONS_SHOP = '#menu:headerButtons/shop'
     HEADERBUTTONS_BATTLE = '#menu:headerButtons/battle'
@@ -529,6 +555,7 @@ class MENU(object):
     BARRACKS_TANKMENCOUNT = '#menu:barracks/tankmenCount'
     BARRACKS_BTNRECRUIT = '#menu:barracks/btnRecruit'
     BARRACKS_PLACESCOUNT = '#menu:barracks/placesCount'
+    BARRACKS_BARRACKSRENDERER_PLACESCOUNT = '#menu:barracks/barracksRenderer/placesCount'
     BARRACKS_BTNNEWPLACE = '#menu:barracks/btnNewPlace'
     BARRACKS_BTNUNLOAD = '#menu:barracks/btnUnload'
     BARRACKS_BTNDISSMISS = '#menu:barracks/btnDissmiss'
@@ -838,6 +865,8 @@ class MENU(object):
     CONTEXTMENU_TANKMANUNLOAD = '#menu:contextMenu/tankmanUnload'
     CONTEXTMENU_TANKMANUNLOADALL = '#menu:contextMenu/tankmanUnloadAll'
     CONTEXTMENU_DISMISS = '#menu:contextMenu/dismiss'
+    CONTEXTMENU_LOCKSLOT = '#menu:contextMenu/lockSlot'
+    CONTEXTMENU_UNLOCKSLOT = '#menu:contextMenu/unlockSlot'
     DENUNCIATION_0 = '#menu:denunciation/0'
     DENUNCIATION_1 = '#menu:denunciation/1'
     DENUNCIATION_2 = '#menu:denunciation/2'
@@ -879,6 +908,7 @@ class MENU(object):
     OPPONENTS = '#menu:opponents'
     DEMONSTRATOR_WINDOW_TITLE = '#menu:demonstrator/window/title'
     DEMONSTRATOR_WINDOW_INFO = '#menu:demonstrator/window/info'
+    IGR_INFO = '#menu:igr/info'
     NATION_TREE_TITLE_ENUM = (NATION_TREE_TITLE_USSR,
      NATION_TREE_TITLE_GERMANY,
      NATION_TREE_TITLE_USA,
@@ -1049,7 +1079,8 @@ class MENU(object):
      LOADING_BATTLETYPES_1,
      LOADING_BATTLETYPES_2,
      LOADING_BATTLETYPES_3,
-     LOADING_BATTLETYPES_4)
+     LOADING_BATTLETYPES_4,
+     LOADING_BATTLETYPES_5)
     TANKCAROUSEL_VEHICLESTATES_ENUM = (TANKCAROUSEL_VEHICLESTATES_BATTLE,
      TANKCAROUSEL_VEHICLESTATES_LOCKED,
      TANKCAROUSEL_VEHICLESTATES_CLANLOCKED,
@@ -1060,6 +1091,7 @@ class MENU(object):
      TANKCAROUSEL_VEHICLESTATES_EXPLODED,
      TANKCAROUSEL_VEHICLESTATES_NOTPRESENT,
      TANKCAROUSEL_VEHICLESTATES_UNDAMAGED,
+     TANKCAROUSEL_VEHICLESTATES_SERVERRESTRICTION,
      TANKCAROUSEL_VEHICLESTATES_CREWNOTFULL,
      TANKCAROUSEL_VEHICLESTATES_BUYTANK,
      TANKCAROUSEL_VEHICLESTATES_BUYTANKEMPTYCOUNT,
@@ -1102,7 +1134,8 @@ class MENU(object):
      LOADING_BATTLETYPES_DESC_1,
      LOADING_BATTLETYPES_DESC_2,
      LOADING_BATTLETYPES_DESC_3,
-     LOADING_BATTLETYPES_DESC_4)
+     LOADING_BATTLETYPES_DESC_4,
+     LOADING_BATTLETYPES_DESC_5)
     PROFILE_STATS_BLOCKS_ENUM = (PROFILE_STATS_BLOCKS_COMMON,
      PROFILE_STATS_BLOCKS_BATTLEEFFECT,
      PROFILE_STATS_BLOCKS_CREDITS,
@@ -1152,6 +1185,7 @@ class MENU(object):
      LOGIN_STATUS_LOGIN_REJECTED_NO_SUCH_USER,
      LOGIN_STATUS_LOGIN_REJECTED_ACTIVATING,
      LOGIN_STATUS_LOGIN_REJECTED_INVALID_PASSWORD,
+     LOGIN_STATUS_LOGIN_REJECTED_NO_BASEAPP_RESPONSE,
      LOGIN_STATUS_LOGIN_REJECTED_ILLEGAL_CHARACTERS,
      LOGIN_STATUS_LOGIN_BAD_PROTOCOL_VERSION,
      LOGIN_STATUS_LOGIN_REJECTED_BAD_DIGEST,
@@ -1179,6 +1213,7 @@ class MENU(object):
      LOGIN_STATUS_LOGIN_REJECTED_NICKNAME_ALREADY_EXIST,
      LOGIN_STATUS_LOGIN_REJECTED_UNABLE_TO_PARSE_JSON,
      LOGIN_STATUS_LOGIN_REJECTED_REGISTRATION_NOT_ALLOWED,
+     LOGIN_STATUS_LOGIN_REJECTED_INACCESSIBLE_REALM,
      LOGIN_STATUS_LAUNCHERNOTFOUND,
      LOGIN_STATUS_SESSION_END,
      LOGIN_STATUS_ACCOUNTNOTREADY)
@@ -1255,7 +1290,9 @@ class MENU(object):
      CONTEXTMENU_PERSONALCASE,
      CONTEXTMENU_TANKMANUNLOAD,
      CONTEXTMENU_TANKMANUNLOADALL,
-     CONTEXTMENU_DISMISS)
+     CONTEXTMENU_DISMISS,
+     CONTEXTMENU_LOCKSLOT,
+     CONTEXTMENU_UNLOCKSLOT)
     NATIONS_ENUM = (NATIONS_TITLE,
      NATIONS_USSR,
      NATIONS_GERMANY,
@@ -1443,3 +1480,6 @@ class MENU(object):
         if outcome not in MENU.MODULEINFO_COMPATIBLE_ENUM:
             raise Exception, 'locale key "' + outcome + '" was not found'
         return outcome
+# okay decompyling res/scripts/client/gui/scaleform/locale/menu.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:34 EST

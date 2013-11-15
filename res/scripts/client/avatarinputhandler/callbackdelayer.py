@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:21 EST
+# Embedded file name: scripts/client/AvatarInputHandler/CallbackDelayer.py
 import BigWorld
 import functools
 
@@ -15,11 +17,12 @@ class CallbackDelayer:
         return
 
     def __funcWrapper(self, func, *args, **kwargs):
-        self.__callbacks[func] = None
         desiredDelay = func(*args, **kwargs)
         if desiredDelay is not None and desiredDelay >= 0:
             curId = BigWorld.callback(desiredDelay, functools.partial(self.__funcWrapper, func, *args, **kwargs))
             self.__callbacks[func] = curId
+        else:
+            del self.__callbacks[func]
         return
 
     def delayCallback(self, seconds, func, *args, **kwargs):
@@ -52,3 +55,6 @@ class TimeDeltaMeter(object):
         deltaTime = time - self.__prevTime
         self.__prevTime = time
         return deltaTime
+# okay decompyling res/scripts/client/avatarinputhandler/callbackdelayer.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:21 EST

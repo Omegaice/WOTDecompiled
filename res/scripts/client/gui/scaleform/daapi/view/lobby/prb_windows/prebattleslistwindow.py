@@ -1,13 +1,15 @@
+# 2013.11.15 11:26:08 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/PrebattlesListWindow.py
 from debug_utils import LOG_ERROR
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.framework.entities.View import View
-from gui.prb_control.prb_helpers import PrbListener
+from gui.prb_control.prb_helpers import GlobalListener
 from gui.shared import events, EVENT_BUS_SCOPE
 from messenger import MessengerEntry
 from messenger.gui.Scaleform.sf_settings import MESSENGER_VIEW_ALIAS
 from messenger.proto.bw import find_criteria
 
-class PrebattlesListWindow(View, WindowViewMeta, PrbListener):
+class PrebattlesListWindow(View, WindowViewMeta, GlobalListener):
 
     def __init__(self, name):
         super(PrebattlesListWindow, self).__init__()
@@ -64,3 +66,6 @@ class PrebattlesListWindow(View, WindowViewMeta, PrbListener):
                 if chat is not None:
                     controller.setView(chat)
             return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/prebattleslistwindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:08 EST

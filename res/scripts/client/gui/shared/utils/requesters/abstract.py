@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:04 EST
+# Embedded file name: scripts/client/gui/shared/utils/requesters/abstract.py
 from adisp import async, process
 from helpers import isPlayerAccount
 from debug_utils import LOG_ERROR
@@ -10,6 +12,7 @@ class RequesterAbstract(object):
     """
 
     def __init__(self):
+        self.__synced = False
         self.__cache = dict()
 
     def _response(self, resID, value, callback):
@@ -21,6 +24,7 @@ class RequesterAbstract(object):
         @param value: requested value
         @param callback: function to be called after operation will complete
         """
+        self.__synced = resID >= 0
         if resID < 0:
             LOG_ERROR('[class %s] There is error while getting data from cache: %s[%d]' % (self.__class__.__name__, code2str(resID), resID))
             return callback(dict())
@@ -41,12 +45,16 @@ class RequesterAbstract(object):
         Public request method. Validate player entity to request
         possibility and itself as single callback argument.
         """
+        self.__synced = False
         if not isPlayerAccount():
             yield lambda callback: callback(None)
             LOG_ERROR('[class %s] Player is not account.' % self.__class__.__name__)
         else:
             self.__cache = yield self._requestCache()
         callback(self)
+
+    def isSynced(self):
+        return self.__synced
 
     def clear(self):
         self.__cache.clear()
@@ -60,3 +68,6 @@ class RequesterAbstract(object):
         @return: value
         """
         return self.__cache.get(key, defaultValue)
+# okay decompyling res/scripts/client/gui/shared/utils/requesters/abstract.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:04 EST

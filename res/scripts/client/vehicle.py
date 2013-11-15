@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:23 EST
+# Embedded file name: scripts/client/Vehicle.py
 import BigWorld, Math
 import functools
 import weakref, random
@@ -10,6 +12,7 @@ from constants import VEHICLE_HIT_EFFECT
 import helpers
 from items import vehicles
 import VehicleAppearance
+from gui import game_control
 from gui.WindowsManager import g_windowsManager
 import AreaDestructibles
 import DestructiblesCache
@@ -60,7 +63,7 @@ class Vehicle(BigWorld.Entity):
             return ()
         else:
             prereqs = []
-            descr = vehicles.VehicleDescr(compactDescr=self.publicInfo.compDescr)
+            descr = vehicles.VehicleDescr(compactDescr=_stripVehCompDescrIfRoaming(self.publicInfo.compDescr))
             self.typeDescriptor = descr
             prereqs += descr.prerequisites()
             for hitTester in descr.getHitTesters():
@@ -407,7 +410,7 @@ class Vehicle(BigWorld.Entity):
             minimap = g_windowsManager.battleWindow.minimap
             minimap.notifyVehicleStart(self.id)
             self.__startWGPhysics()
-            nationId = self.isPlayer and self.typeDescriptor.type.id[0]
+            nationId = self is BigWorld.player().getVehicleAttached() and self.typeDescriptor.type.id[0]
             SoundGroups.g_instance.soundModes.setCurrentNation(nations.NAMES[nationId])
         return
 
@@ -631,3 +634,12 @@ def _decodeSegment(vehicleDescr, segment):
      segment & 255,
      segStart,
      segEnd)
+
+
+def _stripVehCompDescrIfRoaming(vehCompDescr):
+    if game_control.g_instance.roaming.isInRoaming():
+        vehCompDescr = vehicles.stripCustomizationFromVehicleCompactDescr(vehCompDescr, True, True, False)[0]
+    return vehCompDescr
+# okay decompyling res/scripts/client/vehicle.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:24 EST

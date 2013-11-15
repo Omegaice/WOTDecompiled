@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:45 EST
+# Embedded file name: scripts/client/gui/Scaleform/SystemMessagesInterface.py
 import time
 import account_helpers
 from ConnectionManager import connectionManager
@@ -107,13 +109,19 @@ class SystemMessagesInterface(BaseSystemMessages):
         self.__processNotifications(notificationsDiff.get('removed', []), 'End')
 
     def __processNotifications(self, notifications, state):
-        for notification in notifications:
-            text = getLocalizedData(notification, 'text')
-            msgType = notification.get('type', None)
-            if msgType is not None and msgType[:len(self.__BLOCK_PREFIX)] != self.__BLOCK_PREFIX and len(text) > 0:
-                message = {'data': text,
-                 'type': msgType,
-                 'state': state}
-                self.proto.serviceChannel.pushClientMessage(message, SCH_CLIENT_MSG_TYPE.ACTION_NOTIFY_TYPE)
+        if game_control.g_instance.roaming.isInRoaming():
+            return
+        else:
+            for notification in notifications:
+                text = getLocalizedData(notification, 'text')
+                msgType = notification.get('type', None)
+                if msgType is not None and msgType[:len(self.__BLOCK_PREFIX)] != self.__BLOCK_PREFIX and len(text) > 0:
+                    message = {'data': text,
+                     'type': msgType,
+                     'state': state}
+                    self.proto.serviceChannel.pushClientMessage(message, SCH_CLIENT_MSG_TYPE.ACTION_NOTIFY_TYPE)
 
-        return
+            return
+# okay decompyling res/scripts/client/gui/scaleform/systemmessagesinterface.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:46 EST

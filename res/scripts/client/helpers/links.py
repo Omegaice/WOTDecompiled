@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:09 EST
+# Embedded file name: scripts/client/helpers/links.py
 import BigWorld, ResMgr
 import constants
 from debug_utils import LOG_CURRENT_EXCEPTION, LOG_ERROR
@@ -104,3 +106,6 @@ def openSecuritySettingsPage():
         url = GUI_SETTINGS.securitySettingsURL
     if len(url):
         BigWorld.wg_openWebBrowser(url)
+# okay decompyling res/scripts/client/helpers/links.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:09 EST

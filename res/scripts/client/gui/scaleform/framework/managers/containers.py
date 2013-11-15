@@ -1,7 +1,9 @@
+# 2013.11.15 11:26:28 EST
+# Embedded file name: scripts/client/gui/Scaleform/framework/managers/containers.py
 import weakref, types
 from Event import Event
 from debug_utils import LOG_DEBUG, LOG_WARNING, LOG_ERROR
-from gui.Scaleform.framework import VIEW_TYPE
+from gui.Scaleform.framework import VIEW_TYPE, VIEW_SCOPE
 from gui.Scaleform.framework.entities.abstract.ContainerManagerMeta import ContainerManagerMeta
 
 class IViewContainer(object):
@@ -35,6 +37,7 @@ class _DefaultContainer(IViewContainer):
 
     def add(self, pyView):
         if self.__view is not None:
+            self.__manager.cleanUpDirtyViewsByScope(self.__view.settings.type, self.__view.alias)
             self.__view.destroy()
         pyView.onModuleDispose += self.__handleModuleDispose
         self.__view = pyView
@@ -48,6 +51,7 @@ class _DefaultContainer(IViewContainer):
         return
 
     def clear(self):
+        global isHangarLoaded
         if self.__view is not None:
             subContainerType = self.__view.getSubContainerType()
             if subContainerType is not None:
@@ -55,6 +59,8 @@ class _DefaultContainer(IViewContainer):
             self.__view.onModuleDispose -= self.__handleModuleDispose
             self.__manager.as_hideS(self.__view.token)
             self.__view.destroy()
+            if self.__view.alias == 'hangar':
+                isHangarLoaded = False
             self.__view = None
         return
 
@@ -64,9 +70,12 @@ class _DefaultContainer(IViewContainer):
         return
 
     def __handleModuleDispose(self, pyView):
+        global isHangarLoaded
         subContainerType = pyView.getSubContainerType()
         if subContainerType is not None:
             self.__manager.removeContainer(subContainerType)
+        if pyView.settings.alias == 'hangar':
+            isHangarLoaded = False
         self.remove(pyView)
         return
 
@@ -200,21 +209,26 @@ class ContainerManager(ContainerManagerMeta):
          VIEW_TYPE.DIALOG: _PopUpContainer(proxy),
          VIEW_TYPE.SERVICE_LAYOUT: _DefaultContainer(proxy)}
         self.__loadingTokens = {}
+        self.__loadedTokens = {}
         self.__loader = loader
         self.__loader.onViewLoaded += self.__loader_onViewLoaded
+        self.__currentRootScopeTarget = VIEW_SCOPE.VIEW + '/' + '**'
+        self.__currentSubScopeTarget = VIEW_SCOPE.LOBBY_SUB + '/' + '**'
 
     def load(self, alias, name = None, *args, **kwargs):
+        global isHangarLoaded
         if name is None:
             name = alias
         isViewExists = self.as_getViewS(name)
         if not isViewExists:
+            if name == 'hangar':
+                if isHangarLoaded:
+                    return
+                isHangarLoaded = True
             token = self.__loader.loadView(alias, name, *args, **kwargs)
-            rootView = self.getView(VIEW_TYPE.DEFAULT)
-            if rootView is not None:
-                rootViewName = rootView.alias
-                if rootViewName not in self.__loadingTokens:
-                    self.__loadingTokens[rootViewName] = []
-                self.__loadingTokens[rootViewName].append(token)
+            scope = self.as_getViewTypeByTokenS(token)
+            self.__addLoadingToken(VIEW_SCOPE.VIEW, token)
+            self.__addLoadingToken(VIEW_SCOPE.LOBBY_SUB, token)
         return
 
     def addContainer(self, containerType, token, container = None):
@@ -233,6 +247,25 @@ class ContainerManager(ContainerManagerMeta):
             LOG_ERROR('Container already registered', containerType)
             result = False
         return result
+
+    def cleanUpDirtyViewsByScope(self, scope, viewAlias):
+        scopeTarget = '%s/%s' % (scope, viewAlias)
+        if scopeTarget in self.__loadedTokens:
+            for token in self.__loadedTokens[scopeTarget]:
+                incorrectViewName = self.as_getNameByTokenS(token)
+                if incorrectViewName:
+                    incorrectViewType = self.as_getViewTypeByTokenS(token)
+                    if incorrectViewType not in (VIEW_TYPE.VIEW, VIEW_TYPE.LOBBY_SUB):
+                        criteria = {POP_UP_CRITERIA.UNIQUE_NAME: incorrectViewName}
+                        pyView = self.getView(incorrectViewType, criteria)
+                        if pyView:
+                            LOG_DEBUG('%s was automatically closed, because its scope has been destroyed.' % pyView.settings.alias)
+                            pyView.destroy()
+                        else:
+                            LOG_WARNING('pyView is not found', scopeTarget)
+
+            self.__loadedTokens.pop(scopeTarget, None)
+        return
 
     def removeContainer(self, viewType):
         result = True
@@ -257,6 +290,7 @@ class ContainerManager(ContainerManagerMeta):
             view = container.getView(criteria=criteria)
         else:
             LOG_WARNING('Container for %s view is None!' % viewType)
+            raise Exception('sdf')
         return view
 
     def isViewAvailable(self, viewType, criteria = None):
@@ -292,29 +326,69 @@ class ContainerManager(ContainerManagerMeta):
         super(ContainerManager, self)._dispose()
         return
 
+    def __addTokenTo(self, tokenDict, scope, token):
+        if self.isViewAvailable(scope):
+            rootView = self.getView(scope)
+            if rootView is not None:
+                rootViewName = rootView.alias
+                scopeTarget = '%s/%s' % (scope, rootViewName)
+                if scopeTarget not in tokenDict:
+                    tokenDict[scopeTarget] = []
+                tokenDict[scopeTarget].append(token)
+        return
+
+    def __removeTokenFrom(self, tokenDict, scope, scopeViewName, token):
+        scopeTarget = '%s/%s' % (scope, scopeViewName)
+        tokenDict[scopeTarget].remove(token)
+        if len(tokenDict[scopeTarget]) == 0:
+            tokenDict.pop(scopeTarget, None)
+        return
+
+    def __addLoadingToken(self, scope, token):
+        self.__addTokenTo(self.__loadingTokens, scope, token)
+
+    def __removeLoadingToken(self, scope, scopeViewName, token):
+        self.__removeTokenFrom(self.__loadingTokens, scope, scopeViewName, token)
+
+    def __addLoadedToken(self, scope, token):
+        self.__addTokenTo(self.__loadedTokens, scope, token)
+
+    def __removeLoadedToken(self, scope, scopeViewName, token):
+        self.__removeTokenFrom(self.__loadedTokens, scope, scopeViewName, token)
+
+    def __onScopeSwitched(self, oldScopeTarget, newScopeTarget):
+        LOG_DEBUG('Scope switched: %s -> %s' % (oldScopeTarget, newScopeTarget))
+
     def __loader_onViewLoaded(self, pyView):
         viewType = pyView.settings.type
+        viewScope = pyView.settings.scope
+        scopeIsGlobal = False
+        if viewScope == VIEW_SCOPE.DYNAMIC:
+            viewScope = pyView.getCurrentScope()
+        if viewScope == VIEW_SCOPE.GLOBAL:
+            viewScope = VIEW_SCOPE.VIEW
+            scopeIsGlobal = True
         if viewType is None:
             LOG_ERROR('Type of view is not defined', pyView.settings)
         if viewType in self.__containers:
             currentViewIsRoot = VIEW_TYPE.DEFAULT == viewType
-            rootView = self.getView(VIEW_TYPE.DEFAULT)
-            if rootView is not None:
-                rootViewName = rootView.alias
-                if not rootViewName in self.__loadingTokens:
+            rootScopeView = self.getView(viewScope)
+            if rootScopeView is not None and not scopeIsGlobal:
+                rootScopeViewName = rootScopeView.alias
+                scopeTarget = '%s/%s' % (viewScope, rootScopeViewName)
+                if not scopeTarget in self.__loadingTokens:
                     if not currentViewIsRoot:
-                        LOG_WARNING('View %s skipped, because current parent view %s has not loading threads.' % (pyView, rootViewName))
+                        LOG_WARNING('View %s skipped, because current parent view %s has not loading threads.' % (pyView, rootScopeViewName))
                         return
-                    loadingIsActual = pyView.token in self.__loadingTokens[rootViewName]
+                    loadingIsActual = pyView.token in self.__loadingTokens[scopeTarget]
                     loadingIsSkipable = pyView.isCanViewSkip()
                     if not loadingIsActual:
-                        if not currentViewIsRoot and not loadingIsSkipable:
+                        if not currentViewIsRoot and loadingIsSkipable:
                             LOG_WARNING('View %s skipped, because parent view has been disposed.' % pyView)
                             return
                         if loadingIsActual:
-                            self.__loadingTokens[rootViewName].remove(pyView.token)
-                            if len(self.__loadingTokens[rootViewName]) == 0:
-                                self.__loadingTokens.pop(rootViewName, None)
+                            self.__removeLoadingToken(viewScope, rootScopeViewName, pyView.token)
+                            self.__addLoadedToken(viewScope, pyView.token)
                     container = self.__containers[viewType]
                     if currentViewIsRoot:
                         self.closePopUps()
@@ -323,7 +397,25 @@ class ContainerManager(ContainerManagerMeta):
                     subContainerType = pyView.getSubContainerType()
                     subContainerType is not None and self.addContainer(subContainerType, pyView.token)
                 LOG_DEBUG('View added to container', pyView)
+                self.__detectScopeSwitching(pyView.settings.type, pyView.settings.alias)
                 self.onViewAddedToContainer(container, pyView)
         else:
-            LOG_ERROR('Type of view is not supported', viewType)
+            LOG_ERROR('Type "%s" of view "%s" is not supported' % (viewType, pyView))
         return
+
+    def __detectScopeSwitching(self, newViewType, newViewAlias):
+        newScopeTarget = '%s/%s' % (newViewType, newViewAlias)
+        if newViewType == VIEW_TYPE.VIEW:
+            if newScopeTarget != self.__currentRootScopeTarget:
+                self.__onScopeSwitched(self.__currentRootScopeTarget, newScopeTarget)
+                self.__currentRootScopeTarget = newScopeTarget
+        elif newViewType == VIEW_TYPE.LOBBY_SUB:
+            if newScopeTarget != self.__currentSubScopeTarget:
+                self.__onScopeSwitched(self.__currentSubScopeTarget, newScopeTarget)
+                self.__currentSubScopeTarget = newScopeTarget
+
+
+isHangarLoaded = False
+# okay decompyling res/scripts/client/gui/scaleform/framework/managers/containers.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:29 EST

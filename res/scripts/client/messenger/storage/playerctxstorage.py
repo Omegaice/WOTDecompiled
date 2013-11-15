@@ -1,5 +1,8 @@
+# 2013.11.15 11:27:17 EST
+# Embedded file name: scripts/client/messenger/storage/PlayerCtxStorage.py
 import Event
 from constants import ACCOUNT_ATTR
+from gui.LobbyContext import g_lobbyContext
 
 class PlayerCtxStorage(object):
     __slots__ = ('accAttrs', 'clanInfo', '__eManager', 'onAccountAttrsChanged', 'onClanInfoChanged')
@@ -17,10 +20,7 @@ class PlayerCtxStorage(object):
         return 'PlayerCtxStorage(id=0x{0:08X}, accAttrs={1:n}, clanInfo={2!r:s})'.format(id(self), self.accAttrs, self.clanInfo)
 
     def getClanAbbrev(self):
-        if self.clanInfo and len(self.clanInfo) > 1:
-            return self.clanInfo[1]
-        else:
-            return None
+        return g_lobbyContext.getClanAbbrev(self.clanInfo)
 
     def isChatAdmin(self):
         return self.accAttrs & ACCOUNT_ATTR.CHAT_ADMIN != 0 or self.accAttrs & ACCOUNT_ATTR.ADMIN != 0
@@ -39,3 +39,6 @@ class PlayerCtxStorage(object):
     def _setClanInfo(self, clanInfo):
         self.clanInfo = clanInfo
         self.onClanInfoChanged()
+# okay decompyling res/scripts/client/messenger/storage/playerctxstorage.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:17 EST

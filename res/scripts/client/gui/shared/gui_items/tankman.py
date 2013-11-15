@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:52 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/Tankman.py
 import pickle
 from helpers.i18n import convert
 from items import tankmen, vehicles, ITEM_TYPE_NAMES
@@ -83,6 +85,7 @@ class Tankman(GUIItem, HasStrCD):
             if -1 < self.vehicleSlotIdx < len(crewRoles):
                 self.combinedRoles = crewRoles[self.vehicleSlotIdx]
         self.skills = self._buildSkills(proxy)
+        self.skillsMap = self._buildSkillsMap()
         if proxy is not None:
             pass
         return
@@ -93,6 +96,13 @@ class Tankman(GUIItem, HasStrCD):
         according to the tankman's skills.
         """
         return [ TankmanSkill(skill, self, proxy) for skill in self.descriptor.skills ]
+
+    def _buildSkillsMap(self):
+        """
+        Returns dict of skillName: TankmanSkill objects build
+        according to the tankman's skills.
+        """
+        return dict([ (skill.name, skill) for skill in self.skills ])
 
     @property
     def realRoleLevel(self):
@@ -397,3 +407,6 @@ class TankmanSkill(GUIItem):
         GUIItem.fromDict(self, d)
         self.level = d.get('level', 0)
         self.isActive = d.get('isActive', True)
+# okay decompyling res/scripts/client/gui/shared/gui_items/tankman.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:53 EST

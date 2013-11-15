@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:30 EST
+# Embedded file name: scripts/client/CurrentVehicle.py
 import BigWorld
 from Event import Event
 from items import vehicles
@@ -82,6 +84,9 @@ class _CurrentVehicle():
     def isBroken(self):
         return self.isPresent() and self.item.isBroken
 
+    def isDisabledInRoaming(self):
+        return self.isPresent() and self.item.isDisabledInRoaming
+
     def isLocked(self):
         return self.isPresent() and self.item.isLocked
 
@@ -108,6 +113,19 @@ class _CurrentVehicle():
 
     def isReadyToFight(self):
         return self.isPresent() and self.item.isReadyToFight
+
+    def isAutoLoadFull(self):
+        if self.isPresent() and self.item.isAutoLoad:
+            for shell in self.item.shells:
+                if shell.count != shell.defaultCount:
+                    return False
+
+        return True
+
+    def isAutoEquipFull(self):
+        if self.isPresent() and self.item.isAutoEquip:
+            return self.item.eqs == self.item.eqsLayout
+        return True
 
     def selectVehicle(self, vehInvID = 0):
         vehicle = g_itemsCache.items.getVehicle(vehInvID)
@@ -172,3 +190,6 @@ class _CurrentVehicle():
 
 
 g_currentVehicle = _CurrentVehicle()
+# okay decompyling res/scripts/client/currentvehicle.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:30 EST

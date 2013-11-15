@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:02 EST
+# Embedded file name: scripts/client/gui/shared/utils/ParametersCache.py
 from gui.shared.utils import RELOAD_TIME_PROP_NAME, DISPERSION_RADIUS_PROP_NAME, AIMING_TIME_PROP_NAME, PIERCING_POWER_PROP_NAME, DAMAGE_PROP_NAME, SHELLS_PROP_NAME, SHELLS_COUNT_PROP_NAME, SHELL_RELOADING_TIME_PROP_NAME, RELOAD_MAGAZINE_TIME_PROP_NAME, CLIP_VEHICLES_PROP_NAME, CLIP_VEHICLES_CD_PROP_NAME
 from items.vehicles import getVehicleType
 __author__ = 'i_maliavko'
@@ -387,3 +389,6 @@ class _ParametersCache(object):
 
 
 g_instance = _ParametersCache()
+# okay decompyling res/scripts/client/gui/shared/utils/parameterscache.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:02 EST

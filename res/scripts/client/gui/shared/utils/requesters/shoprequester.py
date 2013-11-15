@@ -1,15 +1,10 @@
+# 2013.11.15 11:27:06 EST
+# Embedded file name: scripts/client/gui/shared/utils/requesters/ShopRequester.py
 import BigWorld
 from adisp import async
-from items import vehicles, ITEM_TYPE_NAMES
-from debug_utils import LOG_DEBUG
-from gui.shared.gui_items import GUI_ITEM_TYPE
 from gui.shared.utils.requesters.abstract import RequesterAbstract
 
 class ShopRequester(RequesterAbstract):
-
-    def __init__(self):
-        super(ShopRequester, self).__init__()
-        self.__newShopCache = {}
 
     @async
     def _requestCache(self, callback):
@@ -17,9 +12,6 @@ class ShopRequester(RequesterAbstract):
         Overloaded method to request shop cache
         """
         BigWorld.player().shop.getCache(lambda resID, value, rev: self._response(resID, value, callback))
-
-    def getItemsData(self):
-        return self.__newShopCache
 
     def getPrices(self):
         return self.getItemsData().get('itemPrices', {})
@@ -30,53 +22,8 @@ class ShopRequester(RequesterAbstract):
     def getVehiclesForGold(self):
         return self.getItemsData().get('vehiclesToSellForGold', set([]))
 
-    def _response(self, resID, value, callback):
-        itemPrices = {}
-        notInShopItems = set()
-        vehiclesToSellForGold = set()
-        self.__newShopCache.clear()
-        if value is not None:
-            for nationID, nationData in value.get('items', {}).iteritems():
-                for itemTypeID, itemsData in nationData.iteritems():
-                    prices, extData = itemsData
-                    notInShop = extData.get('notInShop', set())
-                    sellForGold = extData.get('sellForGold', set())
-                    for shopKey, price in prices.iteritems():
-                        if itemTypeID == GUI_ITEM_TYPE.VEHICLE:
-                            intCD = vehicles.makeIntCompactDescrByID(ITEM_TYPE_NAMES[itemTypeID], nationID, shopKey)
-                        else:
-                            intCD = shopKey
-                        itemPrices[intCD] = price
-                        if shopKey in notInShop:
-                            notInShopItems.add(intCD)
-                        if shopKey in sellForGold:
-                            vehiclesToSellForGold.add(intCD)
-
-            self.__newShopCache = {'itemPrices': itemPrices,
-             'notInShopItems': notInShopItems,
-             'vehiclesToSellForGold': vehiclesToSellForGold}
-        super(ShopRequester, self)._response(resID, value, callback)
-        return
-
-    def getItems(self, itemTypeIdx, nationIdx, shopDataIdx = None):
-        """
-        Returns items data from cache by given criteria
-        
-        @param itemTypeIdx: item type index from common.items.ITEM_TYPE_NAMES
-        @param nationIdx: item nation index from nations.NAMES
-        @param shopDataIdx: optional argument. Index from shop cache for
-                requested item type @itemTypeIdx. If it is specified this method
-                returns only one item data for given index otherwise - data for
-                all items of given type.
-        """
-        itemsData = self.getCacheValue('items', {}).get(nationIdx, {}).get(itemTypeIdx)
-        if itemsData is not None:
-            if shopDataIdx is None:
-                return itemsData
-            prices, extData = itemsData
-            return (prices.get(shopDataIdx, (0, 0)), shopDataIdx in extData.get('notInShop', set()))
-        else:
-            return (None, False)
+    def getItem(self, intCD):
+        return (self.getPrices().get(intCD, (0, 0)), intCD in self.getHiddens(), intCD in self.getVehiclesForGold())
 
     @property
     def revision(self):
@@ -109,16 +56,16 @@ class ShopRequester(RequesterAbstract):
         return self.getCacheValue('exchangeRateForShellsAndEqs', 400)
 
     def sellPriceModifiers(self, compDescr):
-        itemTypeIdx, nationIdx, innationIdx = vehicles.parseIntCompactDescr(compDescr)
-        itemsData = self.getCacheValue('items', {}).get(nationIdx, {}).get(itemTypeIdx, ({}, {}))
-        _, extData = itemsData
+        itemsData = self.getItemsData()
         sellPriceModif = self.getCacheValue('sellPriceModif', 0.5)
+        sellPriceFactors = itemsData.get('vehicleSellPriceFactors', {})
+        sellForGold = itemsData.get('vehiclesToSellForGold', {})
         return (self.revision,
          self.exchangeRate,
          self.exchangeRateForShellsAndEqs,
          sellPriceModif,
-         extData.get('sellPriceFactors', {}).get(innationIdx, sellPriceModif),
-         innationIdx in extData.get('sellForGold', set()))
+         sellPriceFactors.get(compDescr, sellPriceModif),
+         compDescr in sellForGold)
 
     def getVehicleSlotsPrice(self, currentSlotsCount):
         """
@@ -215,3 +162,36 @@ class ShopRequester(RequesterAbstract):
         @return: free experience to tankman experience exchange rate
         """
         return self.getCacheValue('freeXPToTManXPRate', '')
+
+    def getItemsData(self):
+        return self.getCacheValue('items', {})
+
+    def getVehCamouflagePriceFactor(self, typeCompDescr):
+        return self.getItemsData().get('vehicleCamouflagePriceFactors', {}).get(typeCompDescr)
+
+    def getHornPriceFactor(self, hornID):
+        return self.getItemsData().get('vehicleHornPriceFactors', {}).get(hornID)
+
+    def getEmblemsGroupPriceFactors(self):
+        return self.getItemsData().get('playerEmblemGroupPriceFactors', {})
+
+    def getEmblemsGroupHiddens(self):
+        return self.getItemsData().get('notInShopPlayerEmblemGroups', set([]))
+
+    def getInscriptionsGroupPriceFactors(self, nationID):
+        return self.getItemsData().get('inscriptionGroupPriceFactors', [])[nationID]
+
+    def getInscriptionsGroupHiddens(self, nationID):
+        return self.getItemsData().get('notInShopInscriptionGroups', [])[nationID]
+
+    def getCamouflagesPriceFactors(self, nationID):
+        return self.getItemsData().get('camouflagePriceFactors', [])[nationID]
+
+    def getCamouflagesHiddens(self, nationID):
+        return self.getItemsData().get('notInShopCamouflages', [])[nationID]
+
+    def getHornPrice(self, hornID):
+        return self.getItemsData().get('hornPrices', {}).get(hornID)
+# okay decompyling res/scripts/client/gui/shared/utils/requesters/shoprequester.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:06 EST

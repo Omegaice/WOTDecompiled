@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:22 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/VehicleSellDialog.py
 from PlayerEvents import g_playerEvents
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION
 from gui.shared.gui_items import GUI_ITEM_TYPE
@@ -122,3 +124,6 @@ class VehicleSellDialog(View, VehicleSellDialogMeta, WindowViewMeta):
 
     def __shopResyncHandler(self):
         self.onWindowClose()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/vehicleselldialog.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:22 EST

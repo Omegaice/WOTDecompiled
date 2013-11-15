@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:14 EST
+# Embedded file name: scripts/client/messenger/m_constants.py
 import chat_shared
 from constants import PREBATTLE_TYPE
 MESSENGER_XML_FILE = 'messenger'
@@ -46,7 +48,8 @@ PREBATTLE_TYPE_CHAT_FLAG = {PREBATTLE_TYPE.SQUAD: chat_shared.CHAT_CHANNEL_SQUAD
  PREBATTLE_TYPE.COMPANY: chat_shared.CHAT_CHANNEL_TEAM,
  PREBATTLE_TYPE.TRAINING: chat_shared.CHAT_CHANNEL_TRAINING,
  PREBATTLE_TYPE.CLAN: chat_shared.CHAT_CHANNEL_PREBATTLE_CLAN,
- PREBATTLE_TYPE.TOURNAMENT: chat_shared.CHAT_CHANNEL_TOURNAMENT}
+ PREBATTLE_TYPE.TOURNAMENT: chat_shared.CHAT_CHANNEL_TOURNAMENT,
+ PREBATTLE_TYPE.UNIT: chat_shared.CHAT_CHANNEL_UNIT}
 PREBATTLE_CHAT_FLAG_TYPE = dict(((v, k) for k, v in PREBATTLE_TYPE_CHAT_FLAG.iteritems()))
 
 class USER_GUI_TYPE(object):
@@ -64,3 +67,6 @@ class USER_GUI_TYPE(object):
 
 class USER_ROSTER_ACTION(object):
     AddToFriend, RemoveFromFriend, AddToIgnored, RemoveFromIgnored, SetMuted, UnsetMuted = range(6)
+# okay decompyling res/scripts/client/messenger/m_constants.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:14 EST

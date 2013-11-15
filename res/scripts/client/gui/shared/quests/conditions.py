@@ -1,8 +1,9 @@
+# 2013.11.15 11:26:55 EST
+# Embedded file name: scripts/client/gui/shared/quests/conditions.py
+import sys
 import operator
 import constants
-import nations
 from helpers import getLocalizedData
-from debug_utils import LOG_DEBUG
 from gui.shared import g_itemsCache, REQ_CRITERIA
 from gui.shared.utils import CONST_CONTAINER
 
@@ -56,17 +57,16 @@ class SimpleCondition(object):
         groupBy = quest.getCumulativeGroup()
         if groupBy is None:
             current, otherProgs = quest.getProgressData().get(None, {}).get(optName, 0), []
-        else:
-            bonusLimit = quest.getBonusLimit()
+        elif not quest.getBonusLimit():
+            bonusLimit = sys.maxint
             progresses = []
             for gByKey, progress in quest.getProgressData().iteritems():
                 if progress.get('bonusCount', 0) < bonusLimit:
                     progresses.append((gByKey, progress.get(optName, 0), progress))
 
             progresses = sorted(progresses, key=operator.itemgetter(1), reverse=True)
-            if len(progresses):
-                groupByKey, current, progress = progresses[0]
-                otherProgs = tuple((k for k, _, _ in progresses[1:]))
+            groupByKey, current, progress = len(progresses) and progresses[0]
+            otherProgs = tuple((k for k, _, _ in progresses[1:]))
         return (groupByKey,
          current,
          total,
@@ -95,16 +95,17 @@ class VehsCondition(SimpleCondition):
         return REQ_CRITERIA.EMPTY
 
     def _parse(self):
-        criteria = ~REQ_CRITERIA.HIDDEN | self._getCustomFilter()
+        criteria = ~REQ_CRITERIA.SECRET | self._getCustomFilter()
         if 'types' in self._value:
-            criteria |= REQ_CRITERIA.VEHICLE.SPECIFIC(self._value['types']['value'])
+            criteria |= REQ_CRITERIA.VEHICLE.SPECIFIC_BY_CD(self._value['types']['value'])
         else:
             if 'nations' in self._value:
                 criteria |= REQ_CRITERIA.NATIONS(self._value['nations']['value'])
             if 'levels' in self._value:
                 criteria |= REQ_CRITERIA.VEHICLE.LEVELS(self._value['levels']['value'])
             if 'classes' in self._value:
-                criteria |= REQ_CRITERIA.VEHICLE.TYPES(self._value['classes']['value'])
+                classes = [ name for name, index in constants.VEHICLE_CLASS_INDICES.items() if index in self._value['classes']['value'] ]
+                criteria |= REQ_CRITERIA.VEHICLE.CLASSES(classes)
         return sorted(g_itemsCache.items.getVehicles(criteria).itervalues())
 
     def __parseRelation(self, value):
@@ -185,6 +186,7 @@ _CONDITIONS = {'meta': MetaCondition,
  'vehicleDescr': VehsDescrCondition,
  'vehicleKills': VehsKillsCondition,
  'vehiclesUnlocked': VehsCondition,
+ 'vehiclesOwned': VehsCondition,
  'battles': BattlesCondition,
  'cumulative': CumulativeCondition,
  'premium': PremiumCondition}
@@ -194,3 +196,6 @@ def getConditionObj(name, value, quest):
         return _CONDITIONS[name](name, value, quest)
     else:
         return None
+# okay decompyling res/scripts/client/gui/shared/quests/conditions.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:55 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:21 EST
+# Embedded file name: scripts/client/AvatarInputHandler/cameras.py
 import BigWorld, Math, ResMgr, Keys
 import math
 from AvatarInputHandler import mathUtils
@@ -1170,3 +1172,6 @@ def _vec3fFromYawPitch(yaw, pitch):
     cosYaw = math.cos(yaw)
     sinYaw = math.sin(yaw)
     return Math.Vector3(cosPitch * sinYaw, sinPitch, cosPitch * cosYaw)
+# okay decompyling res/scripts/client/avatarinputhandler/cameras.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:23 EST

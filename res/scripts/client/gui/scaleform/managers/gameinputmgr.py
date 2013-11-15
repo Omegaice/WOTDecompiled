@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:39 EST
+# Embedded file name: scripts/client/gui/Scaleform/managers/GameInputMgr.py
 import Keys
 import CommandMapping
 import VOIP
@@ -39,9 +41,13 @@ class GameInputMgr(GameInputManagerMeta):
         return getScaleformKey(CommandMapping.g_instance.get('CMD_VOICECHAT_MUTE'))
 
     def _setupChatKeyHandlers(self):
-        self.as_addKeyHandlerS(self.__voiceChatKey, 'keyDown', True)
-        self.as_addKeyHandlerS(self.__voiceChatKey, 'keyUp', True)
+        self.as_addKeyHandlerS(self.__voiceChatKey, 'keyDown', True, 'keyUp')
+        self.as_addKeyHandlerS(self.__voiceChatKey, 'keyUp', False, None)
+        return
 
     def _clearChatKeyHandlers(self):
         self.as_clearKeyHandlerS(self.__voiceChatKey, 'keyDown')
         self.as_clearKeyHandlerS(self.__voiceChatKey, 'keyUp')
+# okay decompyling res/scripts/client/gui/scaleform/managers/gameinputmgr.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:39 EST

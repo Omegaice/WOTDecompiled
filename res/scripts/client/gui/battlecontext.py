@@ -1,7 +1,10 @@
+# 2013.11.15 11:25:31 EST
+# Embedded file name: scripts/client/gui/BattleContext.py
 import BigWorld
 import Settings
 import constants
 from enumerations import AttributeEnumItem, Enumeration
+from gui import game_control
 from gui.shared.utils.gui_items import isVehicleObserver
 PLAYER_ENTITY_NAME = Enumeration('Player entity name in battle', [('ally', {'isFriend': True,
    'base': 'ally'}),
@@ -14,9 +17,24 @@ PLAYER_ENTITY_NAME = Enumeration('Player entity name in battle', [('ally', {'isF
 defNormalizePNameFunction = lambda pName: pName
 
 class _BattleContext(object):
-    __playerFullNameFormats = {1: '{0:>s} ({2:>s})',
-     16: '{0:>s}[{1:>s}]',
-     17: '{0:>s}[{1:>s}] ({2:>s})'}
+
+    class FORMAT_MASK:
+        NONE = 0
+        VEHICLE = 1
+        CLAN = 16
+        REGION = 256
+        VEH_CLAN = VEHICLE | CLAN
+        VEH_REGION = VEHICLE | REGION
+        REG_CLAN = CLAN | REGION
+        ALL = VEHICLE | CLAN | REGION
+
+    __playerFullNameFormats = {FORMAT_MASK.VEHICLE: '{0:>s} ({2:>s})',
+     FORMAT_MASK.CLAN: '{0:>s}[{1:>s}]',
+     FORMAT_MASK.VEH_CLAN: '{0:>s}[{1:>s}] ({2:>s})',
+     FORMAT_MASK.REGION: '{0:>s} {3:>s}',
+     FORMAT_MASK.VEH_REGION: '{0:>s} {3:>s} ({2:>s})',
+     FORMAT_MASK.REG_CLAN: '{0:>s}[{1:>s}] {3:>s}',
+     FORMAT_MASK.ALL: '{0:>s}[{1:>s}] {3:>s} ({2:>s})'}
     __normalizePName = staticmethod(defNormalizePNameFunction)
 
     def setNormalizePlayerName(self, function):
@@ -74,19 +92,22 @@ class _BattleContext(object):
     def getVehIDByAccDBID(self, accDBID):
         return self.__playersVIDs.get(accDBID, 0)
 
-    def getFullPlayerName(self, vData = None, vID = None, accID = None, pName = None, showVehShortName = True, showClan = True):
-        key = 0
+    def getFullPlayerName(self, vData = None, vID = None, accID = None, pName = None, showVehShortName = True, showClan = True, showRegion = True):
+        FM = self.FORMAT_MASK
+        key = FM.NONE
         vehShortName = ''
         if vData is None:
             arena = getattr(BigWorld.player(), 'arena', None)
             if vID is None:
                 vID = self.__playersVIDs.get(accID, 0)
             vData = arena.vehicles.get(vID, {}) if arena else {}
+        if accID is None:
+            accID = vData.get('accountDBID')
         if showVehShortName and self.__isShowVehShortName:
             vehType = vData.get('vehicleType')
             if vehType is not None:
                 vehShortName = vehType.type.shortUserString
-                key |= 1
+                key |= FM.VEHICLE
         if pName is None:
             pName = vData.get('name', '')
         pName = self.__normalizePName(pName)
@@ -94,11 +115,22 @@ class _BattleContext(object):
         if showClan:
             clanAbbrev = vData.get('clanAbbrev', '')
             if clanAbbrev is not None and len(clanAbbrev) > 0:
-                key |= 16
-        if key == 0:
+                key |= FM.CLAN
+        regionCode = ''
+        if showRegion:
+            regionCode = self.getRegionCode(accID)
+            if regionCode:
+                key |= FM.REGION
+        if key == FM.NONE:
             return pName
         else:
-            return self.__playerFullNameFormats.get(key, '{0:>s}').format(pName, clanAbbrev, vehShortName)
+            return self.__playerFullNameFormats.get(key, '{0:>s}').format(pName, clanAbbrev, vehShortName, regionCode)
+
+    def getRegionCode(self, dbID):
+        regionCode = None
+        if dbID and not game_control.g_instance.roaming.isSameRealm(dbID):
+            _, regionCode = game_control.g_instance.roaming.getPlayerHome(dbID)
+        return regionCode
 
     def isSquadMan(self, vID = None, accID = None):
         if vID is None:
@@ -174,3 +206,6 @@ class _BattleContext(object):
 
 
 g_battleContext = _BattleContext()
+# okay decompyling res/scripts/client/gui/battlecontext.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:32 EST

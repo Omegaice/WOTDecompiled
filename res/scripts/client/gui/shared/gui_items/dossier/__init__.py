@@ -1,19 +1,22 @@
+# 2013.11.15 11:26:47 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/dossier/__init__.py
 import BigWorld
 import math
 import itertools
 import constants
-from gui.shared.utils.dossiers_utils import checkWhiteTigerMedal
 import nations
 from items import tankmen, vehicles
 from helpers import i18n
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG
-from gui.shared.gui_items import GUIItem
+from gui.shared.gui_items import GUIItem, GUI_ITEM_TYPE
 from gui.shared.utils import dossiers_utils
+from gui.shared.gui_items.dossier import stats
 from gui.shared.gui_items.dossier.achievements import MARK_OF_MASTERY
 from gui.shared.gui_items.dossier.factories import getAchievementFactory, _SequenceAchieveFactory
-from dossiers.achievements import ACHIEVEMENT_SECTIONS_INDICES, ACHIEVEMENT_SECTION
+from dossiers2.ui.achievements import ACHIEVEMENT_SECTIONS_INDICES, ACHIEVEMENT_SECTION
 _BATTLE_SECTION = ACHIEVEMENT_SECTIONS_INDICES[ACHIEVEMENT_SECTION.BATTLE]
 _EPIC_SECTION = ACHIEVEMENT_SECTIONS_INDICES[ACHIEVEMENT_SECTION.EPIC]
+_ACTION_SECTION = ACHIEVEMENT_SECTIONS_INDICES[ACHIEVEMENT_SECTION.ACTION]
 _NEAREST_ACHIEVEMENTS = ['tankExpert', 'mechanicEngineer']
 _NEAREST_ACHIEVEMENTS_COUNT = 5
 _TANK_EXPERTS_ACHIEVEMENTS = []
@@ -36,27 +39,37 @@ _NEAREST_ACHIEVEMENTS += ['mousebane',
  'medalEkins',
  'medalLeClerc',
  'medalLavrinenko']
+_NEAREST_ACHIEVEMENTS = tuple(set(_NEAREST_ACHIEVEMENTS) & set(itertools.chain(*dossiers_utils.getAccountAchievementsLayout())))
 _SIGNIFICANT_ACHIEVEMENTS_PER_SECTION = 3
 
 class _Dossier(GUIItem):
 
-    def __init__(self, dossier, dossierType, proxy = None):
+    def __init__(self, dossier, dossierType, isInRoaming = False, proxy = None):
         super(GUIItem, self).__init__()
         self.dossier = dossier
         self.dossierType = dossierType
+        self.isInRoaming = isInRoaming
         self.proxy = proxy
+        self.achievements = dossier['achievements']
+
+    def getDossierDescr(self):
+        return self.dossier
+
+    def getAchievementsBlock(self):
+        return self.achievements
 
     def getRecord(self, recordName):
         return self.dossier[recordName]
+
+    def getAchievementRecord(self, achieveName):
+        return self.achievements[achieveName]
 
     def getAchievements(self, isInDossier = True):
         result = []
         for section in dossiers_utils.getAchievementsLayout(self.dossierType):
             sectionAchieves = []
             for achieveName in section:
-                if achieveName == 'markOfMastery':
-                    continue
-                if achieveName == 'whiteTiger' and not checkWhiteTigerMedal(self.dossier):
+                if not dossiers_utils.isAchieveValid(achieveName, self):
                     continue
                 try:
                     factory = getAchievementFactory(achieveName, self)
@@ -86,15 +99,27 @@ class _Dossier(GUIItem):
 
     def getNearestAchievements(self):
         achievements = map(lambda x: self.getAchievement(x), _NEAREST_ACHIEVEMENTS)
-        uncompleted_achievements = itertools.ifilter(lambda x: x.progress < 1.0, achievements)
-        result = sorted(uncompleted_achievements, key=lambda x: x.progress, reverse=True)[:_NEAREST_ACHIEVEMENTS_COUNT]
+        uncompletedAchievements = itertools.ifilter(lambda x: not x.isDone and dossiers_utils.isAchieveValid(x.name, self) and x.isInNear, achievements)
+
+        def nearestComparator(x, y):
+            if x.lvlUpValue == 1 or y.lvlUpValue == 1:
+                if x.lvlUpValue == y.lvlUpValue:
+                    return cmp(x.progress, y.progress)
+                elif x.lvlUpValue == 1:
+                    return 1
+                else:
+                    return -1
+            else:
+                return cmp(x.progress, y.progress)
+
+        result = sorted(uncompletedAchievements, cmp=nearestComparator, reverse=True)[:_NEAREST_ACHIEVEMENTS_COUNT]
         return tuple(result)
 
     def getSignificantAchievements(self):
         sections = self.getAchievements()
         battleAchievements = sections[_BATTLE_SECTION]
         epicAchievements = sections[_EPIC_SECTION]
-        otherAchievements = itertools.chain(*itertools.ifilter(lambda x: sections.index(x) not in (_BATTLE_SECTION, _EPIC_SECTION), sections))
+        otherAchievements = itertools.chain(*itertools.ifilter(lambda x: sections.index(x) not in (_BATTLE_SECTION, _EPIC_SECTION, _ACTION_SECTION), sections))
         achievementsQuery = (battleAchievements, epicAchievements, tuple(otherAchievements))
 
         def mapQueryEntry(entry):
@@ -103,152 +128,31 @@ class _Dossier(GUIItem):
         result = itertools.chain(*map(mapQueryEntry, achievementsQuery))
         return tuple(result)
 
-    def getBattlesCount(self):
-        return self.getRecord('battlesCount')
 
-    def getWinsCount(self):
-        return self.getRecord('wins')
-
-    def getXP(self):
-        return self.getRecord('xp')
-
-    def getDamageDealt(self):
-        return self.getRecord('damageDealt')
-
-    def getDamageReceived(self):
-        return self.getRecord('damageReceived')
-
-    def getShotsCount(self):
-        return self.getRecord('shots')
-
-    def getHitsCount(self):
-        return self.getRecord('hits')
-
-    def getSurvivedBattlesCount(self):
-        return self.getRecord('survivedBattles')
-
-    def getFragsCount(self):
-        return self.getRecord('frags')
-
-    def getDeathsCount(self):
-        return self.getBattlesCount() - self.getSurvivedBattlesCount()
-
-    def getMaxFrags(self):
-        return (self.getRecord('maxFrags'), self.getRecord('maxFragsVehicle'))
-
-    def getMaxXP(self):
-        return (self.getRecord('maxXP'), self.getRecord('maxXPVehicle'))
-
-    def getMaxVehicleFrags(self):
-        return self.getRecord('maxFrags')
-
-    def getMaxVehicleXP(self):
-        return self.getRecord('maxXP')
-
-    def getSpottedEnemiesCount(self):
-        return self.getRecord('spotted')
-
-    def getAvgDamage(self):
-        return self._getAvgValue(self.getBattlesCount, self.getDamageDealt)
-
-    def getAvgXP(self):
-        return self._getAvgValue(self.getBattlesCount, self.getXP)
-
-    def getAvgFrags(self):
-        return self._getAvgValue(self.getBattlesCount, self.getFragsCount)
-
-    def getAvgDamageDealt(self):
-        return self._getAvgValue(self.getBattlesCount, self.getDamageDealt)
-
-    def getAvgDamageReceived(self):
-        return self._getAvgValue(self.getBattlesCount, self.getDamageReceived)
-
-    def getAvgEnemiesSpotted(self):
-        return self._getAvgValue(self.getBattlesCount, self.getSpottedEnemiesCount)
-
-    def getHitsEfficiency(self):
-        return self._getAvgValue(self.getShotsCount, self.getHitsCount)
-
-    def getSurvivalEfficiency(self):
-        return self._getAvgValue(self.getBattlesCount, self.getSurvivedBattlesCount)
-
-    def getWinsEfficiency(self):
-        return self._getAvgValue(self.getBattlesCount, self.getWinsCount)
-
-    def getLossesEfficiency(self):
-        return self._getAvgValue(self.getBattlesCount, lambda : self.getBattlesCount() - self.getWinsCount())
-
-    def getFragsEfficiency(self):
-        return self._getAvgValue(self.getDeathsCount, self.getFragsCount)
-
-    def getDamageEfficiency(self):
-        return self._getAvgValue(self.getDamageReceived, self.getDamageDealt)
-
-    def _getAvgValue(self, allOccursGetter, effectiveOccursGetter):
-        if allOccursGetter():
-            return float(effectiveOccursGetter()) / allOccursGetter()
-        return 0
-
-
-class VehicleDossier(_Dossier):
+class VehicleDossier(_Dossier, stats.VehicleDossierStats):
 
     def __init__(self, dossier):
-        super(VehicleDossier, self).__init__(dossier, constants.DOSSIER_TYPE.VEHICLE)
+        super(VehicleDossier, self).__init__(dossier, GUI_ITEM_TYPE.VEHICLE_DOSSIER)
+
+    def _getDossierDescr(self):
+        return self.getDossierDescr()
 
 
-class AccountDossier(_Dossier):
+class AccountDossier(_Dossier, stats.AccountDossierStats):
 
-    def __init__(self, dossier, isCurrentUser, proxy = None):
-        super(AccountDossier, self).__init__(dossier, constants.DOSSIER_TYPE.ACCOUNT, proxy)
+    def __init__(self, dossier, isCurrentUser, isInRoaming = False, proxy = None):
+        super(AccountDossier, self).__init__(dossier, GUI_ITEM_TYPE.ACCOUNT_DOSSIER, isInRoaming, proxy)
         self.isCurrentUser = isCurrentUser
-        self._vehsAvgXp = {}
-        if isCurrentUser and proxy is not None:
-            for intCD in self.getRecord('vehDossiersCut').iterkeys():
-                vehDossier = proxy.getVehicleDossier(intCD)
-                if vehDossier:
-                    self._vehsAvgXp[intCD] = vehDossier.getAvgXP()
-
-        return
 
     def getGlobalRating(self):
         from gui.shared import g_itemsCache
         return g_itemsCache.items.stats.getGlobalRating()
 
-    def getVehicles(self):
-        result = {}
-        for intCD, (battlesCount, wins, markOfMastery, xp) in self.getRecord('vehDossiersCut').iteritems():
-            avg = int(xp / battlesCount) if battlesCount else 0
-            if intCD in self._vehsAvgXp:
-                avg = self._vehsAvgXp[intCD]
-            result[intCD] = (battlesCount,
-             wins,
-             markOfMastery,
-             avg)
-
-        return result
-
-    def getMarksOfMastery(self):
-        result = [0] * len(MARK_OF_MASTERY.ALL())
-        for vehTypeCompDescr, (_, _, markOfMastery, _) in self.getVehicles().iteritems():
-            if markOfMastery != 0:
-                result[markOfMastery - 1] += 1
-
-        return result
-
-    def getBattlesStats(self):
-        vehsByType = dict(((t, 0) for t in vehicles.VEHICLE_CLASS_TAGS))
-        vehsByNation = dict(((str(idx), 0) for idx, n in enumerate(nations.NAMES)))
-        vehsByLevel = dict(((str(k), 0) for k in xrange(1, constants.MAX_VEHICLE_LEVEL + 1)))
-        for vehTypeCompDescr, (battlesCount, _, _, _) in self.getVehicles().iteritems():
-            vehType = vehicles.getVehicleType(vehTypeCompDescr)
-            vehsByNation[str(vehType.id[0])] += battlesCount
-            vehsByLevel[str(vehType.level)] += battlesCount
-            vehsByType[set(vehType.tags & vehicles.VEHICLE_CLASS_TAGS).pop()] += battlesCount
-
-        return (vehsByType, vehsByNation, vehsByLevel)
+    def _getDossierDescr(self):
+        return self.getDossierDescr()
 
 
-class TankmanDossier(_Dossier):
+class TankmanDossier(_Dossier, stats.TankmanDossierStats):
 
     def __init__(self, tmanDescr, tmanDossier, extDossier):
         """
@@ -257,9 +161,10 @@ class TankmanDossier(_Dossier):
         @param extDossier: account or vehicle dossier descriptor. Used for
                                                 some calculations.
         """
-        super(TankmanDossier, self).__init__(tmanDossier, constants.DOSSIER_TYPE.TANKMAN)
+        super(TankmanDossier, self).__init__(tmanDossier, GUI_ITEM_TYPE.TANKMAN_DOSSIER)
         self.tmanDescr = tmanDescr
-        self.extDossier = extDossier
+        self.extStats = extDossier.getTotalStats()
+        self.addStats = extDossier.getTeam7x7Stats()
 
     def getNextSkillXPLeft(self):
         """
@@ -270,7 +175,10 @@ class TankmanDossier(_Dossier):
         return 0
 
     def getAvgXP(self):
-        return self.extDossier.getAvgXP()
+        return (self.extStats.getAvgXP() + self.addStats.getAvgXP()) / 2
+
+    def getBattlesCount(self):
+        return self.getTotalStats().getBattlesCount()
 
     def getNextSkillBattlesLeft(self):
         """
@@ -278,7 +186,7 @@ class TankmanDossier(_Dossier):
                                 Return 0 if last skill is max level. Returns None
                                 if tankman and extDossier has no battles
         """
-        if not self.getBattlesCount() or not self.extDossier.getBattlesCount() or not self.extDossier.getXP():
+        if not self.getBattlesCount() or not self.extStats.getBattlesCount() or not self.extStats.getXP():
             return None
         else:
             avgExp = self.getAvgXP()
@@ -296,12 +204,15 @@ class TankmanDossier(_Dossier):
         if nextSkillsBattlesLeft is not None:
             nextSkillsBattlesLeft = BigWorld.wg_getIntegralFormat(nextSkillsBattlesLeft)
         nextSkillBattlesLeftExtra = ''
-        if not self.getBattlesCount() or not self.extDossier.getBattlesCount():
+        if not self.getBattlesCount() or not self.extStats.getBattlesCount():
             nextSkillBattlesLeftExtra = '(%s)' % i18n.makeString('#menu:profile/stats/items/unknown')
         skillImgType, skillImg = self.__getCurrentSkillIcon()
         return ({'label': 'common',
           'stats': (self.__packStat('battlesCount', BigWorld.wg_getNiceNumberFormat(self.getBattlesCount())),)}, {'label': 'studying',
           'stats': (self.__packStat('nextSkillXPLeft', BigWorld.wg_getIntegralFormat(self.getNextSkillXPLeft()), imageType=skillImgType, image=skillImg), self.__packStat('avgExperience', BigWorld.wg_getIntegralFormat(self.getAvgXP())), self.__packStat('nextSkillBattlesLeft', nextSkillsBattlesLeft, nextSkillBattlesLeftExtra))})
+
+    def _getDossierDescr(self):
+        return self.getDossierDescr()
 
     def __isNewSkillReady(self):
         """
@@ -337,3 +248,6 @@ class TankmanDossier(_Dossier):
          'extra': extra,
          'imageType': imageType,
          'image': image}
+# okay decompyling res/scripts/client/gui/shared/gui_items/dossier/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:48 EST

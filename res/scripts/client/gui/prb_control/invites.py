@@ -1,14 +1,17 @@
+# 2013.11.15 11:25:44 EST
+# Embedded file name: scripts/client/gui/prb_control/invites.py
 from collections import namedtuple
 import BigWorld
 from ConnectionManager import connectionManager
 from PlayerEvents import g_playerEvents
-from account_helpers import getPlayerDatabaseID
+from account_helpers import getPlayerDatabaseID, isRoamingEnabled
 from adisp import process
 import constants
 from debug_utils import LOG_ERROR, LOG_WARNING, LOG_DEBUG
 from gui.ClientUpdateManager import g_clientUpdateManager
-from gui.prb_control.formatters.invites import PrbInviteLinkFormatter
-from gui.shared.actions_chain import ActionsChain
+from gui.LobbyContext import g_lobbyContext
+from gui.shared import g_itemsCache
+from gui.shared.actions import ActionsChain
 from gui.shared.utils.requesters import StatsRequester
 from ids_generators import SequenceIDGenerator
 from helpers import time_utils
@@ -42,17 +45,11 @@ class PrbInviteWrapper(_PrbInviteData):
 
     @property
     def creatorFullName(self):
-        fullName = self.creator
-        if self.creatorClanAbbrev:
-            fullName = '{0:>s}[{1:>s}]'.format(self.creator, self.creatorClanAbbrev)
-        return fullName
+        return g_lobbyContext.getPlayerFullName(self.creator, clanAbbrev=self.creatorClanAbbrev, pDBID=self.creatorDBID)
 
     @property
     def receiverFullName(self):
-        fullName = self.receiver
-        if self.receiverClanAbbrev:
-            fullName = '{0:>s}[{1:>s}]'.format(self.receiver, self.receiverClanAbbrev)
-        return fullName
+        return g_lobbyContext.getPlayerFullName(self.receiver, clanAbbrev=self.receiverClanAbbrev, pDBID=self.receiverDBID)
 
     @property
     def anotherPeriphery(self):
@@ -89,6 +86,7 @@ class InvitesManager(object):
     __clanInfo = None
 
     def __init__(self):
+        from gui.prb_control.formatters.invites import PrbInviteLinkFormatter
         self.__linkFormatter = PrbInviteLinkFormatter()
         self._IDGen = SequenceIDGenerator()
         self._IDMap = {'inviteIDs': {},
@@ -96,7 +94,6 @@ class InvitesManager(object):
         self.__receivedInvites = {}
         self.__unreadInvitesCount = 0
         self.__eventManager = Event.EventManager()
-        self.__credentials = None
         self.__acceptChain = None
         self.onReceivedInviteListInited = Event.Event(self.__eventManager)
         self.onReceivedInviteListModified = Event.Event(self.__eventManager)
@@ -121,11 +118,9 @@ class InvitesManager(object):
         self.__isInvitesListBuild = False
         self.__receivedInvites.clear()
         self.__unreadInvitesCount = 0
-        self.__credentials = None
         self._IDMap = {'inviteIDs': {},
          'prbIDs': {}}
         self.__eventManager.clear()
-        return
 
     @process
     def onAccountShowGUI(self):
@@ -140,12 +135,6 @@ class InvitesManager(object):
     @storage_getter('users')
     def users(self):
         return None
-
-    def setCredentials(self, login, token):
-        self.__credentials = (login, token)
-
-    def getCredentials(self):
-        return self.__credentials
 
     def isInited(self):
         return self.__isUsersRostersInited and self.__isInvitesListBuild
@@ -180,13 +169,23 @@ class InvitesManager(object):
 
     def canAcceptInvite(self, invite):
         result = False
-        another = invite.id in self.__receivedInvites and invite.anotherPeriphery
+        if invite.id in self.__receivedInvites:
+            from gui.prb_control.dispatcher import g_prbLoader
+            dispatcher = g_prbLoader.getDispatcher()
+            if dispatcher:
+                prbFunctional = dispatcher.getPrbFunctional()
+                unitFunctional = dispatcher.getUnitFunctional()
+                return (prbFunctional and prbFunctional.hasLockedState() or unitFunctional and unitFunctional.hasLockedState()) and False
+        another = invite.anotherPeriphery
         if another:
             if g_preDefinedHosts.periphery(invite.peripheryID) is None:
                 LOG_ERROR('Periphery not found')
                 result = False
-            elif self.__credentials is None:
+            elif g_lobbyContext.getCredentials() is None:
                 LOG_ERROR('Login info not found')
+                result = False
+            elif g_preDefinedHosts.isRoamingPeriphery(invite.peripheryID) and not isRoamingEnabled(g_itemsCache.items.stats.attributes):
+                LOG_ERROR('Roaming is not supported')
                 result = False
             elif invite.id > 0:
                 result = invite.isActive()
@@ -284,36 +283,28 @@ class InvitesManager(object):
         self.__unreadInvitesCount = 0
         receiver = BigWorld.player().name
         receiverDBID = getPlayerDatabaseID()
-        receiverClanAbbrev = None
-        if self.__clanInfo is not None and len(self.__clanInfo) > 1:
-            receiverClanAbbrev = self.__clanInfo[1]
+        receiverClanAbbrev = g_lobbyContext.getClanAbbrev(self.__clanInfo)
         userGetter = self.users.getUser
         for (prebattleID, peripheryID), data in invitesData.iteritems():
             inviteID = self._makeInviteID(prebattleID, peripheryID)
             invite = PrbInviteWrapper(id=inviteID, receiver=receiver, receiverDBID=receiverDBID, receiverClanAbbrev=receiverClanAbbrev, peripheryID=peripheryID, **data)
             self._addInvite(invite, userGetter)
 
-        return
-
     def _setClanInfo(self, clanInfo):
         self.__clanInfo = clanInfo
         if not self.__isUsersRostersInited:
             return
-        else:
-            receiverClanAbbrev = None
-            changed = []
-            if self.__clanInfo is not None and len(self.__clanInfo) > 1:
-                receiverClanAbbrev = self.__clanInfo[1]
-            for inviteID, (invite, _) in self.__receivedInvites.iteritems():
-                if invite.receiverClanAbbrev != receiverClanAbbrev:
-                    invite = invite._replace(receiverClanAbbrev=receiverClanAbbrev)
-                    link = self.__linkFormatter.format(invite)
-                    self.__receivedInvites[inviteID] = (invite, link)
-                    changed.append(inviteID)
+        receiverClanAbbrev = g_lobbyContext.getClanAbbrev(self.__clanInfo)
+        changed = []
+        for inviteID, (invite, _) in self.__receivedInvites.iteritems():
+            if invite.receiverClanAbbrev != receiverClanAbbrev:
+                invite = invite._replace(receiverClanAbbrev=receiverClanAbbrev)
+                link = self.__linkFormatter.format(invite)
+                self.__receivedInvites[inviteID] = (invite, link)
+                changed.append(inviteID)
 
-            if len(changed) > 0:
-                self.onReceivedInviteListModified([], changed, [])
-            return
+        if len(changed) > 0:
+            self.onReceivedInviteListModified([], changed, [])
 
     def __clearAcceptChain(self):
         if self.__acceptChain is not None:
@@ -346,9 +337,7 @@ class InvitesManager(object):
     def __updatePrebattleInvites(self, prbInvites):
         receiver = BigWorld.player().name
         receiverDBID = getPlayerDatabaseID()
-        receiverClanAbbrev = None
-        if self.__clanInfo is not None and len(self.__clanInfo) > 1:
-            receiverClanAbbrev = self.__clanInfo[1]
+        receiverClanAbbrev = g_lobbyContext.getClanAbbrev(self.__clanInfo)
         added = []
         changed = []
         deleted = []
@@ -386,3 +375,6 @@ class InvitesManager(object):
                 self.__unreadInvitesCount -= 1
         else:
             LOG_ERROR('Prebattle invite not found', prebattleID, peripheryID)
+# okay decompyling res/scripts/client/gui/prb_control/invites.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:45 EST

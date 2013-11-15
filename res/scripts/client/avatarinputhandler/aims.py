@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:19 EST
+# Embedded file name: scripts/client/AvatarInputHandler/aims.py
 from functools import partial
 import math
 import weakref
@@ -57,6 +59,7 @@ class Aim(Flash):
         g_settingsCore.onSettingsChanged += self.applySettings
         replayCtrl = BattleReplay.g_replayCtrl
         if replayCtrl.isPlaying and replayCtrl.replayContainsGunReloads:
+            self._flashCall('setupReloadingCounter', [False])
             self.__cbIdSetReloading = BigWorld.callback(0.0, self.setReloadingFromReplay)
         else:
             self.__cbIdSetReloading = None
@@ -90,6 +93,8 @@ class Aim(Flash):
                 self._flashCall('setConditionType', [subSetting, 0])
                 subSetting = settings['cassette']
                 self._flashCall('setCassetteType', [subSetting, 0])
+                subSetting = settings['reloaderTimer']
+                self._flashCall('setReloaderTimerType', [subSetting, 0])
 
         if 'isColorBlind' in diff:
             self.__isColorBlind = diff['isColorBlind']
@@ -157,7 +162,7 @@ class Aim(Flash):
         colorScheme = _ColorSchemeManager.getSubScheme('aim_target_ally' if isFriend else 'aim_target_enemy', isColorBlind=self.__isColorBlind)
         return _ColorSchemeManager._makeRGB(colorScheme)
 
-    def setReloading(self, duration, startTime = None):
+    def setReloading(self, duration, startTime = None, baseTime = None):
         state = _g_aimState['reload']
         _isReloading = state.get('isReloading', False)
         _startTime = state.get('startTime', 0)
@@ -165,16 +170,18 @@ class Aim(Flash):
         isReloading = duration != 0
         state['isReloading'] = isReloading
         state['correction'] = None
+        state['baseTime'] = baseTime
         if _isReloading and duration > 0 and _duration > 0 and _startTime > 0:
             current = BigWorld.time()
             state['correction'] = {'timeRemaining': duration,
              'startTime': current,
              'startPosition': (current - _startTime) / _duration}
+            self._flashCall('updateReloadingBaseTime', [baseTime, False])
             self._correctReloadingTime(duration)
         else:
             state['duration'] = duration
             state['startTime'] = BigWorld.time() if isReloading else None
-            self._setReloading(duration, 0, isReloading)
+            self._setReloading(duration, 0, isReloading, None, baseTime)
         return
 
     def setHealth(self, current):
@@ -215,6 +222,13 @@ class Aim(Flash):
     def isGunReload(self):
         return _g_aimState['reload']['isReloading']
 
+    def onCameraChange(self):
+        if not self.isGunReload():
+            baseTime = _g_aimState['reload'].get('baseTime', -1)
+            self._flashCall('updateReloadingBaseTime', [baseTime, True])
+        elif not _g_aimState['reload']['correction']:
+            self._flashCall('clearPreviousCorrection', [])
+
     def resetVehicleMatrix(self):
         pass
 
@@ -237,7 +251,7 @@ class Aim(Flash):
         self._setReloadingAsPercent(100.0 * BattleReplay.g_replayCtrl.getGunReloadAmountLeft())
         self.__cbIdSetReloading = BigWorld.callback(0.0, self.setReloadingFromReplay)
 
-    def _setReloading(self, duration, startTime = None, isReloading = True, correction = None):
+    def _setReloading(self, duration, startTime = None, isReloading = True, correction = None, baseTime = None):
         replayCtrl = BattleReplay.g_replayCtrl
         if replayCtrl.isPlaying and replayCtrl.replayContainsGunReloads:
             return
@@ -252,7 +266,8 @@ class Aim(Flash):
                 self._flashCall('setReloading', [duration,
                  startTime,
                  isReloading,
-                 None])
+                 None,
+                 baseTime])
             return
 
     def _setReloadingAsPercent(self, percent):
@@ -639,3 +654,6 @@ def clearState():
 
 
 _g_aimState = None
+# okay decompyling res/scripts/client/avatarinputhandler/aims.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:20 EST

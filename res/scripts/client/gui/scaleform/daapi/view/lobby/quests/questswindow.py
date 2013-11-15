@@ -1,9 +1,13 @@
+# 2013.11.15 11:26:12 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/quests/QuestsWindow.py
 import sys
 import math
 from collections import defaultdict
 import BigWorld
 from debug_utils import LOG_DEBUG
-from gui.shared import g_questsCache
+from gui import SystemMessages, game_control
+from gui.shared import g_questsCache, events
+from gui.ClientUpdateManager import g_clientUpdateManager
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.daapi.view.lobby.quests import quest_helpers
 from gui.Scaleform.daapi.view.meta.QuestsWindowMeta import QuestsWindowMeta
@@ -53,12 +57,17 @@ class _QuestsTabAbstract(QuestsCurrentTabMeta):
     def _populate(self):
         super(_QuestsTabAbstract, self)._populate()
         g_questsCache.onSyncCompleted += self.__onQuestsCacheSyncCompleted
+        game_control.g_instance.igr.onIgrTypeChanged += self.__onQuestsUpdated
+        g_clientUpdateManager.addCallbacks({'quests': self.__onQuestsUpdated,
+         'cache.eventsData': self.__onQuestsUpdated,
+         'inventory.1': self.__onQuestsUpdated})
         self.__sortType = self.SORT_TYPE.START_DATE
         self.__hideCompleted = False
         self.__onInvalidateCallback()
 
     def _dispose(self):
-        self.__clearInvalidateCallback()
+        g_clientUpdateManager.removeObjectCallbacks(self)
+        game_control.g_instance.igr.onIgrTypeChanged -= self.__onQuestsUpdated
         g_questsCache.onSyncCompleted -= self.__onQuestsCacheSyncCompleted
         super(_QuestsTabAbstract, self)._dispose()
 
@@ -82,10 +91,12 @@ class _QuestsTabAbstract(QuestsCurrentTabMeta):
     def _getQuests(self):
         return g_questsCache.getCurrentQuests()
 
-    def _getInvalidateCallbackDuration(self, q):
-        return 0
+    def __onQuestsUpdated(self, *args):
+        quest_helpers.updateQuestSettings(g_questsCache.getQuests())
+        self.__invalidateQuestData()
 
     def __sortFunc(self, a, b):
+        result = 1
         if a.isSubtask() and b.isSubtask():
             if a.getSeqID() > -1 and b.getSeqID() > -1:
                 return a.getSeqID() - b.getSeqID()
@@ -94,16 +105,21 @@ class _QuestsTabAbstract(QuestsCurrentTabMeta):
         if b.isCompleted():
             return -1
         if self.__sortType == self.SORT_TYPE.START_DATE:
-            return int(a.getStartTime() - b.getStartTime())
-        if self.__sortType == self.SORT_TYPE.FINISH_DATE:
-            return int(a.getFinishTimeLeft() - b.getFinishTimeLeft())
-        return 1
+            result = int(a.getStartTime() - b.getStartTime())
+        elif self.__sortType == self.SORT_TYPE.FINISH_DATE:
+            result = int(a.getFinishTimeLeft() - b.getFinishTimeLeft())
+        if result == 0:
+            result = cmp(a.getID(), b.getID())
+        return result
 
     def __filterFunc(self, a):
         return not self.__hideCompleted or not a.isCompleted()
 
     def __applyFilters(self, quests):
-        return filter(self.__filterFunc, sorted(quests, self.__sortFunc))
+        return filter(self.__filterFunc, self.__applySort(quests))
+
+    def __applySort(self, quests):
+        return sorted(quests, self.__sortFunc)
 
     def __onQuestsCacheSyncCompleted(self):
         self.__onInvalidateCallback()
@@ -125,8 +141,8 @@ class _QuestsTabAbstract(QuestsCurrentTabMeta):
         result = []
         for q in self.__applyFilters(tasks):
             if q.isStrategic():
-                qSubtasks = self.__applyFilters(subtasks[q.getGroupID()])
-                result.append(quest_helpers.packQuest(q, quests, linkDown=True))
+                qSubtasks = self.__applySort(subtasks[q.getGroupID()])
+                result.append(quest_helpers.packQuest(q, quests, linkDown=False if len(qSubtasks) == 0 else True))
                 for idx, subtask in enumerate(qSubtasks):
                     linkDown = idx != len(qSubtasks) - 1
                     result.append(quest_helpers.packQuest(subtask, quests, linkDown=linkDown, linkUp=True))
@@ -136,26 +152,8 @@ class _QuestsTabAbstract(QuestsCurrentTabMeta):
 
         self.as_setQuestsDataS(result, len(tasks))
 
-    def __loadInvalidateCallback(self, duration):
-        LOG_DEBUG('load quest window invalidation callback (secs)', duration)
-        self.__clearInvalidateCallback()
-        self.__invalidateCbID = BigWorld.callback(math.ceil(duration), self.__onInvalidateCallback)
-
-    def __clearInvalidateCallback(self):
-        if self.__invalidateCbID is not None:
-            BigWorld.cancelCallback(self.__invalidateCbID)
-            self.__invalidateCbID = None
-        return
-
     def __onInvalidateCallback(self):
-        self.__clearInvalidateCallback()
         self.__invalidateQuestData()
-        minFinishTimeLeft = sys.maxint
-        for q in self._getQuests().itervalues():
-            minFinishTimeLeft = min(minFinishTimeLeft, self._getInvalidateCallbackDuration(q))
-
-        if minFinishTimeLeft != sys.maxint:
-            self.__loadInvalidateCallback(minFinishTimeLeft)
 
 
 class QuestsCurrentTab(_QuestsTabAbstract):
@@ -174,3 +172,6 @@ class QuestsFutureTab(_QuestsTabAbstract):
 
     def _getInvalidateCallbackDuration(self, q):
         return q.getStartTimeLeft()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/quests/questswindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:12 EST

@@ -1,10 +1,12 @@
+# 2013.11.15 11:26:08 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/NotificationInvites.py
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.daapi.view.meta.NotificationInvitesWindowMeta import NotificationInvitesWindowMeta
 from gui.Scaleform.framework import AppRef
 from gui.Scaleform.framework.entities.View import View
 from gui.Scaleform.managers.windows_stored_data import DATA_TYPE, TARGET_ID
 from gui.Scaleform.managers.windows_stored_data import stored_window
-from gui.prb_control.prb_helpers import InjectPrebattle, prbInvitesProperty
+from gui.prb_control.prb_helpers import prbInvitesProperty
 from gui.shared import events
 from gui.shared.event_bus import EVENT_BUS_SCOPE
 __author__ = 'd_savitski'
@@ -12,7 +14,6 @@ __author__ = 'd_savitski'
 @stored_window(DATA_TYPE.UNIQUE_WINDOW, TARGET_ID.CHAT_MANAGEMENT)
 
 class NotificationInvitesWindow(View, WindowViewMeta, NotificationInvitesWindowMeta, AppRef):
-    __metaclass__ = InjectPrebattle
 
     @prbInvitesProperty
     def prbInvites(self):
@@ -55,3 +56,6 @@ class NotificationInvitesWindow(View, WindowViewMeta, NotificationInvitesWindowM
 
     def __handleNotificationWindowHide(self, *args):
         self.onWindowClose()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/notificationinvites.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:08 EST

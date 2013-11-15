@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:54 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/vehicle_modules.py
 import BigWorld
 import nations
 from helpers import i18n
@@ -117,7 +119,7 @@ class Shell(FittingItem):
     Vehicle shells class.
     """
 
-    def __init__(self, intCompactDescr, count = 0, defaultCount = 0, proxy = None):
+    def __init__(self, intCompactDescr, count = 0, defaultCount = 0, proxy = None, isBoughtForCredits = False):
         """
         Ctor.
         
@@ -126,7 +128,7 @@ class Shell(FittingItem):
         @param defaultCount: count default shells in ammo bay
         @param proxy: instance of ItemsRequester
         """
-        FittingItem.__init__(self, intCompactDescr, proxy)
+        FittingItem.__init__(self, intCompactDescr, proxy, isBoughtForCredits)
         self.count = count
         self.defaultCount = defaultCount
 
@@ -177,3 +179,6 @@ class Shell(FittingItem):
 
     def _sortByType(self, other):
         return SHELL_TYPES_ORDER_INDICES[self.itemTypeName] - SHELL_TYPES_ORDER_INDICES[other.itemTypeName]
+# okay decompyling res/scripts/client/gui/shared/gui_items/vehicle_modules.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:54 EST

@@ -1,10 +1,12 @@
+# 2013.11.15 11:27:28 EST
+# Embedded file name: scripts/client/VehicleStickers.py
 import BigWorld
 import Account
 import items
 import Math
 import BattleReplay
-from helpers import isPlayerAvatar
 from debug_utils import *
+from gui import game_control
 
 class VehicleStickers:
 
@@ -26,7 +28,7 @@ class VehicleStickers:
 
     def __calcTexParams(self, vDesc, emblemSlots, onHull, prereqs):
         g_cache = items.vehicles.g_cache
-        customizationCache = g_cache.customization(vDesc.type.id[0])
+        customizationCache = g_cache.customization(vDesc.type.customizationNationID)
         playerEmblemsCache = g_cache.playerEmblems()
         inscriptionsCache = (customizationCache['inscriptionGroups'], customizationCache['inscriptions'])
         for slot in emblemSlots:
@@ -75,7 +77,7 @@ class VehicleStickers:
             if slotType != 'clan' or self.__clanID == 0 or replayCtrl.isPlaying and replayCtrl.isOffline:
                 self.__doAttachStickers(slotType)
             elif slotType == 'clan':
-                if self.__isLoadingClanEmblems:
+                if game_control.g_instance.roaming.isInRoaming() or self.__isLoadingClanEmblems:
                     continue
                 self.__isLoadingClanEmblems = True
                 fileCache = Account.g_accountRepository.customFilesCache
@@ -160,3 +162,6 @@ class VehicleStickers:
                 LOG_CURRENT_EXCEPTION()
 
             return
+# okay decompyling res/scripts/client/vehiclestickers.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:29 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:34 EST
+# Embedded file name: scripts/common/debug_utils.py
 import sys
 from functools import wraps
 from warnings import warn_explicit
@@ -91,6 +93,11 @@ def LOG_TU(msg, *kargs):
 def LOG_RF(msg, *kargs):
     if IS_DEVELOPMENT or not IS_CLIENT:
         _doLog('RF', msg, kargs)
+
+
+def LOG_DAN(msg, *kargs):
+    if IS_DEVELOPMENT or not IS_CLIENT:
+        _doLog('DAN', msg, kargs)
 
 
 def LOG_GUI(msg, *kargs):
@@ -219,3 +226,6 @@ def verify(expression):
         raise expression or AssertionError
     except AssertionError:
         LOG_CURRENT_EXCEPTION()
+# okay decompyling res/scripts/common/debug_utils.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:35 EST

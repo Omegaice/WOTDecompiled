@@ -1,6 +1,9 @@
+# 2013.11.15 11:26:57 EST
+# Embedded file name: scripts/client/gui/shared/utils/functions.py
 import random
 import ArenaType, BigWorld, re
 from adisp import async, process
+from gui.shared.utils import decorators
 from helpers.i18n import makeString
 from gui.shared.utils.gui_items import ShopItem, VehicleItem
 from items.vehicles import getDictDescr
@@ -61,6 +64,7 @@ def makeTooltip(header = None, body = None, note = None):
 
 
 @async
+@process
 def checkAmmoLevel(callback):
     """
     Check ammo for current vehicle, if it is lower then 20% shows message dialog
@@ -74,18 +78,41 @@ def checkAmmoLevel(callback):
     showAmmoWarning = False
     from CurrentVehicle import g_currentVehicle
     if g_currentVehicle.isReadyToFight():
-        showAmmoWarning = not g_currentVehicle.item.isAmmoFull()
+        vehicle = g_currentVehicle.item
+        if not g_currentVehicle.isAutoLoadFull() or not g_currentVehicle.isAutoEquipFull():
+            from gui import SystemMessages
+            from gui.shared.gui_items.processors.vehicle import VehicleLayoutProcessor
+            shellsLayout = []
+            eqsLayout = []
+            for shell in vehicle.shells:
+                shellsLayout.append(shell.intCD if not shell.isBoughtForCredits else -shell.intCD)
+                shellsLayout.append(shell.defaultCount)
 
-    @process
-    def showConfirmation(callback):
+            for eq in vehicle.eqsLayout:
+                if eq is not None:
+                    eqsLayout.append(eq.intCD if not eq.isBoughtForCredits else -eq.intCD)
+                    eqsLayout.append(1)
+                else:
+                    eqsLayout.append(0)
+                    eqsLayout.append(0)
+
+            LOG_DEBUG('setVehicleLayouts', shellsLayout, eqsLayout)
+            result = yield VehicleLayoutProcessor(vehicle, shellsLayout, eqsLayout).request()
+            if result and result.auxData:
+                for m in result.auxData:
+                    SystemMessages.g_instance.pushI18nMessage(m.userMsg, type=m.sysMsgType)
+
+            if result and len(result.userMsg):
+                SystemMessages.g_instance.pushI18nMessage(result.userMsg, type=result.sysMsgType)
+        showAmmoWarning = not g_currentVehicle.item.isAmmoFull
+    if showAmmoWarning:
         from gui import DialogsInterface
         success = yield DialogsInterface.showI18nConfirmDialog('lowAmmo')
         callback(success)
-
-    if showAmmoWarning:
-        showConfirmation(callback)
     else:
+        yield lambda callback: callback(None)
         callback(True)
+    return
 
 
 def isModuleFitVehicle(module, vehicle, price, money, unlocks, positionIndex = 0, isRemove = False):
@@ -106,17 +133,9 @@ def isModuleFitVehicle(module, vehicle, price, money, unlocks, positionIndex = 0
     if isinstance(module, ShopItem) or isRemove:
         if module.itemTypeName not in (ITEM_TYPE_NAMES[9], ITEM_TYPE_NAMES[11]) and module.compactDescr not in unlocks:
             return (False, '#menu:moduleFits/unlock_error', '#tooltips:moduleFits/unlock_error')
-        currency = 'gold'
-        availableForCredits = 1
-        availableForGold = 2
-        couldBeBought = availableForCredits | availableForGold
-        if price[0] and price[0] > money[0]:
-            currency = 'credit'
-            couldBeBought ^= availableForCredits
-        if price[1] and price[1] > money[1]:
-            couldBeBought ^= availableForGold
+        couldBeBought, menu, tooltip = getModuleGoldStatus(price, money)
         if not couldBeBought:
-            return (False, '#menu:moduleFits/%s_error' % currency, '#tooltips:moduleFits/%s_error' % currency)
+            return (couldBeBought, menu, tooltip)
     if vehicle is None:
         if isinstance(module, VehicleItem):
             tooltip = '#tooltips:deviceFits/already_installed' if module.itemTypeName == ITEM_TYPE_NAMES[9] else '#tooltips:moduleFits/already_installed'
@@ -151,6 +170,27 @@ def isModuleFitVehicle(module, vehicle, price, money, unlocks, positionIndex = 0
                 return (installPosible, '#menu:moduleFits/too_heavy_chassi', '#tooltips:moduleFits/too_heavy_chassi')
             return (installPosible, '#menu:moduleFits/' + reason, '#tooltips:' + prefix + reason)
         return (True, '', '')
+
+
+def getModuleGoldStatus(price, money):
+    """
+    @param price: module price
+    @param money: player's money
+    @return: tuple(CouldBeBought, menuStatus, tooltipStatus)
+    """
+    currency = 'gold'
+    availableForCredits = 1
+    availableForGold = 2
+    couldBeBought = 0
+    if price[0] and price[0] > money[0]:
+        currency = 'credit'
+    else:
+        couldBeBought |= availableForCredits
+    if price[1] and price[1] < money[1]:
+        couldBeBought |= availableForGold
+    if not couldBeBought:
+        return (False, '#menu:moduleFits/%s_error' % currency, '#tooltips:moduleFits/%s_error' % currency)
+    return (True, '', '')
 
 
 def findConflictedEquipments(itemCompactDescr, itemTypeID, vehicle):
@@ -277,3 +317,6 @@ def showConfirmDialog(confirmDialog, callback, customMessage = '', ns = 'common'
      customMessage,
      'confirmDialog.onConfirm',
      'confirmDialog.onClose'])
+# okay decompyling res/scripts/client/gui/shared/utils/functions.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:57 EST

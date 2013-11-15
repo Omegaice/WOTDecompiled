@@ -1,31 +1,9 @@
-import items
+# 2013.11.15 11:27:43 EST
+# Embedded file name: scripts/common/prebattle_shared.py
 import nations
+from items import vehicles, ITEM_TYPES
 from account_shared import AmmoIterator
 from constants import PREBATTLE_ACCOUNT_STATE, VEHICLE_CLASSES, ARENA_GUI_TYPE, PREBATTLE_ROLE, PREBATTLE_COMPANY_DIVISION
-from items import vehicles
-_VEHICLE = items.ITEM_TYPE_INDICES['vehicle']
-_CHASSIS = items.ITEM_TYPE_INDICES['vehicleChassis']
-_TURRET = items.ITEM_TYPE_INDICES['vehicleTurret']
-_GUN = items.ITEM_TYPE_INDICES['vehicleGun']
-_ENGINE = items.ITEM_TYPE_INDICES['vehicleEngine']
-_FUEL_TANK = items.ITEM_TYPE_INDICES['vehicleFuelTank']
-_RADIO = items.ITEM_TYPE_INDICES['vehicleRadio']
-_TANKMAN = items.ITEM_TYPE_INDICES['tankman']
-_OPTIONALDEVICE = items.ITEM_TYPE_INDICES['optionalDevice']
-_SHELL = items.ITEM_TYPE_INDICES['shell']
-_EQUIPMENT = items.ITEM_TYPE_INDICES['equipment']
-
-def trimLocalizedData(localized_data, key, languages):
-    ld = localized_data.get(key, None)
-    if ld is None:
-        return localized_data
-    else:
-        ld = dict([ (lang, data) for lang, data in ld.iteritems() if lang in languages ])
-        if not ld:
-            return localized_data
-        localized_data[key] = ld
-        return localized_data
-
 
 def decodeRoster(roster):
     return (roster & 15, not roster & 240)
@@ -88,7 +66,7 @@ def isVehicleValid(vehDescr, vehAmmo, limits):
                 if compDescr == 0 or count == 0:
                     continue
                 itemTypeIdx = vehicles.parseIntCompactDescr(compDescr)[0]
-                if itemTypeIdx != _SHELL:
+                if itemTypeIdx != ITEM_TYPES.shell:
                     continue
                 if count > shellsLimits.get(compDescr, 65535):
                     return (False, 'limits/shells')
@@ -230,3 +208,6 @@ def _collectCurrentReplaceableVehicleComponents(vehicleDescr):
             res.append(gunDescr['compactDescr'])
 
     return res
+# okay decompyling res/scripts/common/prebattle_shared.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:43 EST

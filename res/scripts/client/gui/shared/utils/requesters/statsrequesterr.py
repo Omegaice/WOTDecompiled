@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:06 EST
+# Embedded file name: scripts/client/gui/shared/utils/requesters/StatsRequesterr.py
 import BigWorld
 from adisp import async
 from gui.shared.utils.requesters.abstract import RequesterAbstract
@@ -9,29 +11,67 @@ class StatsRequesterr(RequesterAbstract):
         BigWorld.player().stats.getCache(lambda resID, value: self._response(resID, value, callback))
 
     @property
+    def mayConsumeWalletResources(self):
+        """
+        @return: Wallet resources available flag
+        """
+        return bool(self.getCacheValue('mayConsumeWalletResources', 0))
+
+    @property
     def credits(self):
         """
-        @return: account credits balance
+        @return: account credits balance as positive value
         """
-        return self.getCacheValue('credits', 0)
+        return max(self.actualCredits, 0)
 
     @property
     def gold(self):
         """
-        @return: account gold balance
+        @return: account gold balance as positive value
         """
-        return self.getCacheValue('gold', 0)
+        return max(self.actualGold, 0)
 
     @property
     def money(self):
         return (self.credits, self.gold)
 
     @property
+    def actualCredits(self):
+        """
+        @return: account credits actual balance
+        """
+        return self.getCacheValue('credits', 0)
+
+    @property
+    def actualGold(self):
+        """
+        @return: account gold actual balance
+        """
+        from gui import game_control
+        if self.mayConsumeWalletResources or not game_control.g_instance.wallet.useGold:
+            return self.getCacheValue('gold', 0)
+        return 0
+
+    @property
+    def actualMoney(self):
+        return (self.actualCredits, self.actualGold)
+
+    @property
     def freeXP(self):
+        """
+        @return: account free experience value greater then zero
+        """
+        return max(self.actualFreeXP, 0)
+
+    @property
+    def actualFreeXP(self):
         """
         @return: account free experience value
         """
-        return self.getCacheValue('freeXP', 0)
+        from gui import game_control
+        if self.mayConsumeWalletResources or not game_control.g_instance.wallet.useFreeXP:
+            return self.getCacheValue('freeXP', 0)
+        return 0
 
     @property
     def vehiclesXPs(self):
@@ -111,7 +151,7 @@ class StatsRequesterr(RequesterAbstract):
                                 hours values. Current day played hours value is
                                 cache['dailyPlayHours'][0].
         """
-        return self.getCacheValue('dailyPlayHours', list())
+        return self.getCacheValue('dailyPlayHours', [0])
 
     @property
     def playLimits(self):
@@ -172,3 +212,6 @@ class StatsRequesterr(RequesterAbstract):
 
     def getGlobalRating(self):
         return self.getCacheValue('globalRating', 0)
+# okay decompyling res/scripts/client/gui/shared/utils/requesters/statsrequesterr.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:06 EST

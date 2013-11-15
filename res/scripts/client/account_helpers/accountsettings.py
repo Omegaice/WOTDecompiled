@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:08 EST
+# Embedded file name: scripts/client/account_helpers/AccountSettings.py
 import BigWorld, Settings, Event, pickle, base64
 from account_helpers import gameplay_ctx
 KEY_FILTERS = 'filters'
@@ -26,9 +28,23 @@ DEFAULT_VALUES = {KEY_FILTERS: {'shop_current': (-1, 'vehicle'),
                                  'role': 'None',
                                  'tankType': 'None',
                                  'location': 3,
-                                 'nationID': None}},
+                                 'nationID': None},
+               'cs_intro_view_vehicle': {'nation': -1,
+                                         'vehicleType': 'none',
+                                         'isMain': False},
+               'cs_list_view_vehicle': {'nation': -1,
+                                        'vehicleType': 'none',
+                                        'isMain': False},
+               'cs_unit_view_vehicle': {'nation': -1,
+                                        'vehicleType': 'none',
+                                        'isMain': False},
+               'cs_unit_view_settings': {'nation': -1,
+                                         'vehicleType': 'none'}},
  KEY_FAVORITES: {CURRENT_VEHICLE: 0},
- KEY_SETTINGS: {'vehicleSellDialog': {'isOpened': False},
+ KEY_SETTINGS: {'unitWindow': {'isOpened': False,
+                               'selectedIntroVehicles': [],
+                               'selectedListVehicles': []},
+                'vehicleSellDialog': {'isOpened': False},
                 'tankmanDropSkillIdx': 0,
                 'cursor': False,
                 'arcade': {'mixing': {'alpha': 90,
@@ -44,7 +60,9 @@ DEFAULT_VALUES = {KEY_FILTERS: {'shop_current': (-1, 'vehicle'),
                            'condition': {'alpha': 90,
                                          'type': 0},
                            'cassette': {'alpha': 90,
-                                        'type': 0}},
+                                        'type': 0},
+                           'reloaderTimer': {'alpha': 100,
+                                             'type': 0}},
                 'sniper': {'mixing': {'alpha': 90,
                                       'type': 0},
                            'gunTag': {'alpha': 90,
@@ -58,7 +76,9 @@ DEFAULT_VALUES = {KEY_FILTERS: {'shop_current': (-1, 'vehicle'),
                            'condition': {'alpha': 90,
                                          'type': 0},
                            'cassette': {'alpha': 90,
-                                        'type': 0}},
+                                        'type': 0},
+                           'reloaderTimer': {'alpha': 100,
+                                             'type': 0}},
                 'markers': {'ally': {'markerBaseIcon': False,
                                      'markerBaseLevel': False,
                                      'markerBaseHpIndicator': False,
@@ -120,7 +140,8 @@ DEFAULT_VALUES = {KEY_FILTERS: {'shop_current': (-1, 'vehicle'),
                                  'sortDirection': 'descending'},
                 'backDraftInvert': False,
                 'quests': {'lastVisitTime': -1,
-                           'visited': []}}}
+                           'visited': [],
+                           'naVisited': []}}}
 
 class AccountSettings(object):
     onSettingsChanging = Event.Event()
@@ -307,3 +328,6 @@ class AccountSettings(object):
             else:
                 fds.deleteSection(name)
             AccountSettings.onSettingsChanging(name, value)
+# okay decompyling res/scripts/client/account_helpers/accountsettings.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:08 EST

@@ -1,4 +1,6 @@
-from gui import GUI_SETTINGS
+# 2013.11.15 11:26:39 EST
+# Embedded file name: scripts/client/gui/Scaleform/managers/GlobalVarsManager.py
+from gui import GUI_SETTINGS, game_control
 from gui.Scaleform.framework.entities.abstract.GlobalVarsMgrMeta import GlobalVarsMgrMeta
 from helpers import getClientOverride
 import constants
@@ -22,6 +24,9 @@ class GlobalVarsManager(GlobalVarsMgrMeta):
     def isChina(self):
         return constants.IS_CHINA
 
+    def isKorea(self):
+        return constants.IS_KOREA
+
     def isTutorialDisabled(self):
         return self.__isTutorialDisabled
 
@@ -39,3 +44,15 @@ class GlobalVarsManager(GlobalVarsMgrMeta):
 
     def getLocaleOverride(self):
         return getClientOverride()
+
+    def isRoamingEnabled(self):
+        return game_control.g_instance.roaming.isEnabled()
+
+    def isInRoaming(self):
+        return game_control.g_instance.roaming.isInRoaming()
+
+    def isWalletAvailable(self):
+        return game_control.g_instance.wallet.isAvailable
+# okay decompyling res/scripts/client/gui/scaleform/managers/globalvarsmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:39 EST

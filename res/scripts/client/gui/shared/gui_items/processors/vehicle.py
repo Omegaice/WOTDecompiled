@@ -1,5 +1,8 @@
+# 2013.11.15 11:26:51 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/processors/vehicle.py
 import BigWorld
 import AccountCommands
+from account_shared import LayoutIterator
 from debug_utils import LOG_DEBUG
 from AccountCommands import VEHICLE_SETTINGS_FLAG
 from gui.SystemMessages import SM_TYPE
@@ -11,7 +14,8 @@ class VehicleBuyer(ItemProcessor):
 
     def __init__(self, vehicle, buySlot, buyShell = False, crewType = -1):
         self.price = self.__sumBuyPrice(vehicle, buyShell, crewType)
-        super(VehicleBuyer, self).__init__(vehicle, (plugins.VehicleValidator(vehicle),
+        super(VehicleBuyer, self).__init__(vehicle, (plugins.VehicleValidator(vehicle, False, prop={'isBroken': True,
+          'isLocked': True}),
          plugins.MoneyValidator(self.price),
          plugins.VehicleSlotsConfirmator(not buySlot),
          plugins.VehicleFreeLimitConfirmator(vehicle, crewType)))
@@ -58,9 +62,11 @@ class VehicleSlotBuyer(Processor):
 
     def __init__(self, showConfirm = True, showWarning = True):
         slotCost = self.__getSlotPrice()
-        super(VehicleSlotBuyer, self).__init__((plugins.MessageInformator('buySlotNotEnoughCredits', activeHandler=lambda : not plugins.MoneyValidator(slotCost).validate().success, isEnabled=showWarning), plugins.MessageConfirmator('buySlotConfirmation', isEnabled=showConfirm, ctx={'gold': slotCost[1]})))
+        super(VehicleSlotBuyer, self).__init__((plugins.MessageInformator('buySlotNotEnoughCredits', activeHandler=lambda : not plugins.MoneyValidator(slotCost).validate().success, isEnabled=showWarning), plugins.MessageConfirmator('buySlotConfirmation', isEnabled=showConfirm, ctx={'gold': slotCost[1]}), plugins.MoneyValidator(slotCost)))
 
     def _errorHandler(self, code, errStr = '', ctx = None):
+        if len(errStr):
+            return makeI18nError('vehicle_slot_buy/%s' % errStr)
         return makeI18nError('vehicle_slot_buy/server_error')
 
     def _successHandler(self, code, ctx = None):
@@ -79,7 +85,8 @@ class VehicleSeller(ItemProcessor):
     def __init__(self, vehicle, dismantlingGoldCost, shells = [], eqs = [], optDevs = [], inventory = [], isCrewDismiss = False):
         self.gainMoney, self.spendMoney = self.__getGainSpendMoney(vehicle, shells, eqs, optDevs, inventory, dismantlingGoldCost)
         barracksBerthsNeeded = len(filter(lambda item: item is not None, vehicle.crew))
-        super(VehicleSeller, self).__init__(vehicle, (plugins.VehicleValidator(vehicle),
+        super(VehicleSeller, self).__init__(vehicle, (plugins.VehicleValidator(vehicle, False, prop={'isBroken': True,
+          'isLocked': True}),
          plugins.MoneyValidator(self.spendMoney),
          plugins.VehicleSellsLeftValidator(vehicle),
          plugins.BarracksSlotsValidator(barracksBerthsNeeded, isEnabled=not isCrewDismiss),
@@ -175,7 +182,7 @@ class VehicleSettingsProcessor(ItemProcessor):
 class VehicleTmenXPAccelerator(VehicleSettingsProcessor):
 
     def __init__(self, vehicle, value):
-        super(VehicleTmenXPAccelerator, self).__init__(vehicle, VEHICLE_SETTINGS_FLAG.XP_TO_TMAN, value, (plugins.VehicleValidator(vehicle), plugins.MessageConfirmator('xpToTmenCheckbox', isEnabled=value)))
+        super(VehicleTmenXPAccelerator, self).__init__(vehicle, VEHICLE_SETTINGS_FLAG.XP_TO_TMAN, value, (plugins.MessageConfirmator('xpToTmenCheckbox', isEnabled=value),))
 
     def _errorHandler(self, code, errStr = '', ctx = None):
         if len(errStr):
@@ -217,6 +224,10 @@ class VehicleLayoutProcessor(Processor):
         self.vehicle = vehicle
         self.shellsLayout = shellsLayout or []
         self.eqsLayout = eqsLayout or []
+        shellsPrice = self.getShellsLayoutPrice()
+        eqsPrice = self.getEqsLayoutPrice()
+        isWalletValidatorEnabled = bool(shellsPrice[1] or eqsPrice[1])
+        self.addPlugins((plugins.WalletValidator(isWalletValidatorEnabled), plugins.VehicleLayoutValidator(shellsPrice, eqsPrice)))
 
     def _request(self, callback):
         BigWorld.player().inventory.setAndFillLayouts(self.vehicle.invID, self.shellsLayout, self.eqsLayout, lambda code, errStr, ext: self._response(code, callback, errStr=errStr, ctx=ext))
@@ -245,3 +256,54 @@ class VehicleLayoutProcessor(Processor):
         else:
             msg = errStr
         return makeI18nError('layout_apply/%s' % msg, vehName=self.vehicle.userName, type=SM_TYPE.Error)
+
+    def getShellsLayoutPrice(self):
+        """
+        @param layout: shells layout
+        @return: price that should be paid to fill layout
+        """
+        goldPrice = 0
+        creditsPrice = 0
+        for idx, (shellCompDescr, count, isBoughtForCredits) in enumerate(LayoutIterator(self.shellsLayout)):
+            if not shellCompDescr or not count:
+                continue
+            shell = g_itemsCache.items.getItemByCD(int(shellCompDescr))
+            vehShell = self.vehicle.shells[idx]
+            vehCount = vehShell.count if vehShell is not None else 0
+            buyCount = count - vehShell.inventoryCount - vehCount
+            if buyCount:
+                if shell.buyPrice[1] and not isBoughtForCredits:
+                    goldPrice += shell.buyPrice[1] * buyCount
+                elif shell.buyPrice[1] and isBoughtForCredits:
+                    creditsPrice += shell.buyPrice[1] * buyCount * g_itemsCache.items.shop.exchangeRateForShellsAndEqs
+                elif shell.buyPrice[0]:
+                    creditsPrice += shell.buyPrice[0] * buyCount
+
+        return (creditsPrice, goldPrice)
+
+    def getEqsLayoutPrice(self):
+        """
+        @param layout: eqs layout
+        @return: price that should be paid to fill layout
+        """
+        goldPrice = 0
+        creditsPrice = 0
+        for idx, (eqCompDescr, count, isBoughtForCredits) in enumerate(LayoutIterator(self.eqsLayout)):
+            if not eqCompDescr or not count:
+                continue
+            equipment = g_itemsCache.items.getItemByCD(int(eqCompDescr))
+            vehEquipment = self.vehicle.eqs[idx]
+            vehCount = 1 if vehEquipment is not None else 0
+            buyCount = count - equipment.inventoryCount - vehCount
+            if buyCount:
+                if equipment.buyPrice[1] and not isBoughtForCredits:
+                    goldPrice += equipment.buyPrice[1] * buyCount
+                elif equipment.buyPrice[1] and isBoughtForCredits:
+                    creditsPrice += equipment.buyPrice[1] * buyCount * g_itemsCache.items.shop.exchangeRateForShellsAndEqs
+                elif equipment.buyPrice[0]:
+                    creditsPrice += equipment.buyPrice[0] * buyCount
+
+        return (creditsPrice, goldPrice)
+# okay decompyling res/scripts/client/gui/shared/gui_items/processors/vehicle.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:52 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:30 EST
+# Embedded file name: scripts/client/game.py
 import cPickle
 import zlib
 import sys
@@ -77,11 +79,13 @@ def init(scriptConfig, engineConfig, userPreferences, loadingScreenGUI = None):
         BigWorld.callback(0.1, asyncore_call)
         MessengerEntry.g_instance.init()
         import items
-        items.init(False)
+        items.init(True, None if not constants.IS_DEVELOPMENT else {})
         import ArenaType
         ArenaType.init()
-        import dossiers
-        dossiers.init()
+        import dossiers1
+        dossiers1.init()
+        import dossiers2
+        dossiers2.init()
         BigWorld.worldDrawEnabled(False)
         import LcdKeyboard
         LcdKeyboard.enableLcdKeyboardSpecificKeys(True)
@@ -102,6 +106,8 @@ def init(scriptConfig, engineConfig, userPreferences, loadingScreenGUI = None):
     except Exception:
         LOG_CURRENT_EXCEPTION()
         BigWorld.quit()
+
+    return
 
 
 def start():
@@ -375,8 +381,12 @@ _PYTHON_MACROS = {'p': 'BigWorld.player()',
  'battleResults': 'from gui import showBattleResults; showBattleResults()',
  'events': 'from gui.WindowsManager import g_windowsManager; wm = g_windowsManager; wm.window.movie.root.utils.events.logState()',
  'killGUI': 'from gui.WindowsManager import g_windowsManager; wm = g_windowsManager; wm.window.close()',
+ 'prbCtrl': 'from gui.prb_control.dispatcher import g_prbLoader; g_prbLoader',
  'prbFunc': 'from gui.prb_control.dispatcher import g_prbLoader; g_prbLoader.getDispatcher().getPrbFunctional()',
- 'app': 'from gui.WindowsManager import g_windowsManager; wm = g_windowsManager; wm.window'}
+ 'unitFunc': 'from gui.prb_control.dispatcher import g_prbLoader; g_prbLoader.getDispatcher().getUnitFunctional()',
+ 'app': 'from gui.WindowsManager import g_windowsManager; wm = g_windowsManager; wm.window',
+ 'hangar': 'from gui.ClientHangarSpace import g_clientHangarSpaceOverride; g_clientHangarSpaceOverride',
+ 'cvi': 'from CurrentVehicle import g_currentVehicle; cvi = g_currentVehicle.item'}
 
 def expandMacros(line):
     import re
@@ -432,3 +442,6 @@ def asyncore_call():
         LOG_CURRENT_EXCEPTION()
 
     BigWorld.callback(0.1, asyncore_call)
+# okay decompyling res/scripts/client/game.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:31 EST

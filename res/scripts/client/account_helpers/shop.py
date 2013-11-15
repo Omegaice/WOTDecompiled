@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:12 EST
+# Embedded file name: scripts/client/account_helpers/Shop.py
 import AccountCommands
 import items
 import nations
@@ -97,10 +99,6 @@ class Shop(object):
         self.__getValue(None, callback)
         return
 
-    def getItems(self, itemTypeIdx, nationIdx, callback):
-        proxy = lambda resultID, items, rev: self.__onGetItemsResponse(resultID, itemTypeIdx, nationIdx, callback)
-        self.__getValue('items', proxy)
-
     def getAllItems(self, callback):
         self.__getValue('items', callback)
 
@@ -119,8 +117,8 @@ class Shop(object):
             sellPrice = (int(ceil(sellPriceFactor * (buyPrice[0] + buyPrice[1] * exchangeRate))), 0)
         return sellPrice
 
-    def getPrice(self, itemTypeIdx, nationIdx, itemShopID, callback):
-        proxy = lambda resultID, items, rev: self.__onGetPriceResponse(resultID, itemTypeIdx, nationIdx, itemShopID, callback)
+    def getPrice(self, typeCompDescr, callback):
+        proxy = lambda resultID, items, rev: self.__onGetPriceResponse(resultID, typeCompDescr, callback)
         self.__getValue('items', proxy)
 
     def getVehiclePrice(self, vehCompDescr, callback):
@@ -331,46 +329,7 @@ class Shop(object):
         elif data is None:
             return
         else:
-            for nationIdx, nationShop in data['items'].iteritems():
-                if nationIdx == nations.NONE_INDEX:
-                    continue
-                camouflages = vehicles.g_cache.customization(nationIdx).get('camouflages', None)
-                if camouflages is None:
-                    continue
-                vehList = vehicles.g_list.getList(nationIdx)
-                vehPrices, _ = nationShop[_VEHICLE]
-                for inNationIdx, price in vehPrices.iteritems():
-                    if constants.IS_DEVELOPMENT:
-                        try:
-                            vehList[inNationIdx]
-                        except Exception:
-                            from gui.Scaleform.Waiting import Waiting
-                            LOG_ERROR('Shop synchronization problem: Please, make sure to update your client version.')
-                            Waiting.close()
-
-                    vehInfo = vehList[inNationIdx]
-                    vehType = vehicles.getVehicleType(vehInfo['compactDescr'])
-                    if vehType.camouflagePriceFactor != price[2] or vehType.hornPriceFactor != price[3]:
-                        vehType.camouflagePriceFactor = price[2]
-                        vehType.hornPriceFactor = price[3]
-                    vehPrices[inNationIdx] = (price[0], price[1])
-
-                for id, priceFactor in data['customization'][nationIdx]['camouflages'].iteritems():
-                    camouflage = camouflages[id]
-                    if camouflage['priceFactor'] != priceFactor:
-                        LOG_DZ('Camouflage updated: id=%s, priceFactor:%s->%s' % (id, camouflage['priceFactor'], priceFactor))
-                        camouflage['priceFactor'] = priceFactor
-
-            emblemGroups = vehicles.g_cache.playerEmblems()[0]
-            for groupName, priceFactor in data.get('playerEmblems', {}).get('groups', {}).iteritems():
-                emblemIDs, showInShop, priceFactorOld, groupUserString = emblemGroups[groupName]
-                if priceFactorOld != priceFactor:
-                    LOG_DZ('Emblem group updated: name=%s, priceFactor:%s->%s' % (groupName, priceFactorOld, priceFactor))
-                    emblemGroups[groupName] = (emblemIDs,
-                     showInShop,
-                     priceFactor,
-                     groupUserString)
-
+            data['sellPriceModif'] = data['sellPriceFactor']
             self.__cache = data
             self.__isSynchronizing = False
             if self.__isFirstSync:
@@ -402,11 +361,11 @@ class Shop(object):
                 callback(resultID, value, self.__getCacheRevision())
             return
 
-    def __onGetPriceResponse(self, resultID, itemTypeIdx, nationIdx, itemShopID, callback):
+    def __onGetPriceResponse(self, resultID, typeCompDescr, callback):
         if resultID < 0:
             price = None
         else:
-            price = self.__getPriceFromCache(itemTypeIdx, nationIdx, itemShopID)
+            price = self.__getPriceFromCache(typeCompDescr)
         if callback is not None:
             callback(resultID, price, self.__getCacheRevision())
         return
@@ -419,8 +378,8 @@ class Shop(object):
         else:
             price = self.__getVehiclePriceFromCache(vehCompDescr, None)
             if isSellPrice and price is not None:
-                nationIdx, innationIdx = vehicles.parseVehicleCompactDescr(vehCompDescr)
-                price = self.getSellPrice(price, self.__getSellPriceModifiersFromCache(_VEHICLE, nationIdx, innationIdx), _VEHICLE)
+                typeCompDescr = vehicles.getVehicleTypeCompactDescr(vehCompDescr)
+                price = self.getSellPrice(price, self.__getSellPriceModifiersFromCache(typeCompDescr), _VEHICLE)
             if callback is not None:
                 callback(resultID, price, self.__getCacheRevision())
             return
@@ -437,8 +396,7 @@ class Shop(object):
                 if price is None:
                     prices = None
                     break
-                nationIdx, innationIdx = vehicles.parseVehicleCompactDescr(vehCompDescr)
-                prices.append(self.getSellPrice(price, self.__getSellPriceModifiersFromCache(_VEHICLE, nationIdx, innationIdx), _VEHICLE))
+                prices.append(self.getSellPrice(price, self.__getSellPriceModifiersFromCache(vehCompDescr), _VEHICLE))
 
             if callback is not None:
                 callback(resultID, prices, self.__getCacheRevision())
@@ -450,10 +408,10 @@ class Shop(object):
                 callback(resultID, None, self.__getCacheRevision())
             return
         else:
-            itemTypeIdx, nationIdx, innationIdx = vehicles.parseIntCompactDescr(compDescr)
-            price = self.__getPriceFromCache(itemTypeIdx, nationIdx, compDescr)
+            itemTypeIdx, _, _ = vehicles.parseIntCompactDescr(compDescr)
+            price = self.__getPriceFromCache(compDescr)
             if isSellPrice:
-                price = self.getSellPrice(price, self.__getSellPriceModifiersFromCache(itemTypeIdx, nationIdx, innationIdx), itemTypeIdx)
+                price = self.getSellPrice(price, self.__getSellPriceModifiersFromCache(compDescr), itemTypeIdx)
             if callback is not None:
                 callback(resultID, price, self.__getCacheRevision())
             return
@@ -466,14 +424,14 @@ class Shop(object):
         else:
             prices = []
             for compDescr in compDescrs:
-                itemTypeIdx, nationIdx, innationIdx = vehicles.parseIntCompactDescr(compDescr)
+                itemTypeIdx, _, _ = vehicles.parseIntCompactDescr(compDescr)
                 if itemTypeIdx == _VEHICLE:
                     continue
-                price = self.__getPriceFromCache(itemTypeIdx, nationIdx, compDescr, None)
+                price = self.__getPriceFromCache(compDescr, None)
                 if price is None:
                     prices = None
                     break
-                prices.append(self.getSellPrice(price, self.__getSellPriceModifiersFromCache(itemTypeIdx, nationIdx, innationIdx), itemTypeIdx))
+                prices.append(self.getSellPrice(price, self.__getSellPriceModifiersFromCache(compDescr), itemTypeIdx))
 
             if callback is not None:
                 callback(resultID, prices, self.__getCacheRevision())
@@ -489,9 +447,8 @@ class Shop(object):
             for shellCompDescr, count in AmmoIterator(ammo):
                 if count == 0:
                     continue
-                itemTypeIdx, nationIdx, innationIdx = vehicles.parseIntCompactDescr(shellCompDescr)
-                shellPrice = self.__getPriceFromCache(_SHELL, nationIdx, shellCompDescr)
-                shellSellPrice = self.getSellPrice(shellPrice, self.__getSellPriceModifiersFromCache(itemTypeIdx, nationIdx, innationIdx), _SHELL)
+                shellPrice = self.__getPriceFromCache(shellCompDescr)
+                shellSellPrice = self.getSellPrice(shellPrice, self.__getSellPriceModifiersFromCache(shellCompDescr), _SHELL)
                 price += shellSellPrice * count
 
             if callback is not None:
@@ -499,11 +456,7 @@ class Shop(object):
             return
 
     def __onGetSellPriceModifiers(self, resultID, compDescr, callback):
-        if type(compDescr) == str:
-            itemTypeIdx, (nationIdx, innationIdx) = _VEHICLE, vehicles.parseVehicleCompactDescr(compDescr)
-        else:
-            itemTypeIdx, nationIdx, innationIdx = vehicles.parseIntCompactDescr(compDescr)
-        callback(resultID, self.__getSellPriceModifiersFromCache(itemTypeIdx, nationIdx, innationIdx))
+        callback(resultID, self.__getSellPriceModifiersFromCache(compDescr))
 
     def __getNextSyncID(self):
         self.__syncID += 1
@@ -511,7 +464,7 @@ class Shop(object):
             self.__syncID = 1
         return self.__syncID
 
-    def __sendSyncRequest(self, id, proxy):
+    def __sendSyncRequest(self, syncID, proxy):
         if self.__ignore:
             return
         clientRev = self.__getCacheRevision()
@@ -520,13 +473,13 @@ class Shop(object):
     def __getCacheRevision(self):
         return self.__cache.get('rev', 0)
 
-    def __getPriceFromCache(self, itemTypeIdx, nationIdx, itemShopID, default = (0, 0)):
-        vehPrices, _ = self.__cache.get('items', {}).get(nationIdx, {}).get(itemTypeIdx, ({}, {}))
-        return vehPrices.get(itemShopID, default)
+    def __getPriceFromCache(self, typeCompDescr, default = (0, 0)):
+        vehPrices = self.__cache.get('items', {}).get('itemPrices', {})
+        return vehPrices.get(typeCompDescr, default)
 
     def __getVehiclePriceFromCache(self, vehCompDescr, default = (0, 0)):
-        nationIdx, innationIdx = vehicles.parseVehicleCompactDescr(vehCompDescr)
-        price = self.__getPriceFromCache(_VEHICLE, nationIdx, innationIdx, None)
+        typeCompDescr = vehicles.getVehicleTypeCompactDescr(vehCompDescr)
+        price = self.__getPriceFromCache(typeCompDescr, None)
         if price is None:
             return default
         else:
@@ -535,36 +488,35 @@ class Shop(object):
             for defCompDescr, instCompDescr in izip(devices[0], devices[1]):
                 if defCompDescr == instCompDescr:
                     continue
-                itemTypeIdx, nationIdx, innationIdx = vehicles.parseIntCompactDescr(defCompDescr)
-                compPrice = self.__getPriceFromCache(itemTypeIdx, nationIdx, defCompDescr, None)
+                compPrice = self.__getPriceFromCache(defCompDescr, None)
                 if compPrice is None:
                     return default
                 price = _subtractPrices(price, compPrice)
-                itemTypeIdx, nationIdx, innationIdx = vehicles.parseIntCompactDescr(instCompDescr)
-                compPrice = self.__getPriceFromCache(itemTypeIdx, nationIdx, instCompDescr, None)
+                compPrice = self.__getPriceFromCache(instCompDescr, None)
                 if compPrice is None:
                     return default
                 price = _summPrices(price, compPrice)
 
             for optDevCompDescr in devices[2]:
-                itemTypeIdx, nationIdx, innationIdx = vehicles.parseIntCompactDescr(optDevCompDescr)
-                compPrice = self.__getPriceFromCache(itemTypeIdx, nationIdx, optDevCompDescr, None)
+                compPrice = self.__getPriceFromCache(optDevCompDescr, None)
                 if compPrice is None:
                     return default
                 price = _summPrices(price, compPrice)
 
             return price
 
-    def __getSellPriceModifiersFromCache(self, itemTypeIdx, nationIdx, inNationIdx):
+    def __getSellPriceModifiersFromCache(self, typeCompDescr):
         cache = self.__cache
+        items = cache.get('items', {})
         sellPriceModif = cache.get('sellPriceModif', 0)
-        _, extData = cache.get('items', {}).get(nationIdx, {}).get(itemTypeIdx, ({}, {}))
+        sellPriceFactors = items.get('vehicleSellPriceFactors', {})
+        sellForGold = items.get('vehiclesToSellForGold', {})
         return (self.__getCacheRevision(),
          cache.get('exchangeRate', 0),
          cache.get('exchangeRateForShellsAndEqs', 0),
          sellPriceModif,
-         extData.get('sellPriceFactors', {}).get(inNationIdx, sellPriceModif),
-         inNationIdx in extData.get('sellForGold', set()))
+         sellPriceFactors.get(typeCompDescr, sellPriceModif),
+         typeCompDescr in sellForGold)
 
     def __getValue(self, key, callback):
         if self.__ignore:
@@ -586,3 +538,6 @@ def _summPrices(price1, price2):
 
 def _subtractPrices(price1, price2):
     return (price1[0] - price2[0], price1[1] - price2[1])
+# okay decompyling res/scripts/client/account_helpers/shop.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:13 EST

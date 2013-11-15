@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:52 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/settings/tooltips.py
 from gui.Scaleform.managers.ToolTipManager import ToolTipManager
 __author__ = 'd_trofimov'
 TOOLTIPS = {'tankman': {'tooltip': 'ToolTipTankmenUI',
@@ -72,6 +74,18 @@ TOOLTIPS = {'tankman': {'tooltip': 'ToolTipTankmenUI',
  'igrInfo': {'tooltip': 'ToolTipIGRUI',
              'method': ToolTipManager.getIgrInfo,
              'complex': None},
+ 'cyberSportSlot': {'tooltip': 'ToolTipSuitableVehicleUI',
+                    'method': ToolTipManager.getCyberSportSlot,
+                    'complex': None},
+ 'cyberSportSlotSelected': {'tooltip': 'ToolTipSelectedVehicleUI',
+                            'method': ToolTipManager.getCyberSportSlotSelected,
+                            'complex': None},
+ 'cyberSportTeam': {'tooltip': 'ToolTipUnitCommandUI',
+                    'method': ToolTipManager.getCyberSportUnit,
+                    'complex': None},
  'default': {'tooltip': 'ToolTipComplexUI',
              'method': None,
              'complex': None}}
+# okay decompyling res/scripts/client/gui/scaleform/daapi/settings/tooltips.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:52 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:18 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/Research.py
 import weakref
 from AccountCommands import RES_SUCCESS
 from PlayerEvents import g_playerEvents
@@ -6,9 +8,9 @@ import BigWorld
 from CurrentVehicle import g_currentVehicle
 from constants import IS_DEVELOPMENT
 from debug_utils import LOG_ERROR, LOG_DEBUG
-from gui import SystemMessages, DialogsInterface
+from gui import SystemMessages, DialogsInterface, game_control
 from gui.Scaleform.Waiting import Waiting
-from gui.Scaleform.daapi.view.dialogs.ConfirmModuleMeta import SellModuleMeta
+from gui.Scaleform.daapi.view.dialogs.ConfirmModuleMeta import LocalSellModuleMeta
 from gui.Scaleform.daapi.view.meta.ResearchMeta import ResearchMeta
 from gui.Scaleform.daapi.view.lobby.techtree import _TURRET, _GUN
 from gui.Scaleform.daapi.view.lobby.techtree.ResearchView import ResearchView
@@ -21,7 +23,7 @@ from items import ITEM_TYPE_NAMES, vehicles
 from gui.Scaleform.daapi.view.lobby.techtree import _VEHICLE_TYPE_NAME, _VEHICLE, _RESEARCH_ITEMS, USE_XML_DUMPING, SelectedNation, RequestState
 from gui.Scaleform.daapi.view.lobby.techtree.data import ResearchItemsData
 from gui.Scaleform.daapi.view.lobby.techtree import dumpers
-from gui.shared.utils.requesters import StatsRequester, Requester
+from gui.shared.utils.requesters import StatsRequester, Requester, ShopDataParser
 from functools import partial
 import nations
 
@@ -59,12 +61,15 @@ class Research(ResearchView, ResearchMeta):
         self._invListener.startListen(selfProxy)
         g_playerEvents.onShopResync += self.__shop_onResync
         g_playerEvents.onCenterIsLongDisconnected += self.__center_onIsLongDisconnected
+        self.as_setWalletStatusS(game_control.g_instance.wallet.componentsStatuses)
+        game_control.g_instance.wallet.onWalletStatusChanged += self.__setWalletCallback
 
     def _dispose(self):
         self._statsListener.stopListen()
         self._invListener.stopListen()
         g_playerEvents.onShopResync -= self.__shop_onResync
         g_playerEvents.onCenterIsLongDisconnected -= self.__center_onIsLongDisconnected
+        game_control.g_instance.wallet.onWalletStatusChanged -= self.__setWalletCallback
         Waiting.hide('draw_research_items')
         super(Research, self)._dispose()
 
@@ -146,8 +151,7 @@ class Research(ResearchView, ResearchMeta):
             else:
                 RequestState.sent(state)
             item = g_itemsCache.items.getItemByCD(itemCD)
-            success = item is not None
-            if success and item is not None:
+            if item is not None and item.isInInventory:
                 Waiting.show('applyModule')
                 result = yield getInstallerProcessor(vehicle, item).request()
                 success = result.success
@@ -221,7 +225,7 @@ class Research(ResearchView, ResearchMeta):
     @process
     def sellItem(self, itemTypeCD):
         if self._data.hasInvItem(itemTypeCD):
-            yield DialogsInterface.showDialog(SellModuleMeta(itemTypeCD))
+            yield DialogsInterface.showDialog(LocalSellModuleMeta(itemTypeCD))
         else:
             self._showMessage4Item(self.MSG_SCOPE.Inventory, 'not_found', itemTypeCD)
             yield lambda callback = None: callback
@@ -274,12 +278,12 @@ class Research(ResearchView, ResearchMeta):
         self._data._xps = yield StatsRequester().getVehicleTypeExperiences()
         self._data._unlocks = yield StatsRequester().getUnlocks()
         self._data._elite = yield StatsRequester().getEliteVehicles()
-        self._data._accFreeXP = yield StatsRequester().getFreeExperience()
-        self._data._accCredits = yield StatsRequester().getCredits()
-        self._data._accGold = yield StatsRequester().getGold()
+        self._data._accFreeXP = g_itemsCache.items.stats.actualFreeXP
+        self._data._accCredits = g_itemsCache.items.stats.credits
+        self._data._accGold = g_itemsCache.items.stats.gold
         accDossier = yield StatsRequester().getAccountDossier()
-        if accDossier and accDossier['vehDossiersCut']:
-            self._data._wereInBattle = set(accDossier['vehDossiersCut'].keys())
+        if accDossier and accDossier['a15x15Cut']:
+            self._data._wereInBattle = set(accDossier['a15x15Cut'].keys())
         BigWorld.player().inventory.getItems(_VEHICLE, self.__onGetVehiclesFromInventory)
 
     def __onGetVehiclesFromInventory(self, resultID, data):
@@ -308,7 +312,7 @@ class Research(ResearchView, ResearchMeta):
     def __requestNextIShopItems(self, itemTypeIDs):
         if len(itemTypeIDs) > 0:
             nextTypeID = itemTypeIDs.pop()
-            BigWorld.player().shop.getItems(nextTypeID, self._data.getNationID(), partial(self.__onGetItemsFromShop, nextTypeID, itemTypeIDs))
+            BigWorld.player().shop.getAllItems(partial(self.__onGetItemsFromShop, nextTypeID, itemTypeIDs))
         else:
             self.__stopDataCollect()
 
@@ -316,12 +320,9 @@ class Research(ResearchView, ResearchMeta):
         if resultID < RES_SUCCESS:
             LOG_ERROR('Server return error shop %s items request: responseCode=' % ITEM_TYPE_NAMES[itemTypeID], resultID)
             data = {}
-        prices = data[0].iteritems() if len(data) else []
-        if itemTypeID == _VEHICLE:
-            nationID = self._data.getNationID()
-            prices = map(lambda item: (vehicles.makeIntCompactDescrByID(ITEM_TYPE_NAMES[itemTypeID], nationID, item[0]), item[1]), prices)
-        for itemCD, price in prices:
-            self._data.setShopPrice(itemCD, price)
+        parser = ShopDataParser(data)
+        for intCD, price, _, _ in parser.getItemsIterator(self._data.getNationID(), itemTypeID):
+            self._data.setShopPrice(intCD, price)
 
         self.__requestNextIShopItems(itemTypeIDs)
 
@@ -338,3 +339,10 @@ class Research(ResearchView, ResearchMeta):
             self.__startDataCollect()
         else:
             self.redrawResearchItems()
+
+    def __setWalletCallback(self, status):
+        self.invalidateFreeXP(g_itemsCache.items.stats.actualFreeXP)
+        self.as_setWalletStatusS(status)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/techtree/research.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:19 EST

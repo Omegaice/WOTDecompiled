@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:13 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/constants.py
 from gui.shared.utils import CONST_CONTAINER
 
 class GRAPHICS(CONST_CONTAINER):
@@ -52,6 +54,7 @@ class GAME(CONST_CONTAINER):
     ENABLE_SERVER_AIM = 'useServerAim'
     SHOW_VEHICLES_COUNTER = 'showVehiclesCounter'
     DYNAMIC_CAMERA = 'dynamicCamera'
+    SNIPER_MODE_STABILIZATION = 'horStabilizationSnp'
     PLAYERS_PANELS_SHOW_LEVELS = 'ppShowLevels'
     PLAYERS_PANELS_SHOW_TYPES = 'ppShowTypes'
     VIBRO_CONNECTED = 'vibroIsConnected'
@@ -107,3 +110,6 @@ class MARKERS(CONST_CONTAINER):
     ALLY = 'ally'
     ENEMY = 'enemy'
     DEAD = 'dead'
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/settings/constants.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:13 EST

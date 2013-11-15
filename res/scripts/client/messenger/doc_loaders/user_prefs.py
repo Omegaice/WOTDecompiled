@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:09 EST
+# Embedded file name: scripts/client/messenger/doc_loaders/user_prefs.py
 from messenger.doc_loaders import _xml_helpers
 import types
 _userProps = {'datetimeIdx': ('readInt', 'writeInt', lambda value: value in xrange(0, 4)),
@@ -37,7 +39,7 @@ def loadFromServer(messengerSettings):
     version = g_settingsCore.serverSettings.getVersion()
     if version is not None:
         data['version'] = version
-    messengerSettings.userPrefs = messengerSettings.userPrefs._replace(**data)
+    messengerSettings.saveUserPreferences(data)
     return
 
 
@@ -53,3 +55,6 @@ def flush(messengerSettings, data):
     if len(newData):
         messengerSettings.userPrefs = messengerSettings.userPrefs._replace(**data)
     return len(newData) > 0
+# okay decompyling res/scripts/client/messenger/doc_loaders/user_prefs.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:09 EST

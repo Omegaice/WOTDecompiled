@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:57 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/BattleQueue.py
 import BigWorld, constants, MusicController
 from gui import prb_control
 from gui.Scaleform.daapi.settings.views import VIEW_ALIAS
@@ -140,3 +142,6 @@ class BattleQueue(BattleQueueMeta, LobbySubView):
         self.flashObject.as_setTimer(textLabel, timeLabel)
         self.createTime += 1
         return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/battlequeue.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:57 EST

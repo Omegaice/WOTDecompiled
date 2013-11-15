@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:30 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/DIALOGS.py
 
 
 class DIALOGS(object):
@@ -185,6 +187,7 @@ class DIALOGS(object):
     BUYVEHICLEDIALOG_SLOTCHECKBOX = '#dialogs:buyVehicleDialog/slotCheckbox'
     BUYVEHICLEDIALOG_TANKMENLABEL = '#dialogs:buyVehicleDialog/tankmenLabel'
     BUYVEHICLEDIALOG_TANKMEN = '#dialogs:buyVehicleDialog/tankmen'
+    BUYVEHICLEDIALOG_WARNING = '#dialogs:buyVehicleDialog/warning'
     BUYVEHICLEDIALOG_TANKMENCHECKBOX = '#dialogs:buyVehicleDialog/tankmenCheckbox'
     BUYVEHICLEDIALOG_TOTALLABEL = '#dialogs:buyVehicleDialog/totalLabel'
     BUYVEHICLEDIALOG_EXPANDBTNLABEL = '#dialogs:buyVehicleDialog/expandBtnLabel'
@@ -272,10 +275,6 @@ class DIALOGS(object):
     LEFTTEAMANDACCEPTINVITE_MESSAGE = '#dialogs:leftTeamAndAcceptInvite/message'
     LEFTTEAMANDACCEPTINVITE_SUBMIT = '#dialogs:leftTeamAndAcceptInvite/submit'
     LEFTTEAMANDACCEPTINVITE_CANCEL = '#dialogs:leftTeamAndAcceptInvite/cancel'
-    CANCELINVITE_TITLE = '#dialogs:cancelInvite/title'
-    CANCELINVITE_MESSAGE = '#dialogs:cancelInvite/message'
-    CANCELINVITE_SUBMIT = '#dialogs:cancelInvite/submit'
-    CANCELINVITE_CANCEL = '#dialogs:cancelInvite/cancel'
     GATHERINGXPFORM_TITLE = '#dialogs:gatheringXPForm/title'
     GATHERINGXPFORM_BEFOREOPERATION = '#dialogs:gatheringXPForm/beforeOperation'
     GATHERINGXPFORM_CURRENTAMOUNT = '#dialogs:gatheringXPForm/currentAmount'
@@ -513,14 +512,38 @@ class DIALOGS(object):
     TANKMANRETRAINING_UNKNOWNVEHICLE_MESSAGE = '#dialogs:tankmanRetraining/unknownVehicle/message'
     TANKMANRETRAINING_UNKNOWNVEHICLE_SUBMIT = '#dialogs:tankmanRetraining/unknownVehicle/submit'
     TANKMANRETRAINING_UNKNOWNVEHICLE_CANCEL = '#dialogs:tankmanRetraining/unknownVehicle/cancel'
-    SENDINVITES_PERBATTLE_TITLE = '#dialogs:sendInvites/perbattle/title'
+    SENDINVITES_PREBATTLE_TITLE = '#dialogs:sendInvites/prebattle/title'
     SENDINVITES_TRAINING_TITLE = '#dialogs:sendInvites/training/title'
     SENDINVITES_SQUAD_TITLE = '#dialogs:sendInvites/squad/title'
     SENDINVITES_COMPANY_TITLE = '#dialogs:sendInvites/company/title'
+    SENDINVITES_UNIT_TITLE = '#dialogs:sendInvites/unit/title'
     CYBERSPORT_CLOSECONFIRMATION_TITLE = '#dialogs:cyberSport/closeConfirmation/title'
     CYBERSPORT_CLOSECONFIRMATION_MESSAGE = '#dialogs:cyberSport/closeConfirmation/message'
     CYBERSPORT_CLOSECONFIRMATION_SUBMIT = '#dialogs:cyberSport/closeConfirmation/submit'
     CYBERSPORT_CLOSECONFIRMATION_CANCEL = '#dialogs:cyberSport/closeConfirmation/cancel'
+    CYBERSPORT_LEAVEUNIT_TITLE = '#dialogs:cyberSport/leaveUnit/title'
+    CYBERSPORT_LEAVEUNIT_MESSAGE = '#dialogs:cyberSport/leaveUnit/message'
+    CYBERSPORT_LEAVEUNIT_SUBMIT = '#dialogs:cyberSport/leaveUnit/submit'
+    CYBERSPORT_LEAVEUNIT_CANCEL = '#dialogs:cyberSport/leaveUnit/cancel'
+    CYBERSPORT_LEAVEUNITDISABLED_TITLE = '#dialogs:cyberSport/leaveUnitDisabled/title'
+    CYBERSPORT_LEAVEUNITDISABLED_MESSAGE = '#dialogs:cyberSport/leaveUnitDisabled/message'
+    CYBERSPORT_LEAVEUNITDISABLED_CANCEL = '#dialogs:cyberSport/leaveUnitDisabled/cancel'
+    CYBERSPORT_AUTOSEARCH_TITLE = '#dialogs:cyberSport/autoSearch/title'
+    CYBERSPORT_AUTOSEARCH_MESSAGE = '#dialogs:cyberSport/autoSearch/message'
+    CYBERSPORT_AUTOSEARCH_SUBMIT = '#dialogs:cyberSport/autoSearch/submit'
+    CYBERSPORT_AUTOSEARCH_CANCEL = '#dialogs:cyberSport/autoSearch/cancel'
+    CYBERSPORT_STARTBATTLE_TITLE = '#dialogs:cyberSport/startBattle/title'
+    CYBERSPORT_STARTBATTLE_MESSAGE = '#dialogs:cyberSport/startBattle/message'
+    CYBERSPORT_STARTBATTLE_SUBMIT = '#dialogs:cyberSport/startBattle/submit'
+    CYBERSPORT_STARTBATTLE_CANCEL = '#dialogs:cyberSport/startBattle/cancel'
+    CHANGEPERIPHERY_TITLE = '#dialogs:changePeriphery/title'
+    CHANGEPERIPHERY_MESSAGE = '#dialogs:changePeriphery/message'
+    CHANGEPERIPHERY_SUBMIT = '#dialogs:changePeriphery/submit'
+    CHANGEPERIPHERY_CANCEL = '#dialogs:changePeriphery/cancel'
+    CHANGEROAMINGPERIPHERY_TITLE = '#dialogs:changeRoamingPeriphery/title'
+    CHANGEROAMINGPERIPHERY_MESSAGE = '#dialogs:changeRoamingPeriphery/message'
+    CHANGEROAMINGPERIPHERY_SUBMIT = '#dialogs:changeRoamingPeriphery/submit'
+    CHANGEROAMINGPERIPHERY_CANCEL = '#dialogs:changeRoamingPeriphery/cancel'
     RECRUITWINDOW_VEHICLECLASSDROPDOWN_ENUM = (RECRUITWINDOW_VEHICLECLASSDROPDOWN_ALL,
      RECRUITWINDOW_VEHICLECLASSDROPDOWN_LIGHTTANK,
      RECRUITWINDOW_VEHICLECLASSDROPDOWN_MEDIUMTANK,
@@ -713,6 +736,7 @@ class DIALOGS(object):
      BUYVEHICLEDIALOG_SLOTCHECKBOX,
      BUYVEHICLEDIALOG_TANKMENLABEL,
      BUYVEHICLEDIALOG_TANKMEN,
+     BUYVEHICLEDIALOG_WARNING,
      BUYVEHICLEDIALOG_TANKMENCHECKBOX,
      BUYVEHICLEDIALOG_TOTALLABEL,
      BUYVEHICLEDIALOG_EXPANDBTNLABEL,
@@ -800,10 +824,6 @@ class DIALOGS(object):
      LEFTTEAMANDACCEPTINVITE_MESSAGE,
      LEFTTEAMANDACCEPTINVITE_SUBMIT,
      LEFTTEAMANDACCEPTINVITE_CANCEL,
-     CANCELINVITE_TITLE,
-     CANCELINVITE_MESSAGE,
-     CANCELINVITE_SUBMIT,
-     CANCELINVITE_CANCEL,
      GATHERINGXPFORM_TITLE,
      GATHERINGXPFORM_BEFOREOPERATION,
      GATHERINGXPFORM_CURRENTAMOUNT,
@@ -1031,14 +1051,38 @@ class DIALOGS(object):
      TANKMANRETRAINING_UNKNOWNVEHICLE_MESSAGE,
      TANKMANRETRAINING_UNKNOWNVEHICLE_SUBMIT,
      TANKMANRETRAINING_UNKNOWNVEHICLE_CANCEL,
-     SENDINVITES_PERBATTLE_TITLE,
+     SENDINVITES_PREBATTLE_TITLE,
      SENDINVITES_TRAINING_TITLE,
      SENDINVITES_SQUAD_TITLE,
      SENDINVITES_COMPANY_TITLE,
+     SENDINVITES_UNIT_TITLE,
      CYBERSPORT_CLOSECONFIRMATION_TITLE,
      CYBERSPORT_CLOSECONFIRMATION_MESSAGE,
      CYBERSPORT_CLOSECONFIRMATION_SUBMIT,
-     CYBERSPORT_CLOSECONFIRMATION_CANCEL)
+     CYBERSPORT_CLOSECONFIRMATION_CANCEL,
+     CYBERSPORT_LEAVEUNIT_TITLE,
+     CYBERSPORT_LEAVEUNIT_MESSAGE,
+     CYBERSPORT_LEAVEUNIT_SUBMIT,
+     CYBERSPORT_LEAVEUNIT_CANCEL,
+     CYBERSPORT_LEAVEUNITDISABLED_TITLE,
+     CYBERSPORT_LEAVEUNITDISABLED_MESSAGE,
+     CYBERSPORT_LEAVEUNITDISABLED_CANCEL,
+     CYBERSPORT_AUTOSEARCH_TITLE,
+     CYBERSPORT_AUTOSEARCH_MESSAGE,
+     CYBERSPORT_AUTOSEARCH_SUBMIT,
+     CYBERSPORT_AUTOSEARCH_CANCEL,
+     CYBERSPORT_STARTBATTLE_TITLE,
+     CYBERSPORT_STARTBATTLE_MESSAGE,
+     CYBERSPORT_STARTBATTLE_SUBMIT,
+     CYBERSPORT_STARTBATTLE_CANCEL,
+     CHANGEPERIPHERY_TITLE,
+     CHANGEPERIPHERY_MESSAGE,
+     CHANGEPERIPHERY_SUBMIT,
+     CHANGEPERIPHERY_CANCEL,
+     CHANGEROAMINGPERIPHERY_TITLE,
+     CHANGEROAMINGPERIPHERY_MESSAGE,
+     CHANGEROAMINGPERIPHERY_SUBMIT,
+     CHANGEROAMINGPERIPHERY_CANCEL)
 
     @staticmethod
     def recruitwindow_vehicleclassdropdown(key):
@@ -1067,3 +1111,6 @@ class DIALOGS(object):
         if outcome not in DIALOGS.all_ENUM:
             raise Exception, 'locale key "' + outcome + '" was not found'
         return outcome
+# okay decompyling res/scripts/client/gui/scaleform/locale/dialogs.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:32 EST

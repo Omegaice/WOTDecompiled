@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:23 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/login/LoginCreateAnAccountWindow.py
 from debug_utils import LOG_DEBUG
 from gui.Scaleform.daapi.view.meta.LoginCreateAnAccountWindowMeta import LoginCreateAnAccountWindowMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
@@ -35,3 +37,6 @@ class LoginCreateAnAccountWindow(View, WindowViewMeta, LoginCreateAnAccountWindo
 
     def __onCreateAccResponse(self, event):
         self.as_registerResponseS(event.isSuccess, event.errorMsg)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/login/logincreateanaccountwindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:23 EST

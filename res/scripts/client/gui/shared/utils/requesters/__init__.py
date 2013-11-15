@@ -1,7 +1,9 @@
+# 2013.11.15 11:27:03 EST
+# Embedded file name: scripts/client/gui/shared/utils/requesters/__init__.py
 import BigWorld
 import nations
 import constants
-import dossiers
+import dossiers2
 from functools import partial
 from adisp import async, process
 from debug_utils import *
@@ -179,11 +181,13 @@ class ShopParser(Parser):
         if data is None or not len(data):
             return []
         else:
-            vehicles = []
-            for compactDescr, price in data[0].items():
-                vehicles.append(ShopItem(itemTypeName=ITEM_TYPE_NAMES[1], compactDescr=compactDescr, priceOrder=price, nation=nationId, hidden=compactDescr in data[1]['notInShop']))
+            result = []
+            parser = ShopDataParser(data)
+            for intCD, price, isHidden, sellForGold in parser.getItemsIterator(nationId, GUI_ITEM_TYPE.VEHICLE):
+                _, _, innationID = vehicles.parseIntCompactDescr(intCD)
+                result.append(ShopItem(itemTypeName=ITEM_TYPE_NAMES[GUI_ITEM_TYPE.VEHICLE], compactDescr=innationID, priceOrder=price, nation=nationId, hidden=isHidden))
 
-            return vehicles
+            return result
 
     @staticmethod
     def parseModules(data, itemTypeID, nationId):
@@ -191,8 +195,9 @@ class ShopParser(Parser):
             return []
         else:
             modules = []
-            for compactDescr, price in data[0].items():
-                modules.append(ShopItem(itemTypeName=ITEM_TYPE_NAMES[itemTypeID], compactDescr=compactDescr, priceOrder=price, nation=nationId, hidden=compactDescr in data[1]['notInShop']))
+            parser = ShopDataParser(data)
+            for intCD, price, isHidden, sellForGold in parser.getItemsIterator(nationId, itemTypeID):
+                modules.append(ShopItem(itemTypeName=ITEM_TYPE_NAMES[itemTypeID], compactDescr=intCD, priceOrder=price, nation=nationId, hidden=isHidden))
 
             return modules
 
@@ -308,7 +313,7 @@ class Requester(object):
 
     def _requestShop(self, nationId):
         raise hasattr(BigWorld.player(), 'shop') or AssertionError, 'Request from shop is not possible'
-        BigWorld.player().shop.getItems(self._itemTypeId, nationId, lambda responseCode, data, shopRev: self.__parseShopResponse(responseCode, data, nationId))
+        BigWorld.player().shop.getAllItems(lambda res, data, rev: self.__parseShopResponse(res, data, nationId))
 
     def __parseShopResponse(self, responseCode, data, nationId):
         listData = []
@@ -526,17 +531,17 @@ class StatsRequester(object):
         BigWorld.player().stats.get('multipliedXPVehs', self.__valueResponse)
 
     @async
-    @responseIfNotAccount(func=dossiers.getAccountDossierDescr, args=('',))
+    @responseIfNotAccount(func=dossiers2.getAccountDossierDescr, args=('',))
     def getAccountDossier(self, callback):
         BigWorld.player().stats.get('dossier', self.__accountDossierResponse)
 
     @async
-    @responseIfNotAccount(func=dossiers.getVehicleDossierDescr, args=('',))
+    @responseIfNotAccount(func=dossiers2.getVehicleDossierDescr, args=('',))
     def getVehicleDossier(self, vehTypeCompDescr, callback):
         BigWorld.player().dossierCache.get(constants.DOSSIER_TYPE.VEHICLE, vehTypeCompDescr, self.__vehicleDossierResponse)
 
     @async
-    @responseIfNotAccount(func=dossiers.getTankmanDossierDescr, args=('',))
+    @responseIfNotAccount(func=dossiers2.getTankmanDossierDescr, args=('',))
     def getTankmanDossier(self, tankmanID, callback):
         BigWorld.player().inventory.getItems(_TANKMAN, partial(self.__tankmanDossierResponse, tankmanID))
 
@@ -824,8 +829,7 @@ class StatsRequester(object):
             LOG_ERROR('Server return error for stat account dossier request: responseCode=%s' % responseCode)
             return
         if self.__callback:
-            import dossiers
-            dossierDescr = dossiers.getAccountDossierDescr(dossierCompDescr)
+            dossierDescr = dossiers2.getAccountDossierDescr(dossierCompDescr)
             self.__callback(dossierDescr)
 
     def __vehicleDossierResponse(self, responseCode, vehTypeDossiers = ''):
@@ -834,10 +838,9 @@ class StatsRequester(object):
             return
         else:
             if self.__callback:
-                import dossiers
                 if vehTypeDossiers is not None:
-                    self.__callback(dossiers.getVehicleDossierDescr(vehTypeDossiers))
-                self.__callback(dossiers.getVehicleDossierDescr(''))
+                    self.__callback(dossiers2.getVehicleDossierDescr(vehTypeDossiers))
+                self.__callback(dossiers2.getVehicleDossierDescr(''))
             return
 
     def __tankmanDossierResponse(self, tankmanID, resultID, data):
@@ -852,7 +855,7 @@ class StatsRequester(object):
                     tmenCompDescr = tankman.get(tankmanID, None)
                     if tmenCompDescr is not None:
                         dossier = tankmen.TankmanDescr(tmenCompDescr).dossierCompactDescr
-                self.__callback(dossiers.getTankmanDossierDescr(dossier))
+                self.__callback(dossiers2.getTankmanDossierDescr(dossier))
             return
 
     def _valueResponse(self, responseCode, value = None, revision = 0):
@@ -926,3 +929,6 @@ class VehicleItemsRequester(object):
         if itemTypeName == 'equipment':
             return v.equipments
         return []
+# okay decompyling res/scripts/client/gui/shared/utils/requesters/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:04 EST

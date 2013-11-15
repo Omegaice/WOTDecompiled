@@ -1,7 +1,9 @@
+# 2013.11.15 11:27:22 EST
+# Embedded file name: scripts/client/tutorial/control/offbattle/context.py
 import BigWorld
 from AccountCommands import RES_SUCCESS
 from constants import FINISH_REASON, IS_TUTORIAL_ENABLED
-import dossiers
+import dossiers2
 from tutorial import doc_loader
 from tutorial.control import context
 from tutorial.control.battle.context import ExtendedBattleClientCtx
@@ -80,10 +82,10 @@ class OffbattleStartReqs(context.StartReqs):
             loader._clear()
             return
         else:
-            dossierDescr = dossiers.getAccountDossierDescr(dossierCD)
-            battlesCount = dossierDescr['battlesCount']
+            dossierDescr = dossiers2.getAccountDossierDescr(dossierCD)
+            battlesCount = dossierDescr['a15x15']['battlesCount']
             threshold = BigWorld.player().serverSettings.get('newbieBattlesCount', 0)
-            if dossierDescr['battlesCount'] < threshold:
+            if battlesCount < threshold:
                 descriptor = tutorial._descriptor
                 chapter = descriptor.getChapter(descriptor.getInitialChapterID())
                 if not chapter is None:
@@ -123,3 +125,6 @@ class OffbattleBonusesRequester(LobbyBonusesRequester):
             return self.__chapter
         else:
             return self._data
+# okay decompyling res/scripts/client/tutorial/control/offbattle/context.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:22 EST

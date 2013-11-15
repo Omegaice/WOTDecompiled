@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:31 EST
+# Embedded file name: scripts/common/chat_shared.py
 import time
 import constants
 from Event import Event
@@ -403,6 +405,7 @@ CHAT_CHANNEL_VOICE = 256
 CHAT_CHANNEL_CLAN = 512
 CHAT_CHANNEL_PREBATTLE_CLAN = 1024
 CHAT_CHANNEL_TOURNAMENT = 2048
+CHAT_CHANNEL_UNIT = 4096
 CHAT_CHANNEL_NOTIFY_MEMBERS_MASK = 3
 CHAT_CHANNEL_NOTIFY_MEMBERS_IN_OUT = 0
 CHAT_CHANNEL_NOT_NOTIFY_MEMBERS_IN_OUT = 1
@@ -1286,3 +1289,6 @@ def _checkRosterAccessBitmask(rosterData, bitmask):
 class MESSAGE_FILTER_TYPE(object):
     EXCLUDE = 1
     INCLUDE = 2
+# okay decompyling res/scripts/common/chat_shared.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:34 EST

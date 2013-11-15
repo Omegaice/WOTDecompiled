@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:37 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/VEHICLE_CUSTOMIZATION.py
 
 
 class VEHICLE_CUSTOMIZATION(object):
@@ -91,6 +93,12 @@ class VEHICLE_CUSTOMIZATION(object):
     CAMOUFLAGE_UK_TRICOLOR_LARGE_SPOTTED = '#vehicle_customization:camouflage/uk/tricolor/large-spotted'
     CAMOUFLAGE_UK_BICOLOR_LARGE_MICKEY_MOUSE_EARS = '#vehicle_customization:camouflage/uk/bicolor/large-Mickey_Mouse_ears'
     CAMOUFLAGE_UK_BICOLOR_WINTER = '#vehicle_customization:camouflage/uk/bicolor/winter'
+    CAMOUFLAGE_JAPAN_WINTER_WHITE = '#vehicle_customization:camouflage/japan/winter_white'
+    CAMOUFLAGE_JAPAN_WINTER_SPOTS = '#vehicle_customization:camouflage/japan/winter_spots'
+    CAMOUFLAGE_JAPAN_SUMMER_FOUR_COLOR = '#vehicle_customization:camouflage/japan/summer_four-color'
+    CAMOUFLAGE_JAPAN_SUMMER_THREE_COLOR_SPOTS = '#vehicle_customization:camouflage/japan/summer_three-color_spots'
+    CAMOUFLAGE_JAPAN_DESERT_BLUE_BROWN = '#vehicle_customization:camouflage/japan/desert_blue-brown'
+    CAMOUFLAGE_JAPAN_DESERT_GREEN_BROWN_SPOTS = '#vehicle_customization:camouflage/japan/desert_green-brown_spots'
     EMBLEM_GROUP1_STAR = '#vehicle_customization:emblem/group1/star'
     EMBLEM_ANIMALS = '#vehicle_customization:emblem/animals'
     EMBLEM_BATTLE = '#vehicle_customization:emblem/battle'
@@ -440,6 +448,15 @@ class VEHICLE_CUSTOMIZATION(object):
     INSCRIPTION_GERMANY_HUMMEL = '#vehicle_customization:inscription/germany/hummel'
     INSCRIPTION_GERMANY_MARDER = '#vehicle_customization:inscription/germany/marder'
     INSCRIPTION_GERMANY_GRIFFON = '#vehicle_customization:inscription/germany/griffon'
+    INSCRIPTION_JAPAN_SHIELD = '#vehicle_customization:inscription/japan/shield'
+    INSCRIPTION_JAPAN_PATRIOTISM = '#vehicle_customization:inscription/japan/patriotism'
+    INSCRIPTION_JAPAN_TAKU = '#vehicle_customization:inscription/japan/taku'
+    INSCRIPTION_JAPAN_ATTACK = '#vehicle_customization:inscription/japan/attack'
+    INSCRIPTION_JAPAN_WATERFALL = '#vehicle_customization:inscription/japan/waterfall'
+    INSCRIPTION_JAPAN_STEEL = '#vehicle_customization:inscription/japan/steel'
+    INSCRIPTION_JAPAN_COMMANDOS = '#vehicle_customization:inscription/japan/commandos'
+    INSCRIPTION_JAPAN_SPIRIT = '#vehicle_customization:inscription/japan/spirit'
+    INSCRIPTION_JAPAN_BLOW = '#vehicle_customization:inscription/japan/blow'
     INSCRIPTION_UK_DEMON = '#vehicle_customization:inscription/uk/demon'
     INSCRIPTION_UK_THUNDERBOLT = '#vehicle_customization:inscription/uk/thunderbolt'
     INSCRIPTION_UK_FIREBALL = '#vehicle_customization:inscription/uk/fireball'
@@ -660,3 +677,6 @@ class VEHICLE_CUSTOMIZATION(object):
     HORNS_MUSIC_02 = '#vehicle_customization:horns/music_02'
     HORNS_MUSIC_03 = '#vehicle_customization:horns/music_03'
     HORNS_MUSIC_04 = '#vehicle_customization:horns/music_04'
+# okay decompyling res/scripts/client/gui/scaleform/locale/vehicle_customization.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:37 EST

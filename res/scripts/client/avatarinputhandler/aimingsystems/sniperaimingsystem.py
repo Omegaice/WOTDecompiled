@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:19 EST
+# Embedded file name: scripts/client/AvatarInputHandler/AimingSystems/SniperAimingSystem.py
 import BigWorld
 import Math
 import GUI
@@ -13,7 +15,16 @@ from projectile_trajectory import getShotAngles
 class SniperAimingSystem(IAimingSystem):
     turretYaw = property(lambda self: self.__idealTurretYaw + self.__oscillator.deviation.x)
     gunPitch = property(lambda self: self.__idealGunPitch + self.__oscillator.deviation.y)
-    USE_DAMPING = True
+    __CONSTRAINTS_MULTIPLIERS = Vector3(1.0, 1.0, 1.0)
+
+    @staticmethod
+    def setStabilizerSettings(useHorizontalStabilizer, useVerticalStabilizer):
+        SniperAimingSystem.__CONSTRAINTS_MULTIPLIERS.x = 1.0 if useHorizontalStabilizer else 0.0
+        SniperAimingSystem.__CONSTRAINTS_MULTIPLIERS.y = 1.0 if useVerticalStabilizer else 0.0
+
+    @staticmethod
+    def getStabilizerSettings():
+        return (SniperAimingSystem.__CONSTRAINTS_MULTIPLIERS.x > 0.0, SniperAimingSystem.__CONSTRAINTS_MULTIPLIERS.y > 0.0)
 
     def __init__(self):
         IAimingSystem.__init__(self)
@@ -24,15 +35,16 @@ class SniperAimingSystem(IAimingSystem):
         self.__vehicleTypeDescriptor = None
         self.__vehicleMProv = None
         self.__vehiclePrevMat = None
-        self.__oscillator = Oscillator(1.0, Vector3(0.0, 0.0, 15.0), Vector3(0.0, 0.0, 3.5), Vector3(math.pi * 2.1, math.pi / 2 * 0.95, 0.0))
+        self.__yprDeviationConstraints = Vector3(math.pi * 2.1, math.pi / 2 * 0.95, 0.0)
+        self.__oscillator = Oscillator(1.0, Vector3(0.0, 0.0, 15.0), Vector3(0.0, 0.0, 3.5), self.__yprDeviationConstraints)
         return
 
     def destroy(self):
         IAimingSystem.destroy(self)
 
-    def enableHorizontalStabilizer(self, enable):
+    def enableHorizontalStabilizerRuntime(self, enable):
         yawConstraint = math.pi * 2.1 if enable else 0.0
-        self.__oscillator.constraints.x = yawConstraint
+        self.__yprDeviationConstraints.x = yawConstraint
 
     def enable(self, targetPos):
         player = BigWorld.player()
@@ -87,13 +99,7 @@ class SniperAimingSystem(IAimingSystem):
         return (worldToTurret.yaw, worldToTurret.pitch)
 
     def update(self, deltaTime):
-        if not SniperAimingSystem.USE_DAMPING:
-            self.__oscillator.reset()
-            currentGunMat = AimingSystems.getPlayerGunMat(self.__idealTurretYaw, self.__idealGunPitch)
-            self.__worldYaw = currentGunMat.yaw
-            self.__worldPitch = currentGunMat.pitch
-            self._matrix.set(currentGunMat)
-            return
+        self.__oscillator.constraints = mathUtils.matrixScale(self.__yprDeviationConstraints, SniperAimingSystem.__CONSTRAINTS_MULTIPLIERS)
         vehicleMat = Matrix(self.__vehicleMProv)
         curTurretYaw, curGunPitch = self.__worldYawPitchToTurret(self.__worldYaw, self.__worldPitch)
         yprDelta = Vector3(curTurretYaw - self.__idealTurretYaw, curGunPitch - self.__idealGunPitch, 0)
@@ -110,3 +116,6 @@ class SniperAimingSystem(IAimingSystem):
         self._matrix.set(currentGunMat)
         self.__vehiclePrevMat = vehicleMat
         return 0.0
+# okay decompyling res/scripts/client/avatarinputhandler/aimingsystems/sniperaimingsystem.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:19 EST

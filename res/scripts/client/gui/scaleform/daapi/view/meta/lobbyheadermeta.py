@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:25 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/meta/LobbyHeaderMeta.py
 from gui.Scaleform.framework.entities.DAAPIModule import DAAPIModule
 
 class LobbyHeaderMeta(DAAPIModule):
@@ -20,9 +22,19 @@ class LobbyHeaderMeta(DAAPIModule):
     def onPayment(self):
         self._printOverrideError('onPayment')
 
+    def getServers(self):
+        self._printOverrideError('getServers')
+
+    def relogin(self, id):
+        self._printOverrideError('relogin')
+
     def as_setScreenS(self, alias):
         if self._isDAAPIInited():
             return self.flashObject.as_setScreen(alias)
+
+    def as_setPeripheryChangingS(self, isChanged):
+        if self._isDAAPIInited():
+            return self.flashObject.as_setPeripheryChanging(isChanged)
 
     def as_creditsResponseS(self, credits):
         if self._isDAAPIInited():
@@ -31,6 +43,14 @@ class LobbyHeaderMeta(DAAPIModule):
     def as_goldResponseS(self, gold):
         if self._isDAAPIInited():
             return self.flashObject.as_goldResponse(gold)
+
+    def as_setWalletStatusS(self, walletStatus):
+        if self._isDAAPIInited():
+            return self.flashObject.as_setWalletStatus(walletStatus)
+
+    def as_disableRoamingDDS(self, disable):
+        if self._isDAAPIInited():
+            return self.flashObject.as_disableRoamingDD(disable)
 
     def as_setFreeXPS(self, freeXP):
         if self._isDAAPIInited():
@@ -79,3 +99,6 @@ class LobbyHeaderMeta(DAAPIModule):
     def as_doDisableNavigationS(self):
         if self._isDAAPIInited():
             return self.flashObject.as_doDisableNavigation()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/meta/lobbyheadermeta.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:25 EST

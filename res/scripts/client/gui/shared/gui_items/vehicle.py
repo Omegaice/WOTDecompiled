@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:53 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/Vehicle.py
 import BigWorld
 from itertools import izip
 from AccountCommands import LOCK_REASON, VEHICLE_SETTINGS_FLAG
@@ -5,7 +7,7 @@ from gui import prb_control
 from helpers import i18n
 from items import vehicles, tankmen, getTypeInfoByName
 from gui.prb_control.settings import PREBATTLE_SETTING_NAME
-from gui.shared.gui_items import getVehicleComponentsByType, ItemsCollection, CLAN_LOCK, HasStrCD, FittingItem
+from gui.shared.gui_items import CLAN_LOCK, HasStrCD, FittingItem
 from gui.shared.gui_items.serializers import g_itemSerializer
 from gui.shared.gui_items.vehicle_modules import Shell, VehicleChassis, VehicleEngine, VehicleRadio, VehicleFuelTank, VehicleTurret, VehicleGun
 from gui.shared.gui_items.artefacts import Equipment, OptionalDevice
@@ -37,6 +39,7 @@ class Vehicle(FittingItem, HasStrCD):
         LOCKED = 'locked'
         CREW_NOT_FULL = 'crewNotFull'
         AMMO_NOT_FULL = 'ammoNotFull'
+        SERVER_RESTRICTION = 'serverRestriction'
 
     class VEHICLE_STATE_LEVEL:
         CRITICAL = 'critical'
@@ -82,7 +85,11 @@ class Vehicle(FittingItem, HasStrCD):
         self.fuelTank = VehicleFuelTank(vehDescr.fuelTank['compactDescr'], proxy, vehDescr.fuelTank)
         self.sellPrice = self._calcSellPrice(proxy)
         self.optDevices = self._parserOptDevs(vehDescr.optionalDevices, proxy)
-        self.shells = self._parseShells(invData.get('shells', list()), invData.get('shellsLayout', dict()).get(self.shellsLayoutIdx, list()), proxy)
+        gunAmmoLayout = []
+        for shell in self.gun.defaultAmmo:
+            gunAmmoLayout += (shell.intCD, shell.defaultCount)
+
+        self.shells = self._parseShells(invData.get('shells', list()), invData.get('shellsLayout', dict()).get(self.shellsLayoutIdx, gunAmmoLayout), proxy)
         self.eqs = self._parseEqs(invData.get('eqs') or [0, 0, 0], proxy)
         self.eqsLayout = self._parseEqs(invData.get('eqsLayout') or [0, 0, 0], proxy)
         defaultCrew = [None] * len(vehDescr.type.crewRoles)
@@ -156,16 +163,14 @@ class Vehicle(FittingItem, HasStrCD):
         nId, innID = vehicles.parseVehicleCompactDescr(compactDescr)
         return (vehicles._VEHICLE, nId, innID)
 
-    def _getShopData(self, proxy):
-        return proxy.shop.getItems(self.itemTypeID, self.nationID, self.innationID)
-
     def _parseShells(self, layoutList, defaultLayoutsList, proxy):
         result = list()
         for i in xrange(0, len(layoutList), 2):
-            intCD = layoutList[i]
+            intCD = abs(layoutList[i])
             shellsVehCount = layoutList[i + 1]
             shellsDefCount = defaultLayoutsList[i + 1] if i + 1 < len(defaultLayoutsList) else 0
-            result.append(Shell(intCD, shellsVehCount, shellsDefCount, proxy))
+            isBoughtForCredits = defaultLayoutsList[i] < 0 if i < len(defaultLayoutsList) else False
+            result.append(Shell(intCD, shellsVehCount, shellsDefCount, proxy, isBoughtForCredits))
 
         return result
 
@@ -173,7 +178,7 @@ class Vehicle(FittingItem, HasStrCD):
         result = list()
         for i in xrange(len(layoutList)):
             intCD = abs(layoutList[i])
-            result.append(Equipment(intCD, proxy) if intCD != 0 else None)
+            result.append(Equipment(intCD, proxy, layoutList[i] < 0) if intCD != 0 else None)
 
         return result
 
@@ -215,6 +220,7 @@ class Vehicle(FittingItem, HasStrCD):
     def ammoMaxSize(self):
         return self.descriptor.gun['maxAmmo']
 
+    @property
     def isAmmoFull(self):
         return sum((s.count for s in self.shells)) >= self.ammoMaxSize * self.NOT_FULL_AMMO_MULTIPLIER
 
@@ -232,12 +238,14 @@ class Vehicle(FittingItem, HasStrCD):
             ms = Vehicle.VEHICLE_STATE.BATTLE
         elif self.isLocked:
             ms = Vehicle.VEHICLE_STATE.LOCKED
+        elif self.isDisabledInRoaming:
+            ms = Vehicle.VEHICLE_STATE.SERVER_RESTRICTION
         if ms == Vehicle.VEHICLE_STATE.UNDAMAGED:
             if self.repairCost > 0:
                 ms = Vehicle.VEHICLE_STATE.DAMAGED
             elif not self.isCrewFull:
                 ms = Vehicle.VEHICLE_STATE.CREW_NOT_FULL
-            elif not self.isAmmoFull():
+            elif not self.isAmmoFull:
                 ms = Vehicle.VEHICLE_STATE.AMMO_NOT_FULL
         return (ms, self.__getStateLevel(ms))
 
@@ -245,7 +253,8 @@ class Vehicle(FittingItem, HasStrCD):
         if state in [Vehicle.VEHICLE_STATE.CREW_NOT_FULL,
          Vehicle.VEHICLE_STATE.DAMAGED,
          Vehicle.VEHICLE_STATE.EXPLODED,
-         Vehicle.VEHICLE_STATE.DESTROYED]:
+         Vehicle.VEHICLE_STATE.DESTROYED,
+         Vehicle.VEHICLE_STATE.SERVER_RESTRICTION]:
             return Vehicle.VEHICLE_STATE_LEVEL.CRITICAL
         if state in [Vehicle.VEHICLE_STATE.UNDAMAGED]:
             return Vehicle.VEHICLE_STATE_LEVEL.INFO
@@ -256,8 +265,17 @@ class Vehicle(FittingItem, HasStrCD):
         return bool(self.tags & frozenset(('premium',)))
 
     @property
+    def isSecret(self):
+        return bool(self.tags & frozenset(('secret',)))
+
+    @property
     def isSpecial(self):
         return bool(self.tags & frozenset(('special',)))
+
+    @property
+    def isDisabledInRoaming(self):
+        from gui import game_control
+        return bool(self.tags & frozenset(('disabledInRoaming',))) and game_control.g_instance.roaming.isInRoaming()
 
     @property
     def name(self):
@@ -317,6 +335,10 @@ class Vehicle(FittingItem, HasStrCD):
         return self.lock == LOCK_REASON.IN_QUEUE
 
     @property
+    def isInUnit(self):
+        return self.lock == LOCK_REASON.UNIT
+
+    @property
     def isBroken(self):
         return self.repairCost > 0
 
@@ -348,7 +370,7 @@ class Vehicle(FittingItem, HasStrCD):
     def isReadyToFight(self):
         result = not self.hasLockMode()
         if result:
-            result = self.isAlive and self.isCrewFull
+            result = self.isAlive and self.isCrewFull and not self.isDisabledInRoaming
         return result
 
     @property
@@ -360,8 +382,8 @@ class Vehicle(FittingItem, HasStrCD):
         return bool(self.settings & VEHICLE_SETTINGS_FLAG.AUTO_REPAIR)
 
     @property
-    def isAutoRepair(self):
-        return bool(self.settings & VEHICLE_SETTINGS_FLAG.AUTO_REPAIR)
+    def isAutoLoad(self):
+        return bool(self.settings & VEHICLE_SETTINGS_FLAG.AUTO_LOAD)
 
     @property
     def isAutoEquip(self):
@@ -444,3 +466,6 @@ class Vehicle(FittingItem, HasStrCD):
 
     def _sortByType(self, other):
         return VEHICLE_TYPES_ORDER_INDICES[self.type] - VEHICLE_TYPES_ORDER_INDICES[other.type]
+# okay decompyling res/scripts/client/gui/shared/gui_items/vehicle.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:54 EST

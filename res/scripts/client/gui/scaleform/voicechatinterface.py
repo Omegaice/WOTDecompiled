@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:46 EST
+# Embedded file name: scripts/client/gui/Scaleform/VoiceChatInterface.py
 import BigWorld, Settings, constants, Event
 import BattleReplay
 from adisp import async
@@ -160,3 +162,6 @@ class _VoiceChatInterface(UIInterface):
 
 
 g_instance = _VoiceChatInterface()
+# okay decompyling res/scripts/client/gui/scaleform/voicechatinterface.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:46 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:57 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/CamouflageInterface.py
 import BigWorld
 import functools
 from datetime import timedelta
@@ -10,6 +12,7 @@ from gui.Scaleform.daapi.view.lobby.customization.BaseTimedCustomizationInterfac
 from gui.Scaleform.daapi.view.lobby.customization.data_providers import CamouflageGroupsDataProvider, CamouflagesDataProvider, CamouflageRentalPackageDataProvider
 from gui.Scaleform.locale.MENU import MENU
 from gui.Scaleform.locale.SYSTEM_MESSAGES import SYSTEM_MESSAGES
+from gui.shared import g_itemsCache
 from gui.shared.utils.HangarSpace import g_hangarSpace
 from helpers import i18n, time_utils
 from items.vehicles import CAMOUFLAGE_KINDS
@@ -54,7 +57,7 @@ class CamouflageInterface(BaseTimedCustomizationInterface):
         return dp
 
     def getItemPriceFactor(self, vehType):
-        return vehType.camouflagePriceFactor
+        return g_itemsCache.items.shop.getVehCamouflagePriceFactor(vehType.compactDescr)
 
     def invalidateViewData(self, vehType, refresh = False):
         if vehType is not None:
@@ -99,12 +102,15 @@ class CamouflageInterface(BaseTimedCustomizationInterface):
 
     def onSetID(self, itemID, kind, packageIdx):
         item = self.currentItemsByKind.get(kind)
-        if item.get('id') == itemID:
+        if itemID == -1:
             item['newItemID'] = None
         else:
-            item['newItemID'] = itemID
-        item['packageIdx'] = packageIdx
-        self.updateVehicleCustomization(itemID)
+            if item.get('id') == itemID:
+                item['newItemID'] = None
+            else:
+                item['newItemID'] = itemID
+            item['packageIdx'] = packageIdx
+            self.updateVehicleCustomization(itemID)
         return
 
     def _onRentalPackagesDataInited(self, selectedPackage, refresh):
@@ -262,3 +268,6 @@ class CamouflageInterface(BaseTimedCustomizationInterface):
             message = i18n.makeString(SYSTEM_MESSAGES.CUSTOMIZATION_CAMOUFLAGE_DROP_SUCCESS)
             self.onCustomizationDropSuccess(message)
             return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/customization/camouflageinterface.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:58 EST

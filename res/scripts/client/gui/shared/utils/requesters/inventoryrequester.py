@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:05 EST
+# Embedded file name: scripts/client/gui/shared/utils/requesters/InventoryRequester.py
 import time
 import types
 from collections import namedtuple, defaultdict
@@ -279,3 +281,6 @@ class InventoryRequester(RequesterAbstract):
                     result[key] = value
 
             return result
+# okay decompyling res/scripts/client/gui/shared/utils/requesters/inventoryrequester.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:05 EST

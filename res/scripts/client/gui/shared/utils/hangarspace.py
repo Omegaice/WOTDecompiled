@@ -1,4 +1,8 @@
+# 2013.11.15 11:27:00 EST
+# Embedded file name: scripts/client/gui/shared/utils/HangarSpace.py
 import BigWorld
+from items import vehicles
+from gui import game_control
 from gui.ClientHangarSpace import ClientHangarSpace
 from gui.Scaleform.Waiting import Waiting
 from debug_utils import LOG_DEBUG
@@ -77,10 +81,15 @@ class _HangarSpace(object):
             self.__delayedRefreshCallback = None
         return
 
+    def _stripVehCompDescrIfRoaming(self, vehCompDescr):
+        if game_control.g_instance.roaming.isInRoaming():
+            vehCompDescr = vehicles.stripCustomizationFromVehicleCompactDescr(vehCompDescr, True, True, False)[0]
+        return vehicles.VehicleDescr(compactDescr=vehCompDescr)
+
     def updateVehicle(self, vehicle):
         if self.__inited:
             Waiting.show('loadHangarSpaceVehicle', True)
-            self.__space.recreateVehicle(vehicle.descriptor, vehicle.modelState, self.__changeDone)
+            self.__space.recreateVehicle(self._stripVehCompDescrIfRoaming(vehicle.descriptor.makeCompactDescr()), vehicle.modelState, self.__changeDone)
             self.__lastUpdatedVehicle = vehicle
 
     def removeVehicle(self):
@@ -112,3 +121,6 @@ class _HangarSpace(object):
 
 
 g_hangarSpace = _HangarSpace()
+# okay decompyling res/scripts/client/gui/shared/utils/hangarspace.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:01 EST

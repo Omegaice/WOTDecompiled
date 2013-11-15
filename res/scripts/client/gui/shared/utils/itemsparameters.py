@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:01 EST
+# Embedded file name: scripts/client/gui/shared/utils/ItemsParameters.py
 import BigWorld
 from gui.shared.utils import ParametersCache, RELOAD_TIME_PROP_NAME, AIMING_TIME_PROP_NAME, PIERCING_POWER_PROP_NAME, DAMAGE_PROP_NAME, SHELLS_COUNT_PROP_NAME, SHELL_RELOADING_TIME_PROP_NAME, RELOAD_MAGAZINE_TIME_PROP_NAME, CLIP_VEHICLES_PROP_NAME, GUN_RELOADING_TYPE, GUN_NORMAL, GUN_CAN_BE_CLIP, GUN_CLIP, CLIP_VEHICLES_CD_PROP_NAME, UNICHARGED_VEHICLES_PROP_NAME, VEHICLES_PROP_NAME
 from debug_utils import *
@@ -174,13 +176,12 @@ class _ItemsParameters(object):
         vehicleHasTurrets = len(vehicleDescr.type.hull.get('fakeTurrets', {}).get('lobby', ())) != len(vehicleDescr.type.turrets)
         if isParameters:
             excluded = list()
-            vehicleType = set(vehicleDescr.type.tags & vehicles.VEHICLE_CLASS_TAGS).pop()
             if not vehicleHasTurrets:
                 excluded.append('turretArmor')
-            if vehicleType != 'AT-SPG':
-                excluded.append('gunRotationSpeed')
-            else:
+            if not vehicleHasTurrets:
                 excluded.append('turretRotationSpeed')
+            else:
+                excluded.append('gunRotationSpeed')
             result['parameters'] = self.__getCommonParameters(vehicleDescr.type.compactDescr, ParametersCache.g_instance.getVehicleParameters(vehicleDescr), excluded)
         if True:
             result['base'] = [self.__getItemFullName(vehicles._GUN, vehicleDescr.gun),
@@ -271,3 +272,6 @@ class _ItemsParameters(object):
 
 
 g_instance = _ItemsParameters()
+# okay decompyling res/scripts/client/gui/shared/utils/itemsparameters.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:01 EST

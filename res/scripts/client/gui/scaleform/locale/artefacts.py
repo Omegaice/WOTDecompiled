@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:30 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/ARTEFACTS.py
 
 
 class ARTEFACTS(object):
@@ -158,3 +160,11 @@ class ARTEFACTS(object):
     RATION_UK_RESTRICTION = '#artefacts:ration_uk/restriction'
     AFTERBURNING_NAME = '#artefacts:afterburning/name'
     AFTERBURNING_DESCR = '#artefacts:afterburning/descr'
+    RATION_JAPAN_NAME = '#artefacts:ration_japan/name'
+    RATION_JAPAN_DESCR = '#artefacts:ration_japan/descr'
+    RATION_JAPAN_ONUSE = '#artefacts:ration_japan/onUse'
+    RATION_JAPAN_ALWAYS = '#artefacts:ration_japan/always'
+    RATION_JAPAN_RESTRICTION = '#artefacts:ration_japan/restriction'
+# okay decompyling res/scripts/client/gui/scaleform/locale/artefacts.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:30 EST

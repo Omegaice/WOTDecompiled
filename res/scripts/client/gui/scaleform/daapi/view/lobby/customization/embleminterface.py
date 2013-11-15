@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:59 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/EmblemInterface.py
 import BigWorld
 from abc import abstractmethod, ABCMeta
 import time
@@ -7,11 +9,12 @@ from gui import SystemMessages
 from gui.Scaleform.daapi.view.lobby.customization.BaseTimedCustomizationInterface import BaseTimedCustomizationInterface
 from gui.Scaleform.daapi.view.lobby.customization.VehicleCustonizationModel import VehicleCustomizationModel
 from gui.Scaleform.daapi.view.lobby.customization.data_providers import EmblemsDataProvider, EmblemRentalPackageDataProvider, EmblemGroupsDataProvider
+from gui.Scaleform.framework import AppRef
 from gui.Scaleform.locale.SYSTEM_MESSAGES import SYSTEM_MESSAGES
 from gui.shared.utils.HangarSpace import g_hangarSpace
 from helpers import time_utils, i18n
 
-class EmblemInterface(BaseTimedCustomizationInterface):
+class EmblemInterface(BaseTimedCustomizationInterface, AppRef):
     __metaclass__ = ABCMeta
 
     def __init__(self, name, nationId, position):
@@ -34,6 +37,8 @@ class EmblemInterface(BaseTimedCustomizationInterface):
         return item
 
     def isEnabled(self):
+        if self.app.varsManager.isInRoaming():
+            return False
         return self._isEnabled
 
     def locateCameraOnSlot(self):
@@ -205,3 +210,6 @@ class EmblemRightInterface(EmblemInterface):
         dp = EmblemGroupsDataProvider()
         dp.setFlashObject(self.flashObject.emblemRightGroupsDataProvider)
         return dp
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/customization/embleminterface.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:59 EST

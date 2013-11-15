@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:35 EST
+# Embedded file name: scripts/common/items/__init__.py
 import ResMgr
 from types import IntType
 from items import _xml
@@ -6,17 +8,28 @@ if IS_CLIENT:
     from helpers import i18n
 ITEM_TYPE_NAMES = ('reserved', 'vehicle', 'vehicleChassis', 'vehicleTurret', 'vehicleGun', 'vehicleEngine', 'vehicleFuelTank', 'vehicleRadio', 'tankman', 'optionalDevice', 'shell', 'equipment')
 MAX_ITEM_TYPE_INDEX = len(ITEM_TYPE_NAMES) - 1
-ITEM_TYPE_INDICES = dict(((x[1], x[0]) for x in enumerate(ITEM_TYPE_NAMES)))
+
+class ITEM_TYPES(dict):
+
+    def __init__(self):
+        for idx, name in enumerate(ITEM_TYPE_NAMES):
+            if name != 'reserved':
+                self[name] = idx
+                setattr(self, name, idx)
+
+
+ITEM_TYPES = ITEM_TYPES()
+ITEM_TYPE_INDICES = dict(((x[1], x[0]) for x in enumerate(ITEM_TYPE_NAMES) if x[1] != 'reserved'))
 SIMPLE_ITEM_TYPE_NAMES = ('vehicleChassis', 'vehicleTurret', 'vehicleGun', 'vehicleEngine', 'vehicleFuelTank', 'vehicleRadio', 'optionalDevice', 'shell', 'equipment')
 SIMPLE_ITEM_TYPE_INDICES = tuple((ITEM_TYPE_INDICES[x] for x in SIMPLE_ITEM_TYPE_NAMES))
 VEHICLE_COMPONENT_TYPE_NAMES = ('vehicleChassis', 'vehicleTurret', 'vehicleGun', 'vehicleEngine', 'vehicleFuelTank', 'vehicleRadio')
 VEHICLE_COMPONENT_TYPE_INDICES = tuple((ITEM_TYPE_INDICES[x] for x in SIMPLE_ITEM_TYPE_NAMES))
 
-def init(preloadEverything):
+def init(preloadEverything, pricesToCollect = None):
     global _g_itemTypes
     _g_itemTypes = _readItemTypes()
     from items import vehicles
-    vehicles.init(preloadEverything)
+    vehicles.init(preloadEverything, pricesToCollect)
     from items import tankmen
     tankmen.init(preloadEverything)
 
@@ -79,3 +92,6 @@ def _readItemTypes():
     tagSection = None
     ResMgr.purge(xmlPath, True)
     return res
+# okay decompyling res/scripts/common/items/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:35 EST

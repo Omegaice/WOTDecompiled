@@ -1,8 +1,10 @@
+# 2013.11.15 11:27:05 EST
+# Embedded file name: scripts/client/gui/shared/utils/requesters/ItemsRequester.py
 import weakref
 from abc import ABCMeta, abstractmethod
 from collections import defaultdict
 import BigWorld
-import dossiers
+import dossiers2
 import nations
 import constants
 from items import vehicles, tankmen, getTypeOfCompactDescr
@@ -92,6 +94,7 @@ class VehsSuitableCriteria(RequestCriteria):
 class REQ_CRITERIA:
     EMPTY = RequestCriteria()
     HIDDEN = RequestCriteria(PredicateCondition(lambda item: item.isHidden))
+    SECRET = RequestCriteria(PredicateCondition(lambda item: item.isSecret))
     UNLOCKED = RequestCriteria(PredicateCondition(lambda item: item.isUnlocked))
     REMOVABLE = RequestCriteria(PredicateCondition(lambda item: item.isRemovable))
     INVENTORY = RequestCriteria(PredicateCondition(lambda item: item.inventoryCount > 0))
@@ -101,9 +104,11 @@ class REQ_CRITERIA:
     class VEHICLE:
         FAVORITE = RequestCriteria(PredicateCondition(lambda item: item.isFavorite))
         PREMIUM = RequestCriteria(PredicateCondition(lambda item: item.isPremium))
-        TYPES = staticmethod(lambda types = constants.VEHICLE_CLASS_INDICES.keys(): RequestCriteria(PredicateCondition(lambda item: item.type in types)))
+        READY = RequestCriteria(PredicateCondition(lambda item: item.isReadyToFight))
+        CLASSES = staticmethod(lambda types = constants.VEHICLE_CLASS_INDICES.keys(): RequestCriteria(PredicateCondition(lambda item: item.type in types)))
         LEVELS = staticmethod(lambda levels = range(1, constants.MAX_VEHICLE_LEVEL + 1): RequestCriteria(PredicateCondition(lambda item: item.level in levels)))
-        SPECIFIC = staticmethod(lambda typeCompDescrs: RequestCriteria(PredicateCondition(lambda item: item.intCD in typeCompDescrs)))
+        SPECIFIC_BY_CD = staticmethod(lambda typeCompDescrs: RequestCriteria(PredicateCondition(lambda item: item.intCD in typeCompDescrs)))
+        SPECIFIC_BY_NAME = staticmethod(lambda typeNames: RequestCriteria(PredicateCondition(lambda item: item.name in typeNames)))
         SUITABLE = staticmethod(lambda vehsItems, itemTypeIDs = None: VehsSuitableCriteria(vehsItems, itemTypeIDs))
 
     class TANKMAN:
@@ -149,25 +154,29 @@ class ItemsRequester(object):
         Waiting.hide('download/dossier')
         callback(self)
 
+    def isSynced(self):
+        return self.stats.isSynced() and self.inventory.isSynced() and self.shop.isSynced() and self.dossiers.isSynced()
+
     @async
     @process
-    def requestUserDossier(self, userName, callback):
-        dr = self.dossiers.getUserDossierRequester(userName)
+    def requestUserDossier(self, databaseID, callback):
+        dr = self.dossiers.getUserDossierRequester(databaseID)
         userAccDossier = yield dr.getAccountDossier()
         container = self.__itemsCache[GUI_ITEM_TYPE.ACCOUNT_DOSSIER]
-        container[userName] = userAccDossier
+        container[databaseID] = userAccDossier
         callback((userAccDossier, dr.isHidden))
 
     @async
     @process
-    def requestUserVehicleDossier(self, userName, vehTypeCompDescr, callback):
-        dr = self.dossiers.getUserDossierRequester(userName)
+    def requestUserVehicleDossier(self, databaseID, vehTypeCompDescr, callback):
+        dr = self.dossiers.getUserDossierRequester(databaseID)
         userVehDossier = yield dr.getVehicleDossier(vehTypeCompDescr)
         container = self.__itemsCache[GUI_ITEM_TYPE.VEHICLE_DOSSIER]
-        container[userName, vehTypeCompDescr] = userVehDossier
+        container[databaseID, vehTypeCompDescr] = userVehDossier
         callback(userVehDossier)
 
     def clear(self):
+        self.__itemsCache.clear()
         self.inventory.clear()
         self.shop.clear()
         self.stats.clear()
@@ -176,50 +185,56 @@ class ItemsRequester(object):
     def invalidateCache(self, diff = None):
         if diff is None:
             LOG_DEBUG('Gui items cache full invalidation')
-            self.__itemsCache.clear()
+            for itemTypeID, cache in self.__itemsCache.iteritems():
+                if itemTypeID not in (GUI_ITEM_TYPE.ACCOUNT_DOSSIER, GUI_ITEM_TYPE.VEHICLE_DOSSIER):
+                    cache.clear()
+
         else:
-            uniqueIDs = set()
+            invalidate = defaultdict(set)
             for statName, data in diff.get('stats', {}).iteritems():
                 if statName in ('unlocks', 'eliteVehicles'):
-                    uniqueIDs.update(data)
+                    invalidate[GUI_ITEM_TYPE.VEHICLE].update(data)
                 elif statName in ('vehTypeXP', 'vehTypeLocks'):
-                    uniqueIDs.update(data.keys())
+                    invalidate[GUI_ITEM_TYPE.VEHICLE].update(data.keys())
+                elif statName in (('multipliedXPVehs', '_r'),):
+                    inventoryVehiclesCDs = map(lambda v: vehicles.getVehicleTypeCompactDescr(v['compDescr']), self.inventory.getItems(GUI_ITEM_TYPE.VEHICLE).itervalues())
+                    invalidate[GUI_ITEM_TYPE.VEHICLE].update(inventoryVehiclesCDs)
 
-            self._invalidateItems(GUI_ITEM_TYPE.VEHICLE, uniqueIDs)
             for cacheType, data in diff.get('cache', {}).iteritems():
                 if cacheType == 'vehsLock':
-                    uniqueIDs = set()
                     for vehInvID in data.keys():
                         vehData = self.inventory.getVehicleData(vehInvID)
                         if vehData is not None:
-                            uniqueIDs.add(vehData.descriptor.type.compactDescr)
-
-                    self._invalidateItems(GUI_ITEM_TYPE.VEHICLE, uniqueIDs)
+                            invalidate[GUI_ITEM_TYPE.VEHICLE].add(vehData.descriptor.type.compactDescr)
 
             for itemTypeID, itemsDiff in diff.get('inventory', {}).iteritems():
-                uniqueIDs = set()
                 if itemTypeID == GUI_ITEM_TYPE.VEHICLE:
                     if 'compDescr' in itemsDiff:
                         for strCD in itemsDiff['compDescr'].itervalues():
                             if strCD is not None:
-                                uniqueIDs.add(vehicles.getVehicleTypeCompactDescr(strCD))
+                                invalidate[itemTypeID].add(vehicles.getVehicleTypeCompactDescr(strCD))
 
                     for data in itemsDiff.itervalues():
                         for vehInvID in data.iterkeys():
                             vehData = self.inventory.getVehicleData(vehInvID)
                             if vehData is not None:
-                                uniqueIDs.add(vehData.descriptor.type.compactDescr)
+                                invalidate[itemTypeID].add(vehData.descriptor.type.compactDescr)
+                                invalidate[GUI_ITEM_TYPE.TANKMAN].update(self.__getTankmenIDsForVehicle(vehData))
 
                 elif itemTypeID == GUI_ITEM_TYPE.TANKMAN:
                     for data in itemsDiff.itervalues():
-                        uniqueIDs.update(data.keys())
+                        invalidate[itemTypeID].update(data.keys())
+                        for tmanInvID in data.keys():
+                            tmanData = self.inventory.getTankmanData(tmanInvID)
+                            if tmanData is not None and tmanData.vehicle != -1:
+                                invalidate[GUI_ITEM_TYPE.VEHICLE].update(self.__getVehicleCDForTankman(tmanData))
+                                invalidate[GUI_ITEM_TYPE.TANKMAN].update(self.__getTankmenIDsForTankman(tmanData))
 
                 else:
-                    uniqueIDs.update(itemsDiff.keys())
-                self._invalidateItems(itemTypeID, uniqueIDs)
+                    invalidate[itemTypeID].update(itemsDiff.keys())
 
-            for itemTypeID in GUI_ITEM_TYPE.GUI:
-                self.__itemsCache[itemTypeID].clear()
+            for itemTypeID, uniqueIDs in invalidate.iteritems():
+                self._invalidateItems(itemTypeID, uniqueIDs)
 
         return
 
@@ -304,7 +319,7 @@ class ItemsRequester(object):
             extDossier = self.getAccountDossier()
         return TankmanDossier(tankman.descriptor, tmanDossier, extDossier)
 
-    def getVehicleDossier(self, vehTypeCompDescr, userName = None):
+    def getVehicleDossier(self, vehTypeCompDescr, databaseID = None):
         """
         Returns vehicle dossier item by given vehicle type
         int compact descriptor
@@ -312,32 +327,33 @@ class ItemsRequester(object):
         @param vehTypeCompDescr: vehicle type in compact descriptor
         @return: VehicleDossier object
         """
-        if userName is None:
+        if databaseID is None:
             return VehicleDossier(self.__getVehicleDossierDescr(vehTypeCompDescr))
         container = self.__itemsCache[GUI_ITEM_TYPE.VEHICLE_DOSSIER]
-        dossier = container.get((userName, vehTypeCompDescr))
+        dossier = container.get((int(databaseID), vehTypeCompDescr))
         if dossier is None:
-            LOG_WARNING("Trying to get empty user vehicle' dossier", vehTypeCompDescr, userName)
+            LOG_WARNING("Trying to get empty user vehicle' dossier", vehTypeCompDescr, databaseID)
             return
         else:
             return VehicleDossier(dossier)
 
-    def getAccountDossier(self, userName = None):
+    def getAccountDossier(self, databaseID = None):
         """
         Returns account dossier item
-        
         @return: AccountDossier object
         """
-        if userName is None:
+        if databaseID is None:
             dossierDescr = self.__getAccountDossierDescr()
-            return AccountDossier(dossierDescr, True, weakref.proxy(self))
-        container = self.__itemsCache[GUI_ITEM_TYPE.ACCOUNT_DOSSIER]
-        dossier = container.get(userName)
-        if dossier is None:
-            LOG_WARNING('Trying to get empty user dossier', userName)
-            return
+            return AccountDossier(dossierDescr, True, proxy=weakref.proxy(self))
         else:
-            return AccountDossier(dossier, False)
+            container = self.__itemsCache[GUI_ITEM_TYPE.ACCOUNT_DOSSIER]
+            dossier = container.get(int(databaseID))
+            if dossier is None:
+                LOG_WARNING('Trying to get empty user dossier', databaseID)
+                return
+            from gui import game_control
+            isInRoaming = game_control.g_instance.roaming.isInRoaming() or game_control.g_instance.roaming.isPlayerInRoaming(databaseID)
+            return AccountDossier(dossier, False, isInRoaming)
 
     def _invalidateItems(self, itemTypeID, uniqueIDs):
         cache = self.__itemsCache[itemTypeID]
@@ -346,14 +362,14 @@ class ItemsRequester(object):
             if uid in cache:
                 LOG_DEBUG('Item marked as invalid', uid, cache[uid], invRes)
                 del cache[uid]
-                return
-            LOG_DEBUG('No cached item', uid, invRes)
+            else:
+                LOG_DEBUG('No cached item', uid, invRes)
 
     def __getAccountDossierDescr(self):
         """
         @return: account descriptor
         """
-        return dossiers.getAccountDossierDescr(self.stats.accountDossier)
+        return dossiers2.getAccountDossierDescr(self.stats.accountDossier)
 
     def __getTankmanDossierDescr(self, tmanInvID):
         """
@@ -362,16 +378,16 @@ class ItemsRequester(object):
         """
         tmanData = self.inventory.getTankmanData(tmanInvID)
         if tmanData is not None:
-            return dossiers.getTankmanDossierDescr(tmanData.descriptor.dossierCompactDescr)
+            return dossiers2.getTankmanDossierDescr(tmanData.descriptor.dossierCompactDescr)
         else:
-            return dossiers.getTankmanDossierDescr()
+            return dossiers2.getTankmanDossierDescr()
 
     def __getVehicleDossierDescr(self, vehTypeCompDescr):
         """
         @param vehTypeCompDescr: vehicle type int compact descriptor
         @return : vehicle dossier descriptor
         """
-        return dossiers.getVehicleDossierDescr(self.dossiers.getVehicleDossier(vehTypeCompDescr))
+        return dossiers2.getVehicleDossierDescr(self.dossiers.getVehicleDossier(vehTypeCompDescr))
 
     def __makeItem(self, itemTypeIdx, uid, *args, **kwargs):
         container = self.__itemsCache[itemTypeIdx]
@@ -403,3 +419,28 @@ class ItemsRequester(object):
 
     def __makeSimpleItem(self, typeCompDescr):
         return self.__makeItem(getTypeOfCompactDescr(typeCompDescr), typeCompDescr, intCompactDescr=typeCompDescr, proxy=self)
+
+    def __getTankmenIDsForVehicle(self, vehData):
+        vehTmanIDs = set()
+        for tmanInvID in vehData.crew:
+            if tmanInvID is not None:
+                vehTmanIDs.add(tmanInvID)
+
+        return vehTmanIDs
+
+    def __getTankmenIDsForTankman(self, tmanData):
+        vehData = self.inventory.getVehicleData(tmanData.vehicle)
+        if vehData is not None:
+            return self.__getTankmenIDsForVehicle(vehData)
+        else:
+            return set()
+
+    def __getVehicleCDForTankman(self, tmanData):
+        vehData = self.inventory.getVehicleData(tmanData.vehicle)
+        if vehData is not None:
+            return set([vehData.descriptor.type.compactDescr])
+        else:
+            return set()
+# okay decompyling res/scripts/client/gui/shared/utils/requesters/itemsrequester.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:06 EST

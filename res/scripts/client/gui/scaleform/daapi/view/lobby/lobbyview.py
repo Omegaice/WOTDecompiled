@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:05 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/LobbyView.py
 import BigWorld
 import constants
 from debug_utils import LOG_DEBUG
@@ -6,28 +8,26 @@ from gui import GUI_SETTINGS
 from gui.BattleContext import g_battleContext
 from gui.Scaleform.daapi.view.meta.LobbyPageMeta import LobbyPageMeta
 from gui.Scaleform.framework.entities.View import View
-from gui.Scaleform.framework.managers.containers import POP_UP_CRITERIA
 from gui.prb_control.dispatcher import g_prbLoader
 from gui.shared.utils.HangarSpace import g_hangarSpace
 from gui.shared import EVENT_BUS_SCOPE, events
 from gui.Scaleform.framework import VIEW_TYPE, AppRef
 from gui.Scaleform.Waiting import Waiting
 from gui.Scaleform.daapi.settings.views import VIEW_ALIAS
-from gui.Scaleform.daapi.view.lobby.prb_windows.sf_settings import PRB_WINDOW_VIEW_ALIAS
-from messenger.gui.Scaleform.sf_settings import MESSENGER_VIEW_ALIAS
 
 class LobbyView(View, LobbyPageMeta, AppRef):
-    VIEW_WAITING_EXCLUDED = (VIEW_ALIAS.SIMPLE_DIALOG,
-     VIEW_ALIAS.SYSTEM_MESSAGE_DIALOG,
-     VIEW_ALIAS.NOTIFICATIONS_LIST,
-     MESSENGER_VIEW_ALIAS.CHANNEL_MANAGEMENT_WINDOW,
-     MESSENGER_VIEW_ALIAS.CONNECT_TO_SECURE_CHANNEL_WINDOW,
-     MESSENGER_VIEW_ALIAS.CONTACTS_WINDOW,
-     MESSENGER_VIEW_ALIAS.LAZY_CHANNEL_WINDOW,
-     MESSENGER_VIEW_ALIAS.LOBBY_CHANNEL_WINDOW,
-     PRB_WINDOW_VIEW_ALIAS.BATTLE_SESSION_LIST,
-     PRB_WINDOW_VIEW_ALIAS.COMPANIES_WINDOW,
-     PRB_WINDOW_VIEW_ALIAS.NOTIFICATION_INVITES_WINDOW)
+    VIEW_WAITING = (VIEW_ALIAS.LOBBY_HANGAR,
+     VIEW_ALIAS.LOBBY_INVENTORY,
+     VIEW_ALIAS.LOBBY_SHOP,
+     VIEW_ALIAS.LOBBY_PROFILE,
+     VIEW_ALIAS.LOBBY_BARRACKS,
+     VIEW_ALIAS.LOBBY_TRAININGS,
+     VIEW_ALIAS.LOBBY_TRAINING_ROOM,
+     VIEW_ALIAS.LOBBY_CUSTOMIZATION,
+     VIEW_ALIAS.LOBBY_RESEARCH,
+     VIEW_ALIAS.LOBBY_TECHTREE,
+     VIEW_ALIAS.BATTLE_QUEUE,
+     VIEW_ALIAS.BATTLE_LOADING)
 
     class COMPONENTS:
         HEADER = 'lobbyHeader'
@@ -85,17 +85,17 @@ class LobbyView(View, LobbyPageMeta, AppRef):
             self.__subViewTransferStop(view.settings.alias)
         return
 
-    def __onViewLoadError(self, _, view):
-        if view is not None and view.settings is not None:
-            self.__subViewTransferStop(view.settings.alias)
+    def __onViewLoadError(self, token, msg, item):
+        if item is not None and item.pyEntity is not None:
+            self.__subViewTransferStop(item.pyEntity.settings.alias)
         return
 
     def __subViewTransferStart(self, alias):
-        if alias not in self.VIEW_WAITING_EXCLUDED:
+        if alias in self.VIEW_WAITING:
             Waiting.show('loadPage')
 
     def __subViewTransferStop(self, alias):
-        if alias not in self.VIEW_WAITING_EXCLUDED:
+        if alias in self.VIEW_WAITING:
             Waiting.hide('loadPage')
 
     def __showBattleResults(self):
@@ -103,3 +103,6 @@ class LobbyView(View, LobbyPageMeta, AppRef):
             self.fireEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_BATTLE_RESULTS, {'arenaUniqueID': g_battleContext.lastArenaUniqueID}))
             g_battleContext.lastArenaUniqueID = None
         return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/lobbyview.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:05 EST

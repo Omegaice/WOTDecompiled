@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:21 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/trainings/Trainings.py
 import ArenaType
 import MusicController
 from adisp import process
@@ -7,7 +9,7 @@ from gui.Scaleform.framework import VIEW_TYPE
 from gui.Scaleform.framework.managers.containers import POP_UP_CRITERIA
 from gui.prb_control.functional.training import TrainingListRequester
 from gui.prb_control.context import JoinTrainingCtx
-from gui.prb_control.prb_helpers import InjectPrebattle, prbDispatcherProperty
+from gui.prb_control.prb_helpers import prbDispatcherProperty
 from gui.shared import events
 from gui.shared.event_bus import EVENT_BUS_SCOPE
 from gui.shared.utils.functions import getArenaFullName
@@ -15,7 +17,6 @@ from gui.Scaleform.daapi import LobbySubView
 from gui.Scaleform.daapi.view.meta.TrainingFormMeta import TrainingFormMeta
 
 class Trainings(LobbySubView, TrainingFormMeta):
-    __metaclass__ = InjectPrebattle
 
     def __init__(self):
         super(Trainings, self).__init__()
@@ -72,3 +73,6 @@ class Trainings(LobbySubView, TrainingFormMeta):
 
     def createTrainingRequest(self):
         self.fireEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_TRAINING_SETTINGS_WINDOW))
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/trainings/trainings.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:22 EST

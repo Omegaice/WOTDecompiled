@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:23 EST
+# Embedded file name: scripts/client/AvatarInputHandler/control_modes.py
 import BigWorld, Math, Keys, GUI, ResMgr
 import math
 import stat
@@ -804,7 +806,7 @@ class SniperControlMode(IControlMode):
         g_postProcessing.enable('sniper')
         desc = BigWorld.player().vehicleTypeDescriptor
         isHorizontalStabilizerAllowed = desc.gun['turretYawLimits'] is None
-        self.__cam.aimingSystem.enableHorizontalStabilizer(isHorizontalStabilizerAllowed)
+        self.__cam.aimingSystem.enableHorizontalStabilizerRuntime(isHorizontalStabilizerAllowed)
         return
 
     def disable(self, isDestroy = False):
@@ -2147,3 +2149,6 @@ def _calcScale(worldMat, size):
     pV3 = Math.Vector3(pV4[0], pV4[1], pV4[2]).scale(1.0 / pV4[3])
     oV3 = Math.Vector3(oV4[0], oV4[1], oV4[2]).scale(1.0 / oV4[3])
     return math.fabs(pV3[0] - oV3[0]) + math.fabs(pV3[1] - oV3[1])
+# okay decompyling res/scripts/client/avatarinputhandler/control_modes.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:26 EST

@@ -1,8 +1,10 @@
+# 2013.11.15 11:25:39 EST
+# Embedded file name: scripts/client/gui/prb_control/formatters/invites.py
 import BigWorld
 from constants import PREBATTLE_TYPE, PREBATTLE_INVITE_STATE
 from gui import makeHtmlString
-from gui.prb_control.prb_helpers import InjectPrebattle
-from gui.prb_control.prb_helpers import prbInvitesProperty, prbFunctionalProperty
+from gui.prb_control.prb_helpers import prbInvitesProperty
+from gui.prb_control.prb_helpers import prbDispatcherProperty
 from helpers import i18n
 import types
 from predefined_hosts import g_preDefinedHosts
@@ -19,7 +21,8 @@ PREBATTLE_GUI_KEYS = {PREBATTLE_TYPE.SQUAD: 'squad',
  PREBATTLE_TYPE.COMPANY: 'company',
  PREBATTLE_TYPE.TRAINING: 'training',
  PREBATTLE_TYPE.CLAN: 'clan',
- PREBATTLE_TYPE.TOURNAMENT: 'tournament'}
+ PREBATTLE_TYPE.TOURNAMENT: 'tournament',
+ PREBATTLE_TYPE.UNIT: 'unit'}
 DEF_PREBATTLE_GUI_KEY = 'training'
 ACCEPT_NOT_ALLOWED_I18N_STRING = [i18n.makeString('#{0:>s}:invites/prebattle/acceptNotAllowed/undefinedPeriphery'.format(INVITES_I18N_FILE)), i18n.makeString('#{0:>s}:invites/prebattle/acceptNotAllowed/otherPeriphery'.format(INVITES_I18N_FILE))]
 
@@ -80,18 +83,17 @@ class PrbInviteTitleFormatter(PrbInviteTextFormatter):
 
 
 class PrbInviteInfo(object):
-    __metaclass__ = InjectPrebattle
 
     def __init__(self, inviteID):
         self.__inviteID = inviteID
 
     @prbInvitesProperty
     def prbInvites(self):
-        pass
+        return None
 
-    @prbFunctionalProperty
-    def prbFunctional(self):
-        pass
+    @prbDispatcherProperty
+    def prbDispatcher(self):
+        return None
 
     def getID(self):
         return self.__inviteID
@@ -129,8 +131,9 @@ class PrbInviteInfo(object):
 
     def __getNoteText(self, invite):
         note = ''
-        if self.prbFunctional.isConfirmToChange():
-            prbName = PREBATTLE_GUI_KEYS.get(self.prbFunctional.getPrbType(), DEF_PREBATTLE_GUI_KEY)
+        hasModalEntity, prbType = self.prbDispatcher.getFunctionalState()
+        if hasModalEntity and prbType:
+            prbName = PREBATTLE_GUI_KEYS.get(prbType, DEF_PREBATTLE_GUI_KEY)
             if invite.anotherPeriphery:
                 note = i18n.makeString('#{0:>s}:invites/note/{1:>s}/leave_and_change'.format(INVITES_I18N_FILE, prbName), host=g_preDefinedHosts.periphery(invite.peripheryID).name)
             else:
@@ -138,3 +141,6 @@ class PrbInviteInfo(object):
         elif invite.anotherPeriphery:
             note = i18n.makeString('#{0:>s}:invites/note/server_change'.format(INVITES_I18N_FILE), host=g_preDefinedHosts.periphery(invite.peripheryID).name)
         return note
+# okay decompyling res/scripts/client/gui/prb_control/formatters/invites.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:39 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:36 EST
+# Embedded file name: scripts/client/gui/prb_control/__init__.py
 import BigWorld
 from constants import PREBATTLE_TYPE, ARENA_GUI_TYPE, DEFAULT_LANGUAGE
 from constants import PREBATTLE_TYPE_NAMES
@@ -174,3 +176,43 @@ def isBattleSession(settings = None):
 def isParentControlActivated():
     from gui import game_control
     return game_control.g_instance.gameSession.isParentControlActive and not isTraining()
+
+
+def getClientUnitMgr():
+    return getattr(BigWorld.player(), 'unitMgr', None)
+
+
+def getUnitMgrID():
+    return getattr(getClientUnitMgr(), 'id', None)
+
+
+def getUnitIdx():
+    return getattr(getClientUnitMgr(), 'unitIdx', 0)
+
+
+def getClientUnitBrowser():
+    return getattr(BigWorld.player(), 'unitBrowser', None)
+
+
+def getUnit(unitIdx, safe = False):
+    unitMgr = getClientUnitMgr()
+    if not unitMgr:
+        if not safe:
+            raise ValueError, 'Unit manager not found'
+        return
+    else:
+        unit = None
+        try:
+            unit = unitMgr.units[unitIdx]
+        except KeyError:
+            if not safe:
+                raise ValueError, 'Unit not found'
+
+        return unit
+
+
+def hasModalEntity():
+    return getClientPrebattle() or getUnitIdx()
+# okay decompyling res/scripts/client/gui/prb_control/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:36 EST

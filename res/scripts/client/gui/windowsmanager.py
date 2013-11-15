@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:06 EST
+# Embedded file name: scripts/client/gui/WindowsManager.py
 import BigWorld
 import Event
 import constants
@@ -61,10 +63,12 @@ class WindowsManager(object):
     def showStartGameVideo(self):
         if isShowStartupVideo():
             self.window.fireEvent(ShowViewEvent(ShowViewEvent.SHOW_INTRO_VIDEO, {'resultCallback': lambda *args: self.showLogin()}))
+            return True
+        return False
 
-    def showLogin(self):
+    def showLogin(self, callback = None):
         self.__currentLanguage = None
-        self.window.fireEvent(ShowViewEvent(ShowViewEvent.SHOW_LOGIN))
+        self.window.fireEvent(ShowViewEvent(ShowViewEvent.SHOW_LOGIN, ctx={'callback': callback}))
         return
 
     def showLobby(self):
@@ -152,8 +156,12 @@ class WindowsManager(object):
             return
         if not self.__startVideoShown:
             self.__startVideoShown = True
-            return self.showStartGameVideo()
+            if self.showStartGameVideo():
+                return
         self.showLogin()
 
 
 g_windowsManager = WindowsManager()
+# okay decompyling res/scripts/client/gui/windowsmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:07 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:15 EST
+# Embedded file name: scripts/client/messenger/proto/bw/ChannelsManager.py
 import BigWorld
 import Event
 from chat_shared import CHAT_ACTIONS, CHAT_RESPONSES
@@ -114,7 +116,7 @@ class ChannelsManager(ChatActionsListener):
 
     def removeChannelFromClient(self, channel):
         if channel.isJoined():
-            LOG_WARNING('Client is removing channel to which player is joined', channel)
+            LOG_DEBUG('Client is removing channel to which player is joined', channel)
         if self.channelsStorage.removeChannel(channel):
             g_messengerEvents.channels.onChannelDestroyed(channel)
 
@@ -287,3 +289,6 @@ class ChannelsManager(ChatActionsListener):
                 kwargs['status'] = memberData['status']
             member = entities.BWMemberEntity(memberData['id'], **kwargs)
         return member
+# okay decompyling res/scripts/client/messenger/proto/bw/channelsmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:15 EST

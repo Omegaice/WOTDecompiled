@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:34 EST
+# Embedded file name: scripts/client/gui/game_control/captcha_control.py
 from functools import partial
 import AccountCommands
 import BigWorld
@@ -5,14 +7,17 @@ from account_helpers.captcha import CAPTCHA_API_CLASS
 from adisp import async
 from constants import JOIN_FAILURE
 from debug_utils import LOG_ERROR, LOG_WARNING
-from gui import DialogsInterface
-from gui.Scaleform.Waiting import Waiting
-from gui.Scaleform.daapi.view.dialogs.CaptchaDialogMeta import CaptchaDialogMeta
+from gui.ClientUpdateManager import g_clientUpdateManager
 from helpers.aop import Aspect, Weaver, Pointcut
 from helpers import i18n
 from PlayerEvents import g_playerEvents
-from gui.ClientUpdateManager import g_clientUpdateManager
 CAPTCHA_TRIES_LEFT_NOTIFY_THESHOLD = 1
+
+def _showDialog(text, callback):
+    from gui import DialogsInterface
+    from gui.Scaleform.daapi.view.dialogs.CaptchaDialogMeta import CaptchaDialogMeta
+    return DialogsInterface.showDialog(CaptchaDialogMeta(text), callback)
+
 
 class CaptchaController(object):
     __api = CAPTCHA_API_CLASS()
@@ -50,7 +55,7 @@ class CaptchaController(object):
             errorText = i18n.makeString('#captcha:notification/remains-to-attempt', self.__triesLeft if self.__triesLeft > 0 else 0)
         else:
             errorText = None
-        DialogsInterface.showDialog(CaptchaDialogMeta(errorText), callback)
+        _showDialog(errorText, callback)
         return
 
     def getCaptchaServerError(self, errorCode):
@@ -104,7 +109,7 @@ class CaptchaController(object):
     def __pe_onEnqueueFailure(self, errorCode, _):
         if errorCode != JOIN_FAILURE.CAPTCHA:
             return
-        DialogsInterface.showDialog(CaptchaDialogMeta(i18n.makeString(self._CLIENT_ERROR_CODES['enqueue-failure'])))
+        _showDialog(i18n.makeString(self._CLIENT_ERROR_CODES['enqueue-failure']))
 
     def __onBattlesTillCaptcha(self, value):
         self.__battlesTillCaptcha = value
@@ -149,6 +154,7 @@ class ShowCaptchaAspect(Aspect):
             if result:
                 cd.function(*cd._packArgs(), **cd._kwargs)
             else:
+                from gui.Scaleform.Waiting import Waiting
                 Waiting.rollback()
 
         self.__controller.showCaptcha(callback)
@@ -163,3 +169,6 @@ class ShowCaptchaPointcut(Pointcut):
 
     def __init__(self):
         super(ShowCaptchaPointcut, self).__init__('Account', 'PlayerAccount', '^(enqueueRandom|enqueueTutorial|prb_createTraining|prb_createSquad|prb_createCompany|prb_join|prb_ready|prb_teamReady|prb_acceptInvite)$')
+# okay decompyling res/scripts/client/gui/game_control/captcha_control.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:35 EST

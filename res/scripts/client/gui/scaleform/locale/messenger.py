@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:34 EST
+# Embedded file name: scripts/client/gui/Scaleform/locale/MESSENGER.py
 
 
 class MESSENGER(object):
@@ -310,6 +312,9 @@ class MESSENGER(object):
     SERVICECHANNELMESSAGES_AUTOREPAIRERROR = '#messenger:serviceChannelMessages/autoRepairError'
     SERVICECHANNELMESSAGES_AUTOLOADERROR = '#messenger:serviceChannelMessages/autoLoadError'
     SERVICECHANNELMESSAGES_AUTOEQUIPERROR = '#messenger:serviceChannelMessages/autoEquipError'
+    SERVICECHANNELMESSAGES_AUTOREPAIRERRORNOWALLET = '#messenger:serviceChannelMessages/autoRepairErrorNoWallet'
+    SERVICECHANNELMESSAGES_AUTOLOADERRORNOWALLET = '#messenger:serviceChannelMessages/autoLoadErrorNoWallet'
+    SERVICECHANNELMESSAGES_AUTOEQUIPERRORNOWALLET = '#messenger:serviceChannelMessages/autoEquipErrorNoWallet'
     SERVICECHANNELMESSAGES_AUTOREPAIRSUCCESS = '#messenger:serviceChannelMessages/autoRepairSuccess'
     SERVICECHANNELMESSAGES_AUTOLOADSUCCESS = '#messenger:serviceChannelMessages/autoLoadSuccess'
     SERVICECHANNELMESSAGES_AUTOEQUIPSUCCESS = '#messenger:serviceChannelMessages/autoEquipSuccess'
@@ -371,3 +376,6 @@ class MESSENGER(object):
     SERVICECHANNELMESSAGES_SYSMSG_CONVERTER_VEHICLESRECEIVED = '#messenger:serviceChannelMessages/sysMsg/converter/vehiclesReceived'
     SERVICECHANNELMESSAGES_SYSMSG_CONVERTER_VEHICLESWITHDRAWN = '#messenger:serviceChannelMessages/sysMsg/converter/vehiclesWithdrawn'
     KEYBOARDCHAT = '#messenger:keyboardChat'
+# okay decompyling res/scripts/client/gui/scaleform/locale/messenger.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:34 EST

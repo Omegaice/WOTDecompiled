@@ -1,7 +1,8 @@
-from constants import IS_BASEAPP
-from dossiers import RECORD_NAMES, RECORD_INDICES
+# 2013.11.15 11:27:30 EST
+# Embedded file name: scripts/common/arena_achievements.py
+from dossiers2.custom.records import RECORD_DB_IDS
 ACHIEVEMENTS = ('warrior', 'invader', 'sniper', 'defender', 'steelwall', 'supporter', 'scout', 'evileye', 'medalWittmann', 'medalOrlik', 'medalOskin', 'medalHalonen', 'medalBurda', 'medalBillotte', 'medalKolobanov', 'medalFadin', 'medalRadleyWalters', 'medalLafayettePool', 'medalLehvaslaiho', 'medalNikolas', 'medalPascucci', 'medalDumitru', 'medalBrunoPietro', 'medalTarczay', 'heroesOfRassenay', 'medalDeLanglade', 'medalTamadaYoshio', 'raider', 'kamikaze', 'huntsman', 'bombardier', 'luckyDevil', 'ironMan', 'sturdy', 'alaric', 'lumberjack', 'medalBrothersInArms', 'medalCrucialContribution')
-ACHIEVEMENTS_WITH_REWARD = set([ RECORD_INDICES[name] for name in ('warrior', 'invader', 'sniper', 'defender', 'steelwall', 'supporter', 'scout', 'evileye', 'heroesOfRassenay', 'medalFadin', 'medalNikolas', 'medalPascucci', 'medalLehvaslaiho', 'medalRadleyWalters', 'medalHalonen', 'medalDumitru', 'medalDeLanglade', 'medalOrlik', 'medalOskin', 'medalLafayettePool', 'medalBurda', 'medalTamadaYoshio', 'medalBrothersInArms', 'medalCrucialContribution') ])
+ACHIEVEMENTS_WITH_REWARD = set([ RECORD_DB_IDS['achievements', name] for name in ('warrior', 'invader', 'sniper', 'defender', 'steelwall', 'supporter', 'scout', 'evileye', 'heroesOfRassenay', 'medalFadin', 'medalNikolas', 'medalPascucci', 'medalLehvaslaiho', 'medalRadleyWalters', 'medalHalonen', 'medalDumitru', 'medalDeLanglade', 'medalOrlik', 'medalOskin', 'medalLafayettePool', 'medalBurda', 'medalTamadaYoshio', 'medalBrothersInArms', 'medalCrucialContribution') ])
 INBATTLE_SERIES = ('sniper', 'killing', 'piercing')
 INBATTLE_SERIES_INDICES = dict(((x[1], x[0]) for x in enumerate(INBATTLE_SERIES)))
 _BILLOTTE_CMN_CNDS = {'hpPercentage': 20,
@@ -70,16 +71,6 @@ ACHIEVEMENT_CONDITIONS = {'warrior': {'minFrags': 6},
             'minMonuments': 1},
  'lumberjack': {'minKills': 3,
                 'minTrees': 30}}
-BATTLE_HERO_TEXTS = {'warrior': '#achievements:warrior',
- 'invader': '#achievements:invader',
- 'sniper': '#achievements:sniper',
- 'defender': '#achievements:defender',
- 'steelwall': '#achievements:steelwall',
- 'supporter': '#achievements:supporter',
- 'scout': '#achievements:scout',
- 'evileye': '#achievements:evileye'}
-if IS_BASEAPP:
-
-    def updateDossierRecord(dossierDescr, achieveIdx):
-        from arena_achievements_processing.dossier_updaters import updateDossierRecord as updateDossierRecordImpl
-        updateDossierRecordImpl(dossierDescr, RECORD_NAMES[achieveIdx])
+# okay decompyling res/scripts/common/arena_achievements.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:30 EST

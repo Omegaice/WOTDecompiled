@@ -1,12 +1,14 @@
+# 2013.11.15 11:27:36 EST
+# Embedded file name: scripts/common/items/tankmen.py
 from functools import partial
 import math
 import ResMgr
 import random, struct
-import nations, items
-from items import _xml
+import nations
+from items import _xml, vehicles, ITEM_TYPES
+from vehicles import VEHICLE_CLASS_TAGS
 from debug_utils import *
 from constants import IS_CLIENT, ITEM_DEFS_PATH
-from vehicles import VEHICLE_CLASS_TAGS
 if IS_CLIENT:
     from helpers import i18n
 SKILL_NAMES = ('reserved',
@@ -197,7 +199,7 @@ def generateCompactDescr(passport, vehicleTypeID, role, roleLevel, skills = [], 
     pack = struct.pack
     raise MIN_ROLE_LEVEL <= roleLevel <= MAX_SKILL_LEVEL or AssertionError
     nationID, isPremium, isFemale, firstNameID, lastNameID, iconID = passport
-    header = items.ITEM_TYPE_INDICES['tankman'] + (nationID << 4)
+    header = ITEM_TYPES.tankman + (nationID << 4)
     cd = pack('4B', header, vehicleTypeID, SKILL_INDICES[role], roleLevel)
     numSkills = len(skills)
     skills = [ SKILL_INDICES[s] for s in skills ]
@@ -245,7 +247,7 @@ def commanderTutorXpBonusFactorForCrew(crew):
 def fixObsoleteNames(compactDescr):
     cd = compactDescr
     header = ord(cd[0])
-    if not header & 15 == items.ITEM_TYPE_INDICES['tankman']:
+    if not header & 15 == ITEM_TYPES.tankman:
         raise AssertionError
         nationID = header >> 4 & 15
         conf = getNationConfig(nationID)
@@ -293,8 +295,7 @@ class TankmanDescr(object):
             xp *= vehicleType.crewXpFactor
             if not tankmanHasSurvived:
                 xp *= 0.9
-            if self.role != 'commander':
-                xp *= 1.0 + commanderTutorXpBonusFactor
+            self.role != 'commander' and xp *= 1.0 + commanderTutorXpBonusFactor
         return int(xp)
 
     @staticmethod
@@ -384,12 +385,10 @@ class TankmanDescr(object):
             raise 0.0 <= vehicleChangeRoleLevelLoss <= 1.0 or AssertionError
             if not 0.0 <= classChangeRoleLevelLoss <= 1.0:
                 raise AssertionError
-                from items import vehicles
                 newVehTags = vehicles.g_list.getList(self.nationID)[newVehicleTypeID]['tags']
                 roleLevelLoss = 0.0 if newVehicleTypeID == self.vehicleTypeID else vehicleChangeRoleLevelLoss
                 isSameClass = len(self.__vehicleTags & newVehTags & vehicles.VEHICLE_CLASS_TAGS)
-                if isSameClass:
-                    roleLevelLoss += classChangeRoleLevelLoss
+                isSameClass or roleLevelLoss += classChangeRoleLevelLoss
             newRoleLevel = int(round(self.roleLevel * (1.0 - roleLevelLoss)))
             newRoleLevel = max(minNewRoleLevel, newRoleLevel)
             self.vehicleTypeID = newVehicleTypeID
@@ -432,7 +431,7 @@ class TankmanDescr(object):
 
     def makeCompactDescr(self):
         pack = struct.pack
-        header = items.ITEM_TYPE_INDICES['tankman'] + (self.nationID << 4)
+        header = ITEM_TYPES.tankman + (self.nationID << 4)
         cd = pack('4B', header, self.vehicleTypeID, SKILL_INDICES[self.role], self.roleLevel)
         numSkills = len(self.skills)
         skills = [ SKILL_INDICES[s] for s in self.skills ]
@@ -451,12 +450,11 @@ class TankmanDescr(object):
         try:
             header, self.vehicleTypeID, roleID, self.roleLevel, numSkills = unpack('5B', cd[:5])
             cd = cd[5:]
-            if not header & 15 == items.ITEM_TYPE_INDICES['tankman']:
+            if not header & 15 == ITEM_TYPES.tankman:
                 raise AssertionError
                 nationID = header >> 4 & 15
                 nations.NAMES[nationID]
                 self.nationID = nationID
-                from items import vehicles
                 self.__vehicleTags = vehicles.g_list.getList(nationID)[self.vehicleTypeID]['tags']
                 self.role = SKILL_NAMES[roleID]
                 if self.role not in ROLES:
@@ -768,3 +766,6 @@ def _makeLevelXpCosts():
 
 
 _g_levelXpCosts = _makeLevelXpCosts()
+# okay decompyling res/scripts/common/items/tankmen.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:37 EST

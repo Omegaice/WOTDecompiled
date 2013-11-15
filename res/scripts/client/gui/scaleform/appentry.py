@@ -1,10 +1,11 @@
+# 2013.11.15 11:25:47 EST
+# Embedded file name: scripts/client/gui/Scaleform/AppEntry.py
 import WebBrowser
-from adisp import process
 import constants
-from debug_utils import LOG_DEBUG
 from gui.shared import events
 from gui.Scaleform.daapi.business_layer import BusinessHandler
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
+from gui.Scaleform.framework import VIEW_TYPE
 from gui.Scaleform.framework.application import App
 from gui.Scaleform.managers.GlobalVarsManager import GlobalVarsManager
 from gui.Scaleform.managers.ToolTipManager import ToolTipManager
@@ -57,4 +58,13 @@ class AppEntry(App):
 
     def logoff(self):
         super(AppEntry, self).logoff()
-        self.fireEvent(events.ShowViewEvent(events.ShowViewEvent.SHOW_LOGIN))
+        currentView = None
+        container = self.containerManager.getContainer(VIEW_TYPE.VIEW)
+        if container is not None:
+            currentView = container.getView()
+        if currentView and currentView.alias != VIEW_ALIAS.LOGIN:
+            self.fireEvent(events.ShowViewEvent(events.ShowViewEvent.SHOW_LOGIN))
+        return
+# okay decompyling res/scripts/client/gui/scaleform/appentry.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:47 EST

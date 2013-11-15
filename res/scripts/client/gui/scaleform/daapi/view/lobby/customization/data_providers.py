@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:58 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/customization/data_providers.py
 import gui
 import Math
 import time
@@ -16,6 +18,7 @@ from helpers import i18n
 from CurrentVehicle import g_currentVehicle
 from gui.ClientHangarSpace import _CAMOUFLAGE_MIN_INTENSITY
 from gui.Scaleform.framework.entities.DAAPIDataProvider import DAAPIDataProvider
+from gui.shared import g_itemsCache
 from gui.shared.utils.functions import makeTooltip
 
 class CamouflageGroupsDataProvider(DAAPIDataProvider):
@@ -57,8 +60,6 @@ class HornsDataProvider(DAAPIDataProvider):
     def __init__(self):
         super(HornsDataProvider, self).__init__()
         self.__vehicleTags = set()
-        self.__hornPriceFactor = 1.0
-        self.__costs = {}
         self.__list = []
 
     def buildList(self, currentHornID):
@@ -87,7 +88,8 @@ class HornsDataProvider(DAAPIDataProvider):
         return int(round(defCost * priceFactor))
 
     def getCost(self, hornID):
-        return self._makeCost(self.__costs.get(hornID, 0), self.__hornPriceFactor)
+        price = g_itemsCache.items.shop.getHornPrice(hornID)
+        return self._makeCost(price, g_itemsCache.items.shop.getHornPriceFactor())
 
     def makeItem(self, hornID, isCurrent):
         horn = vehicles.g_cache.horns().get(hornID, {})
@@ -98,10 +100,9 @@ class HornsDataProvider(DAAPIDataProvider):
 
     def setVehicleTypeParams(self, vehicleTags, hornPriceFactor):
         self.__vehicleTags = vehicleTags
-        self.__hornPriceFactor = hornPriceFactor
 
     def setHornDefCosts(self, costs):
-        self.__costs = costs
+        pass
 
     @property
     def collection(self):
@@ -228,13 +229,14 @@ class InscriptionGroupsDataProvider(DAAPIDataProvider):
         self._nationID = nationID
 
     def buildList(self):
+        hiddenInscriptions = g_itemsCache.items.shop.getInscriptionsGroupHiddens(self._nationID)
         customization = vehicles.g_cache.customization(self._nationID)
         result = []
         if customization is not None:
             groups = customization.get('inscriptionGroups', {})
             for name, group in groups.iteritems():
-                emblemIDs, showInShop, priceFactor, groupUserString = group
-                if showInShop:
+                emblemIDs, groupUserString = group
+                if name not in hiddenInscriptions:
                     result.append({'name': name,
                      'userString': groupUserString,
                      'hasNew': False})
@@ -262,12 +264,13 @@ class EmblemGroupsDataProvider(DAAPIDataProvider):
         self.__list = []
 
     def buildList(self):
+        hiddenEmblems = g_itemsCache.items.shop.getEmblemsGroupHiddens()
         groups, emblems, names = vehicles.g_cache.playerEmblems()
         result = []
         if groups is not None:
             for name, group in groups.iteritems():
-                emblemIDs, showInShop, priceFactor, groupUserString = group
-                if showInShop:
+                emblemIDs, groupUserString = group
+                if name not in hiddenEmblems:
                     result.append({'name': name,
                      'userString': groupUserString,
                      'hasNew': False})
@@ -342,15 +345,17 @@ class EmblemsDataProvider(DAAPIModule):
     def _constructObject(self, itemID, groups, emblems, isCurrent = False, withoutCheck = True):
         itemInfo = None
         emblem = emblems.get(itemID, None)
+        priceFactors = g_itemsCache.items.shop.getEmblemsGroupPriceFactors()
+        hiddens = g_itemsCache.items.shop.getEmblemsGroupHiddens()
         if emblem is not None:
             groupName, texture, bumpMap, emblemUserString = emblem
-            emblemIDs, showInShop, priceFactor, groupUserString = groups.get(groupName)
-            if withoutCheck or showInShop:
+            emblemIDs, groupUserString = groups.get(groupName)
+            if withoutCheck or groupName not in hiddens:
                 itemInfo = {'id': itemID,
                  'texturePath': self._makeSmallTextureUrl(texture, None, None),
                  'description': self._makeDescription(groupUserString, emblemUserString),
                  'userString': i18n.makeString(emblemUserString),
-                 'price': {'cost': self._makeCost(self._defCost, self._vehPriceFactor, priceFactor),
+                 'price': {'cost': self._makeCost(self._defCost, self._vehPriceFactor, priceFactors.get(groupName)),
                            'isGold': self._isGold == 1},
                  'current': isCurrent}
         return itemInfo
@@ -361,7 +366,7 @@ class EmblemsDataProvider(DAAPIModule):
         emblem = emblems.get(itemID)
         if emblem is not None:
             groupName, texture, bumpFile, emblemUserString = emblem
-            emblemIDs, showInShop, priceFactor, groupUserString = groups.get(groupName)
+            priceFactor = g_itemsCache.items.shop.getEmblemsGroupPriceFactors().get(groupName)
         return (self._makeCost(self._defCost, self._vehPriceFactor, priceFactor), self._isGold)
 
     def getCostForPackagePrice(self, itemID, packagePrice, isGold):
@@ -390,9 +395,10 @@ class EmblemsDataProvider(DAAPIModule):
         groups, emblems, names = vehicles.g_cache.playerEmblems()
         group = groups.get(groupName)
         result = []
+        hiddenItems = g_itemsCache.items.shop.getEmblemsGroupHiddens()
         if group is not None:
-            emblemIDs, showInShop, priceFactor, groupUserString = group
-            if showInShop:
+            emblemIDs, groupUserString = group
+            if groupName not in hiddenItems:
                 for id in emblemIDs:
                     itemInfo = self._constructObject(id, groups, emblems, self.currentItemID == id, False)
                     if itemInfo is not None:
@@ -437,14 +443,16 @@ class InscriptionDataProvider(EmblemsDataProvider):
     def _constructObject(self, itemID, groups, inscriptions, isCurrent = False, withoutCheck = True):
         itemInfo = None
         inscription = inscriptions.get(itemID, None)
+        priceFactors = g_itemsCache.items.shop.getInscriptionsGroupPriceFactors(self.nationID)
+        hiddens = g_itemsCache.items.shop.getInscriptionsGroupHiddens(self.nationID)
         if inscription is not None:
             groupName, texture, bumpMap, inscriptionUserString, isFeatured = inscription
-            inscriptionIDs, showInShop, priceFactor, groupUserString = groups.get(groupName)
-            if withoutCheck or showInShop:
+            inscriptionIDs, groupUserString = groups.get(groupName)
+            if withoutCheck or groupName not in hiddens:
                 itemInfo = {'id': itemID,
                  'texturePath': self._makeSmallTextureUrl(texture, None, None),
                  'description': self._makeDescription(groupUserString, inscriptionUserString),
-                 'price': {'cost': self._makeCost(self._defCost, self._vehPriceFactor, priceFactor),
+                 'price': {'cost': self._makeCost(self._defCost, self._vehPriceFactor, priceFactors.get(groupName)),
                            'isGold': self._isGold == 1},
                  'current': isCurrent,
                  'isFeatured': isFeatured}
@@ -454,12 +462,11 @@ class InscriptionDataProvider(EmblemsDataProvider):
         priceFactor = 0
         customization = vehicles.g_cache.customization(self.nationID)
         if customization is not None:
-            groups = customization.get('inscriptionGroups', {})
             inscriptions = customization.get('inscriptions', {})
             inscription = inscriptions.get(itemID)
             if inscription is not None:
                 groupName, texture, bumpMap, inscriptionUserString, isFeatured = inscription
-                inscriptionIDs, showInShop, priceFactor, groupUserString = groups.get(groupName)
+                priceFactor = g_itemsCache.items.shop.getInscriptionsGroupPriceFactors(self.nationID).get(groupName)
         return (self._makeCost(self._defCost, self._vehPriceFactor, priceFactor), self._isGold)
 
     def getCostForPackagePrice(self, itemID, packagePrice, isGold):
@@ -468,13 +475,14 @@ class InscriptionDataProvider(EmblemsDataProvider):
     def onRequestList(self, groupName):
         customization = vehicles.g_cache.customization(self.nationID)
         result = []
+        hiddenItems = g_itemsCache.items.shop.getInscriptionsGroupHiddens(self.nationID)
         if customization is not None:
             groups = customization.get('inscriptionGroups', {})
             group = groups.get(groupName, {})
             inscriptions = customization.get('inscriptions', {})
             if group is not None:
-                emblemIDs, showInShop, priceFactor, groupUserString = group
-                if showInShop:
+                emblemIDs, groupUserString = group
+                if groupName not in hiddenItems:
                     for id in emblemIDs:
                         itemInfo = self._constructObject(id, groups, inscriptions, self.currentItemID == id, False)
                         if itemInfo is not None:
@@ -565,7 +573,8 @@ class CamouflagesDataProvider(DAAPIModule):
     def _constructObject(self, cID, groups, camouflages, armorColor, lifeCycle = None, isCurrent = False, withoutCheck = True, currentCompactDescriptor = None):
         camouflageInfo = None
         camouflage = camouflages.get(cID, None)
-        if camouflage is not None and (withoutCheck or camouflage.get('showInShop', False)):
+        hiddenCamos = g_itemsCache.items.shop.getCamouflagesHiddens(self._nationID)
+        if camouflage is not None and (withoutCheck or cID not in hiddenCamos):
             denyCompactDescriptor = camouflage.get('deny')
             if currentCompactDescriptor not in denyCompactDescriptor or currentCompactDescriptor is None:
                 invisibilityFactor = camouflage.get('invisibilityFactor', 1)
@@ -574,7 +583,7 @@ class CamouflagesDataProvider(DAAPIModule):
                 camouflageInfo = {'id': cID,
                  'texturePath': self._makeSmallTextureUrl(camouflage.get('texture'), camouflage.get('colors', (0, 0, 0, 0)), armorColor, lifeCycle=lifeCycle),
                  'description': self._makeDescription(groups, camouflage.get('groupName', ''), camouflage.get('description', '')),
-                 'price': {'cost': self._makeCost(self.__defCost, self.__vehPriceFactor, camouflage.get('priceFactor', 1.0)),
+                 'price': {'cost': self._makeCost(self.__defCost, self.__vehPriceFactor, self._getCamoPriceFactor(cID)),
                            'isGold': self.__isGold == 1},
                  'isNew': camouflage.get('isNew', False),
                  'invisibilityLbl': invisibilityLbl,
@@ -582,12 +591,11 @@ class CamouflagesDataProvider(DAAPIModule):
         return camouflageInfo
 
     def getCost(self, camouflageID):
-        camouflage = vehicles.g_cache.customization(self._nationID).get('camouflages', {}).get(camouflageID, {})
-        return (self._makeCost(self.__defCost, self.__vehPriceFactor, camouflage.get('priceFactor', 1.0)), self.__isGold)
+        return (self._makeCost(self.__defCost, self.__vehPriceFactor, self._getCamoPriceFactor(camouflageID)), self.__isGold)
 
     def getCostForPackagePrice(self, camouflageID, packagePrice, isGold):
-        camouflage = vehicles.g_cache.customization(self._nationID).get('camouflages', {}).get(camouflageID, {})
-        return (self._makeCost(packagePrice, self.__vehPriceFactor, camouflage.get('priceFactor', 1.0)), isGold)
+        priceFactor = g_itemsCache.items.shop.getCamouflagesPriceFactors(self._nationID).get(camouflageID)
+        return (self._makeCost(packagePrice, self.__vehPriceFactor, priceFactor), isGold)
 
     def setVehicleTypeParams(self, vehPriceFactor, camouflageID):
         self.__vehPriceFactor = vehPriceFactor
@@ -652,3 +660,9 @@ class CamouflagesDataProvider(DAAPIModule):
 
     def refresh(self):
         self.flashObject.invalidateRemote(True)
+
+    def _getCamoPriceFactor(self, camoID):
+        return g_itemsCache.items.shop.getCamouflagesPriceFactors(self._nationID).get(camoID)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/customization/data_providers.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:59 EST

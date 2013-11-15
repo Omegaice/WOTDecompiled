@@ -1,10 +1,14 @@
+# 2013.11.15 11:26:22 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/login/__init__.py
 import random
+import sys
 from constants import IS_DEVELOPMENT
 from debug_utils import LOG_DEBUG
 from external_strings_utils import _ACCOUNT_NAME_MIN_LENGTH_REG
 from gui import GUI_SETTINGS, VERSION_FILE_PATH, DialogsInterface
 from gui.BattleContext import g_battleContext
 from gui.Scaleform import SCALEFORM_WALLPAPER_PATH
+from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.daapi.view.meta.LoginPageMeta import LoginPageMeta
 from gui.Scaleform.framework import AppRef
 from gui.Scaleform.framework.entities.View import View
@@ -12,7 +16,7 @@ from gui.Scaleform.daapi.view.login.EULADispatcher import EULADispatcher
 from gui.Scaleform.daapi.view.login.LoginDispatcher import LoginDispatcher
 from gui.Scaleform.Waiting import Waiting
 from gui.shared import EVENT_BUS_SCOPE
-from gui.shared.events import LoginEvent, LoginEventEx, LoginCreateEvent
+from gui.shared.events import LoginEvent, LoginEventEx, LoginCreateEvent, ArgsEvent
 from helpers import i18n
 from helpers.links import openRegistrationWebsite, openRecoveryPasswordWebsite, isRecoveryLinkExists
 from gui.Scaleform.locale.WAITING import WAITING
@@ -24,29 +28,32 @@ import MusicController
 import ResMgr
 import Settings
 import constants
-import sys
 __author__ = 'd_trofimov'
 
 class LoginView(View, LoginPageMeta, AppRef):
 
-    def __init__(self):
+    def __init__(self, event):
         super(LoginView, self).__init__()
+        self.__onLoadCallback = event.get('callback', None)
         self.__loginDispatcher = LoginDispatcher()
         self.__onLoginQueue = False
         self.__capsLockState = None
         self.__EULADispatcher = EULADispatcher()
         self.__showLoginWallpaperNode = 'showLoginWallpaper'
-        import re
-        self.__loginRE = re.compile('^[a-z0-9_-]+(\\.[a-z0-9_-]+)*@[a-z0-9-]+(\\.[a-z0-9-]+)*\\.([a-z]{2,4})$')
-        self.__passRE = re.compile('^[a-zA-Z0-9_]+$')
         return
 
     def _populate(self):
         super(LoginView, self)._populate()
+        if self.__onLoadCallback is not None:
+            self.__onLoadCallback()
         self.app.cursorMgr.show()
         self.__setupDispatcherHandlers(True)
         self.__loginDispatcher.create()
         self.__EULADispatcher.create()
+        if self.__EULADispatcher.isShowLicense():
+            self.__EULADispatcher.onEULAClosed += self.__onEULAClosed
+        else:
+            self.as_enableS(True)
         self.__loadVersion()
         Waiting.close()
         self.addListener(LoginCreateEvent.CREATE_AN_ACCOUNT_REQUEST, self.onTryCreateAccount, EVENT_BUS_SCOPE.LOBBY)
@@ -67,14 +74,26 @@ class LoginView(View, LoginPageMeta, AppRef):
 
         self.__capsLockCallback = BigWorld.callback(0.1, self.__checkCapsLockState)
         g_battleContext.lastArenaUniqueID = None
+        if constants.IS_DEVELOPMENT:
+            qaTestPath = '../../qat/scripts'
+            import os
+            if os.path.exists(qaTestPath):
+                sys.path.append(qaTestPath)
+                import test
         return
+
+    def __onEULAClosed(self):
+        self.__EULADispatcher.onEULAClosed -= self.__onEULAClosed
+        self.as_enableS(True)
 
     def _dispose(self):
         self.__setupDispatcherHandlers(False)
+        self.__onLoadCallback = None
         self.__loginDispatcher.destroy()
         self.__loginDispatcher = None
         self.removeListener(LoginEventEx.ON_LOGIN_QUEUE_CLOSED, self.__onLoginQueueClosed, EVENT_BUS_SCOPE.LOBBY)
         self.removeListener(LoginCreateEvent.CREATE_AN_ACCOUNT_REQUEST, self.onTryCreateAccount, EVENT_BUS_SCOPE.LOBBY)
+        self.__EULADispatcher.onEULAClosed -= self.__onEULAClosed
         self.__EULADispatcher.destroy()
         self.__EULADispatcher = None
         if self.__capsLockCallback is not None:
@@ -91,7 +110,7 @@ class LoginView(View, LoginPageMeta, AppRef):
 
     def onSetOptions(self, optionsList, host):
         options = []
-        selectedId = -1
+        selectedId = 0
         for i, (key, name) in enumerate(optionsList):
             if key == host:
                 selectedId = i
@@ -156,6 +175,7 @@ class LoginView(View, LoginPageMeta, AppRef):
         self.__createAnAccountResponse(False, i18n.makeString(MENU.LOGIN_STATUS_INVALID_LOGIN_LENGTH) % {'count': _ACCOUNT_NAME_MIN_LENGTH_REG})
 
     def onShowCreateAnAccountDialog(self):
+        LOG_DEBUG('onShowCreateAnAccountDialog')
         if constants.IS_VIETNAM:
             self.fireEvent(LoginCreateEvent(LoginCreateEvent.CREATE_ACC, View.alias, DIALOGS.CREATEANACCOUNT_TITLE, DIALOGS.CREATEANACCOUNT_MESSAGE, DIALOGS.CREATEANACCOUNT_SUBMIT), EVENT_BUS_SCOPE.LOBBY)
 
@@ -171,6 +191,11 @@ class LoginView(View, LoginPageMeta, AppRef):
             self.__setLoginQueue(True)
             self.fireEvent(LoginEventEx(LoginEventEx.SET_LOGIN_QUEUE, View.alias, WAITING.TITLES_QUEUE, message, WAITING.BUTTONS_EXITQUEUE), EVENT_BUS_SCOPE.LOBBY)
             self.addListener(LoginEventEx.ON_LOGIN_QUEUE_CLOSED, self.__onLoginQueueClosed, EVENT_BUS_SCOPE.LOBBY)
+        else:
+            ctx = {'title': WAITING.TITLES_QUEUE,
+             'message': message,
+             'cancelLabel': WAITING.BUTTONS_EXITQUEUE}
+            self.fireEvent(ArgsEvent(ArgsEvent.UPDATE_ARGS, VIEW_ALIAS.LOGIN_QUEUE, ctx), EVENT_BUS_SCOPE.LOBBY)
 
     def onConfigLoaded(self, user, password, rememberPwd, isRememberPwd):
         self.as_setDefaultValuesS(user, password, rememberPwd, isRememberPwd, GUI_SETTINGS.igrCredentialsReset, isRecoveryLinkExists())
@@ -332,3 +357,6 @@ class LoginView(View, LoginPageMeta, AppRef):
 
     def __setLoginQueue(self, value):
         self.__onLoginQueue = value
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/login/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:23 EST

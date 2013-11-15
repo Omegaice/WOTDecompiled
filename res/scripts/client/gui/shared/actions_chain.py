@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:46 EST
+# Embedded file name: scripts/client/gui/shared/actions_chain.py
 import BigWorld
 import Event
 from debug_utils import LOG_DEBUG
@@ -90,3 +92,6 @@ class ActionsChain(object):
             self.stop()
             result = False
         return result
+# okay decompyling res/scripts/client/gui/shared/actions_chain.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:46 EST

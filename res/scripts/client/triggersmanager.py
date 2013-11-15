@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:19 EST
+# Embedded file name: scripts/client/TriggersManager.py
 import BigWorld
 import Math, math
 import PlayerEvents
@@ -223,3 +225,6 @@ g_manager = None
 def init():
     global g_manager
     g_manager = TriggersManager()
+# okay decompyling res/scripts/client/triggersmanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:20 EST

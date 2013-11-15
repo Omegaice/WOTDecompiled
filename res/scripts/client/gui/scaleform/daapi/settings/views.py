@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:52 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/settings/views.py
 from gui.Scaleform.framework import COMMON_VIEW_ALIAS
 
 class VIEW_ALIAS(COMMON_VIEW_ALIAS):
@@ -72,3 +74,6 @@ class VIEW_ALIAS(COMMON_VIEW_ALIAS):
     QUESTS_CONTROL = 'questsControl'
     TICKER = 'ticker'
     CHANNEL_CAROUSEL = 'channelCarousel'
+# okay decompyling res/scripts/client/gui/scaleform/daapi/settings/views.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:52 EST

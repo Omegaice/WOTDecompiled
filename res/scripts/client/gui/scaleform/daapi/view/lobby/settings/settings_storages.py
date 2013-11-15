@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:15 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/settings/settings_storages.py
 import BigWorld
 from gui.shared.utils.graphics import g_monitorSettings
 from messenger import g_settings as messenger_settings
@@ -43,12 +45,23 @@ class VideoSettingsStorage(ISettingsStorage):
         self.store({'option': 'videoMode',
          'value': value})
 
+    @property
+    def monitor(self):
+        return self._settings.get('monitor', g_monitorSettings.currentMonitor)
+
+    @monitor.setter
+    def monitor(self, value):
+        self.store({'option': 'monitor',
+         'value': value})
+
     def apply(self):
         cvm = g_monitorSettings.currentVideoMode
         isFullscreen = self.fullscreen
         videoMode = self.videoMode
         if not g_monitorSettings.isMonitorChanged and cvm is not None and (videoMode.index != cvm.index or isFullscreen != g_monitorSettings.isFullscreen):
             BigWorld.changeVideoMode(videoMode.index, not isFullscreen)
+        if 'monitor' in self._settings:
+            g_monitorSettings.changeMonitor(self.monitor)
         return
 
 
@@ -149,3 +162,6 @@ class MarkersSettingsStorage(ISettingsStorage):
     def extract(self, settingOption, key = None, default = None):
         default = self._manager.getMarkersSetting(settingOption, key, default)
         return self._settings.get(settingOption, {}).get(key, default)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/settings/settings_storages.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:15 EST

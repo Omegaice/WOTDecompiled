@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:16 EST
+# Embedded file name: scripts/client/messenger/proto/xmpp/__init__.py
 import BigWorld
 import Account
 from collections import namedtuple
@@ -69,9 +71,10 @@ class XmppPlugin(IProtoPlugin):
             LOG_DEBUG('XMPP:logState - You are not logged in or connection to XMPP is disabled by server settings')
         return
 
-    def connect(self, scope):
-        self._setBattleMode(scope)
-        if self.__bwConnected:
+    def connect(self, scope = None):
+        if scope is not None:
+            self._setBattleMode(scope)
+        if self.isConnected:
             return
         else:
             self.__bwConnected = True
@@ -429,3 +432,6 @@ class XmppPlugin(IProtoPlugin):
         else:
             self.__pendingBattleMode = mode
             self.onDisconnect()
+# okay decompyling res/scripts/client/messenger/proto/xmpp/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:16 EST

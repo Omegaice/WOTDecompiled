@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:38 EST
+# Embedded file name: scripts/client/gui/Scaleform/managers/ColorSchemeManager.py
 import Math
 import ResMgr
 from account_helpers.AccountSettings import AccountSettings
@@ -57,3 +59,6 @@ class ColorSchemeManager(ColorSchemeManagerMeta):
          'adjust': {'offset': scheme['adjust']['offset'].tuple()},
          'transform': {'mult': scheme['transform']['mult'].tuple(),
                        'offset': scheme['transform']['offset'].tuple()}}
+# okay decompyling res/scripts/client/gui/scaleform/managers/colorschememanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:38 EST

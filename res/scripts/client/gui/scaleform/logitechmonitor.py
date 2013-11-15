@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:38 EST
+# Embedded file name: scripts/client/gui/Scaleform/LogitechMonitor.py
 import BigWorld
 import constants
 import CommandMapping
@@ -405,3 +407,6 @@ class LogitechMonitor(object):
             delegator.destroy()
             LogitechMonitor.__messenger = None
         return
+# okay decompyling res/scripts/client/gui/scaleform/logitechmonitor.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:38 EST

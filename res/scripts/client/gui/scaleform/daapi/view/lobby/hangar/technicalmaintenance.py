@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:03 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/TechnicalMaintenance.py
 from AccountCommands import LOCK_REASON
 from CurrentVehicle import g_currentVehicle
 from PlayerEvents import g_playerEvents
@@ -13,7 +15,7 @@ from gui.shared.utils import decorators
 from gui.shared.utils.functions import getShortDescr, isModuleFitVehicle
 from gui.shared.utils.gui_items import getVehicleFullName, VehicleItem, compactItem, getItemByCompact, InventoryItem
 from gui.shared.utils.requesters import StatsRequester, Requester, ShopRequester, StatsRequesterr, AvailableItemsRequester, VehicleItemsRequester
-from gui.shared import events
+from gui.shared import events, g_itemsCache
 from helpers import i18n
 from helpers.i18n import makeString
 
@@ -34,7 +36,8 @@ class TechnicalMaintenance(View, TechnicalMaintenanceMeta, WindowViewMeta):
         super(View, self)._populate()
         g_playerEvents.onShopResync += self._onShopResync
         g_clientUpdateManager.addCallbacks({'stats.credits': self.onCreditsChange,
-         'stats.gold': self.onGoldChange})
+         'stats.gold': self.onGoldChange,
+         'cache.mayConsumeWalletResources': self.onGoldChange})
         g_currentVehicle.onChanged += self.__onCurrentVehicleChanged
         if g_currentVehicle.isPresent():
             self.__currentVehicleId = g_currentVehicle.invID
@@ -47,11 +50,13 @@ class TechnicalMaintenance(View, TechnicalMaintenanceMeta, WindowViewMeta):
         g_currentVehicle.onChanged -= self.__onCurrentVehicleChanged
         super(View, self)._dispose()
 
-    def onCreditsChange(self, credits):
-        self.as_setCreditsS(credits)
+    def onCreditsChange(self, value):
+        value = g_itemsCache.items.stats.credits
+        self.as_setCreditsS(value)
 
-    def onGoldChange(self, gold):
-        self.as_setGoldS(gold)
+    def onGoldChange(self, value):
+        value = g_itemsCache.items.stats.gold
+        self.as_setGoldS(value)
 
     def _onShopResync(self):
         self.populateTechnicalMaintenance()
@@ -162,8 +167,7 @@ class TechnicalMaintenance(View, TechnicalMaintenanceMeta, WindowViewMeta):
     def populateTechnicalMaintenanceEquipment(self, eId1 = None, currency1 = None, eId2 = None, currency2 = None, eId3 = None, currency3 = None, slotIndex = None):
         shopRqs = yield ShopRequester().request()
         goldEqsForCredits = shopRqs.isEnabledBuyingGoldEqsForCredits
-        gold = yield StatsRequester().getGold()
-        credits = yield StatsRequester().getCredits()
+        credits, gold = g_itemsCache.items.stats.money
         myVehicles = yield Requester('vehicle').getFromInventory()
         modulesAllVehicle = VehicleItemsRequester(myVehicles).getItems(['equipment'])
         oldStyleVehicle = None
@@ -298,13 +302,13 @@ class TechnicalMaintenance(View, TechnicalMaintenanceMeta, WindowViewMeta):
         return
 
     def fillVehicle(self, needRepair, needAmmo, needEquipment, isPopulate, isUnload, isOrderChanged, shells, equipment):
-        if not needRepair and not needAmmo and not needEquipment and not isPopulate and not isUnload and not isOrderChanged:
+        if not needRepair and not needAmmo and not needEquipment:
             self.__fillTechnicalMaintenance(shells, equipment)
         else:
             msgPrefix = '{0}'
             if needRepair:
                 msgPrefix = msgPrefix.format('_repair{0}')
-            if isPopulate:
+            if needAmmo or needEquipment:
                 msgPrefix = msgPrefix.format('_populate')
             elif isUnload:
                 msgPrefix = msgPrefix.format('_unload')
@@ -363,3 +367,6 @@ class TechnicalMaintenance(View, TechnicalMaintenanceMeta, WindowViewMeta):
         if result and len(result.userMsg):
             SystemMessages.g_instance.pushI18nMessage(result.userMsg, type=result.sysMsgType)
         self.destroy()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/hangar/technicalmaintenance.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:04 EST

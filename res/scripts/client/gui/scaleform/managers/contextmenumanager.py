@@ -1,11 +1,17 @@
+# 2013.11.15 11:26:38 EST
+# Embedded file name: scripts/client/gui/Scaleform/managers/ContextMenuManager.py
 import BigWorld
 import ResMgr
 from adisp import process
 import constants
 from debug_utils import LOG_DEBUG
 from account_helpers import isMoneyTransfer
-from gui import DialogsInterface
+from gui import DialogsInterface, game_control
 from gui.Scaleform.daapi.view.dialogs import I18nInfoDialogMeta
+from gui.prb_control import context
+from gui.prb_control.functional.no_prebattle import NoPrbFunctional
+from gui.prb_control.functional.unit import UnitFunctional
+from gui.prb_control.prb_helpers import prbDispatcherProperty
 from helpers import i18n
 from gui import SystemMessages
 from gui.shared import g_itemsCache
@@ -26,6 +32,10 @@ class ContextMenuManager(ContextMenuManagerMeta):
      'allyEjection': constants.DENUNCIATION.ALLY_EJECTION,
      'openingOfAllyPos': constants.DENUNCIATION.OPENING_OF_ALLY_POS}
 
+    @prbDispatcherProperty
+    def prbDispatcher(self):
+        return None
+
     @storage_getter('users')
     def usersStorage(self):
         return None
@@ -36,7 +46,7 @@ class ContextMenuManager(ContextMenuManagerMeta):
 
     @process
     def showUserInfo(self, uid, userName):
-        userDossier, isHidden = yield g_itemsCache.items.requestUserDossier(userName)
+        userDossier, isHidden = yield g_itemsCache.items.requestUserDossier(int(uid))
         if userDossier is None:
             if isHidden:
                 key = 'messenger/userInfoHidden'
@@ -44,7 +54,8 @@ class ContextMenuManager(ContextMenuManagerMeta):
                 key = 'messenger/userInfoNotAvailable'
             DialogsInterface.showI18nInfoDialog(key, lambda result: None, I18nInfoDialogMeta(key, messageCtx={'userName': userName}))
         else:
-            self.fireEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_PROFILE_WINDOW, {'userName': userName}), EVENT_BUS_SCOPE.LOBBY)
+            self.fireEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_PROFILE_WINDOW, {'userName': userName,
+             'databaseID': int(uid)}), EVENT_BUS_SCOPE.LOBBY)
         return
 
     def showMoneyTransfer(self, uid, userName):
@@ -82,7 +93,19 @@ class ContextMenuManager(ContextMenuManagerMeta):
         return
 
     def kickPlayer(self, accId):
-        BigWorld.player().prb_kick(accId, lambda resultID: None)
+        self._kickPlayerProcess(accId)
+
+    @process
+    def _kickPlayerProcess(self, accId):
+        prbF = self.prbDispatcher.getPrbFunctional()
+        unitF = self.prbDispatcher.getUnitFunctional()
+        if not isinstance(prbF, NoPrbFunctional):
+            yield self.prbDispatcher.sendPrbRequest(context.KickPlayerCtx(accId, 'prebattle/change_settings'))
+        elif isinstance(unitF, UnitFunctional):
+            yield self.prbDispatcher.sendUnitRequest(context.KickPlayerCtx(accId, 'prebattle/change_settings'))
+        else:
+            LOG_DEBUG('Trying to kick player from non compatible functional')
+            yield lambda : 0
 
     def copyToClipboard(self, name):
         BigWorld.wg_copyToClipboard(name)
@@ -93,16 +116,25 @@ class ContextMenuManager(ContextMenuManagerMeta):
             result = {'isFriend': user.isFriend(),
              'isIgnored': user.isIgnored(),
              'isMuted': user.isMuted(),
-             'displayName': user.getFullName()}
+             'displayName': user.getFullName(),
+             'isEnabledInRoaming': self.__isEnabledInRoaming(uid)}
         else:
             result = {'isFriend': False,
              'isIgnored': False,
              'isMuted': False,
-             'displayName': userName}
+             'displayName': userName,
+             'isEnabledInRoaming': self.__isEnabledInRoaming(uid)}
         return result
+
+    def __isEnabledInRoaming(self, playerDBID):
+        roamingCtrl = game_control.g_instance.roaming
+        return not roamingCtrl.isInRoaming() and not roamingCtrl.isPlayerInRoaming(playerDBID)
 
     def _getDenunciations(self):
         return g_itemsCache.items.stats.denunciationsLeft
 
     def _isMoneyTransfer(self):
         return isMoneyTransfer(g_itemsCache.items.stats.attributes)
+# okay decompyling res/scripts/client/gui/scaleform/managers/contextmenumanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:38 EST

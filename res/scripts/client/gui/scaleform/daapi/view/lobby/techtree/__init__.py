@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:16 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/techtree/__init__.py
 from collections import namedtuple, defaultdict
 from items import ITEM_TYPE_NAMES, getTypeInfoByName
 from items.vehicles import _VEHICLE, _TURRET, _GUN, _CHASSIS, _RADIO, _ENGINE
@@ -110,12 +112,18 @@ class SelectedNation(object):
     def byDefault(cls):
         if cls.__index is None:
             from CurrentVehicle import g_currentVehicle
-            cls.__index = g_currentVehicle.item.nationID if g_currentVehicle.isPresent() else 0
+            from gui.Scaleform.daapi.view.lobby.techtree.techtree_dp import g_techTreeDP
+            index = 0
+            if g_currentVehicle.isPresent() and g_currentVehicle.item.nationID in g_techTreeDP.getAvailableNationsIndices():
+                index = g_currentVehicle.item.nationID
+            cls.__index = index
         return
 
     @classmethod
     def select(cls, index):
-        cls.__index = index
+        from gui.Scaleform.daapi.view.lobby.techtree.techtree_dp import g_techTreeDP
+        if index in g_techTreeDP.getAvailableNationsIndices():
+            cls.__index = index
 
     @classmethod
     def getIndex(cls):
@@ -186,3 +194,6 @@ __all__ = ['USE_XML_DUMPING',
  'SMALL_ICONS_PATH',
  'TREE_SHARED_REL_FILE_PATH',
  'NATION_TREE_REL_FILE_PATH']
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/techtree/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:17 EST

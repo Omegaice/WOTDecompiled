@@ -1,15 +1,8 @@
+# 2013.11.15 11:25:10 EST
+# Embedded file name: scripts/client/account_helpers/QuestProgress.py
 import AccountCommands
-import time
-import constants
-import items
-import dossiers
 from functools import partial
 from AccountSyncData import synchronizeDicts
-from PlayerEvents import g_playerEvents as events
-from itertools import izip
-from items import vehicles
-from constants import DOSSIER_TYPE, ACCOUNT_ATTR
-from AccountCommands import VEHICLE_SETTINGS_FLAG
 from debug_utils import *
 
 class QuestProgress(object):
@@ -77,3 +70,6 @@ class QuestProgress(object):
             if callback is not None:
                 callback(resultID, self.__cache.get(itemsType, None))
             return
+# okay decompyling res/scripts/client/account_helpers/questprogress.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:10 EST

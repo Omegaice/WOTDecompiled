@@ -1,6 +1,8 @@
+# 2013.11.15 11:27:21 EST
+# Embedded file name: scripts/client/tutorial/control/lobby/context.py
 import BigWorld
 from AccountCommands import RES_TUTORIAL_DISABLED, RES_SUCCESS
-import dossiers
+import dossiers2
 from tutorial.control import context
 from tutorial.logger import LOG_DEBUG, LOG_ERROR
 
@@ -48,8 +50,8 @@ class LobbyStartReqs(context.StartReqs):
             LOG_ERROR('Server return error on request dossier', resultID, dossierCD)
             loader._clear()
             return
-        dossierDescr = dossiers.getAccountDossierDescr(dossierCD)
-        if not dossierDescr['battlesCount']:
+        dossierDescr = dossiers2.getAccountDossierDescr(dossierCD)
+        if not dossierDescr['a15x15']['battlesCount']:
             loader._doRun(ctx)
         else:
             ctx.cache.setFinished(True).write()
@@ -106,3 +108,6 @@ class LobbyBonusesRequester(context.BonusesRequester):
             LOG_DEBUG('Received bonus', bonusID)
             self._completed |= 1 << bonusID
             return
+# okay decompyling res/scripts/client/tutorial/control/lobby/context.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:21 EST

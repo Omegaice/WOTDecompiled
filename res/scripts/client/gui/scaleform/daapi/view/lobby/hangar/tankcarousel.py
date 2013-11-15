@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:03 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/hangar/TankCarousel.py
 from debug_utils import LOG_ERROR, LOG_CURRENT_EXCEPTION, LOG_DEBUG
 from gui.Scaleform.daapi.view.meta.TankCarouselMeta import TankCarouselMeta
 import BigWorld
@@ -148,7 +150,7 @@ class TankCarousel(TankCarouselMeta):
         if self.vehiclesFilter['nation'] != -1:
             filterCriteria |= REQ_CRITERIA.NATIONS([self.vehiclesFilter['nation']])
         if self.vehiclesFilter['tankType'] != 'none':
-            filterCriteria |= REQ_CRITERIA.VEHICLE.TYPES([self.vehiclesFilter['tankType']])
+            filterCriteria |= REQ_CRITERIA.VEHICLE.CLASSES([self.vehiclesFilter['tankType']])
         if self.vehiclesFilter['ready']:
             filterCriteria |= REQ_CRITERIA.VEHICLE.FAVORITE
         items = g_itemsCache.items
@@ -212,3 +214,6 @@ class TankCarousel(TankCarouselMeta):
 
     def __onShopResync(self):
         self.updateVehicles()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/hangar/tankcarousel.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:03 EST

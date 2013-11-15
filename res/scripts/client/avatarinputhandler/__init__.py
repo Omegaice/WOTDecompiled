@@ -1,4 +1,7 @@
+# 2013.11.15 11:25:17 EST
+# Embedded file name: scripts/client/AvatarInputHandler/__init__.py
 import BigWorld, Math, math, ResMgr, Keys
+from AvatarInputHandler.AimingSystems.SniperAimingSystem import SniperAimingSystem
 import Settings
 import GUI
 from Event import Event
@@ -98,9 +101,11 @@ class AvatarInputHandler(object):
     _DYNAMIC_CAMERAS_ENABLED_KEY = 'global/dynamicCameraEnabled'
 
     @staticmethod
-    def enableDynamicCamera(enable):
+    def enableDynamicCamera(enable, useHorizontalStabilizer = True):
         for dynamicCameraClass in _DYNAMIC_CAMERAS:
             dynamicCameraClass.enableDynamicCamera(enable)
+
+        SniperAimingSystem.setStabilizerSettings(useHorizontalStabilizer and enable, enable)
 
     @staticmethod
     def isCameraDynamic():
@@ -109,6 +114,10 @@ class AvatarInputHandler(object):
                 return False
 
         return True
+
+    @staticmethod
+    def isSniperStabilized():
+        return SniperAimingSystem.getStabilizerSettings()
 
     def __init__(self):
         self.__alwaysShowAim = False
@@ -372,10 +381,10 @@ class AvatarInputHandler(object):
     def onMinimapClicked(self, worldPos):
         self.__curCtrl.onMinimapClicked(worldPos)
 
-    def setReloading(self, duration, startTime = None):
+    def setReloading(self, duration, startTime = None, baseTime = None):
         self.__curCtrl.setReloading(duration, startTime)
         if self.aim is not None:
-            self.aim.setReloading(duration, startTime)
+            self.aim.setReloading(duration, startTime, baseTime)
         return
 
     def onVehicleShaken(self, vehicle, impulsePosition, impulseDir, caliber, shakeReason):
@@ -526,8 +535,11 @@ class AvatarInputHandler(object):
         self.__targeting.onRecreateDevice()
 
     def __onSettingsChanged(self, diff):
-        if 'dynamicCamera' in diff:
-            self.enableDynamicCamera(diff['dynamicCamera'])
+        from account_helpers.SettingsCore import g_settingsCore
+        if 'dynamicCamera' in diff or 'horStabilizationSnp' in diff:
+            dynamicCamera = g_settingsCore.getSetting('dynamicCamera')
+            horStabilizationSnp = g_settingsCore.getSetting('horStabilizationSnp')
+            self.enableDynamicCamera(dynamicCamera, horStabilizationSnp)
 
 
 class _Targeting():
@@ -617,3 +629,6 @@ class _VertScreenshotCamera(object):
         BigWorld.setWatcher('Render/Far Plane', camPos.y + 1000.0)
         BigWorld.setWatcher('Client Settings/Script tick', False)
         LOG_DEBUG('Vertical screenshot camera is enabled')
+# okay decompyling res/scripts/client/avatarinputhandler/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:18 EST

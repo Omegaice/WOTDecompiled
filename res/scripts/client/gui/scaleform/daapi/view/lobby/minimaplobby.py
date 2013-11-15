@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:06 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/MinimapLobby.py
 import BigWorld
 import Math
 import ArenaType
@@ -78,3 +80,6 @@ class MinimapLobby(MinimapLobbyMeta, MinimapEntityMeta, DAAPIModule):
                 pos = (controlPoint[0], 0, controlPoint[1])
                 m = Math.Matrix().setTranslate(pos)
                 self.as_addPointS(pos[0] / mapWidth - viewpoint.x * 0.5, pos[2] / mapHeight - viewpoint.y * 0.5, 'control', 'empty', index if len(self.__cfg['controlPoints']) > 1 else 1)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/minimaplobby.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:06 EST

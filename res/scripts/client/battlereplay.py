@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:28 EST
+# Embedded file name: scripts/client/BattleReplay.py
 import os
 import datetime
 import json
@@ -79,6 +81,7 @@ class BattleReplay():
         self.__timeWarpCleanupCb = None
         self.__enableTimeWarp = False
         self.__disableSidePanelContextMenuCb = None
+        self.enableAutoRecordingBattles(True)
         return
 
     @property
@@ -540,7 +543,9 @@ class BattleReplay():
         if not self.scriptModalWindowsEnabled:
             self.__onClientVersionConfirmDlgClosed(True)
             return
-        self.guiWindowManager.showLogin()
+        self.guiWindowManager.showLogin(self.__loginOnLoadCallback)
+
+    def __loginOnLoadCallback(self):
         DialogsInterface.showI18nConfirmDialog('replayNotification', self.__onClientVersionConfirmDlgClosed)
 
     def __onClientVersionConfirmDlgClosed(self, result):
@@ -558,8 +563,7 @@ class BattleReplay():
         self.__isAutoRecordingEnabled = enable
         if enable:
             g_playerEvents.onAccountBecomePlayer += self.__startAutoRecord
-            if isPlayerAccount():
-                self.__startAutoRecord()
+            self.__startAutoRecord()
         else:
             g_playerEvents.onAccountBecomePlayer -= self.__startAutoRecord
             if self.isRecording:
@@ -660,3 +664,6 @@ class BattleReplay():
 
 def isPlaying():
     return g_replayCtrl.isPlaying or g_replayCtrl.isTimeWarpInProgress
+# okay decompyling res/scripts/client/battlereplay.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:29 EST

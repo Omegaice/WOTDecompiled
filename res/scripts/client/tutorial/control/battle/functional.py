@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:20 EST
+# Embedded file name: scripts/client/tutorial/control/battle/functional.py
 import time
 import weakref
 import BigWorld
@@ -703,3 +705,6 @@ class FunctionalBattleScene(FunctionalScene):
             self._arenaFinished = True
             if self.__isDelayPerformed():
                 _leaveArena()
+# okay decompyling res/scripts/client/tutorial/control/battle/functional.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:21 EST

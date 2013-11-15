@@ -1,13 +1,16 @@
-import weakref
+# 2013.11.15 11:25:41 EST
+# Embedded file name: scripts/client/gui/prb_control/functional/default.py
 import BigWorld
 from PlayerEvents import g_playerEvents
 import account_helpers
 from constants import PREBATTLE_TYPE_NAMES, PREBATTLE_ACCOUNT_STATE, REQUEST_COOLDOWN
-from debug_utils import LOG_ERROR, LOG_DEBUG
+from debug_utils import LOG_ERROR, LOG_DEBUG, LOG_CURRENT_EXCEPTION
 from gui import prb_control, SystemMessages
 from gui.Scaleform.daapi.view.dialogs import I18nConfirmDialogMeta, SimpleDialogMeta
 from gui.Scaleform.locale.DIALOGS import DIALOGS
 from gui.prb_control import restrictions, events_dispatcher
+from gui.prb_control.context import LeavePrbCtx
+from gui.prb_control.ctrl_events import g_prbCtrlEvents
 from gui.prb_control.formatters import messages
 from gui.prb_control.functional.interfaces import IPrbEntry, IPrbFunctional
 from gui.prb_control.functional.interfaces import IPrbListener, IPrbListRequester
@@ -15,9 +18,9 @@ from gui.prb_control import info, isParentControlActivated
 from gui.prb_control.info import PlayerPrbInfo
 from gui.prb_control.sequences import RosterIterator
 from gui.prb_control.restrictions.limits import DefaultLimits
-from gui.prb_control.restrictions.permissions import DefaultPermissions
+from gui.prb_control.restrictions.permissions import DefaultPrbPermissions
 from gui.prb_control.settings import PREBATTLE_ROSTER, PREBATTLE_INIT_STEP
-from gui.prb_control.settings import PREBATTLE_REQUEST
+from gui.prb_control.settings import REQUEST_TYPE, CTRL_ENTITY_TYPE, FUNCTIONAL_EXIT
 from prebattle_shared import decodeRoster
 
 class PrbEntry(IPrbEntry):
@@ -41,10 +44,9 @@ class PrbEntry(IPrbEntry):
 
 class PrbInitFunctional(IPrbFunctional):
 
-    def __init__(self, dispatcher):
+    def __init__(self):
         super(PrbInitFunctional, self).__init__()
         self.__prbInitSteps = 0
-        self.__dispatcher = weakref.proxy(dispatcher)
 
     def init(self, clientPrb = None, ctx = None):
         if clientPrb is None:
@@ -80,8 +82,7 @@ class PrbInitFunctional(IPrbFunctional):
     def __isPrebattleInited(self):
         result = False
         if self.__prbInitSteps is PREBATTLE_INIT_STEP.INITED:
-            if self.__dispatcher is not None:
-                self.__dispatcher._onPrbInited()
+            g_prbCtrlEvents.onPrebattleInited()
             result = True
             self.__prbInitSteps = 0
         return result
@@ -126,7 +127,7 @@ class PrbDispatcher(IPrbFunctional):
         if permClass is not None:
             self._permClass = permClass
         else:
-            self._permClass = DefaultPermissions
+            self._permClass = DefaultPrbPermissions
         if limits is not None:
             self._limits = limits
         else:
@@ -162,8 +163,13 @@ class PrbDispatcher(IPrbFunctional):
         if self._limits is not None:
             self._limits.clear()
             self._limits = None
-        for listener in self._listeners:
-            listener.onPrbFunctionalFinished()
+        if not woEvents:
+            try:
+                for listener in self._listeners:
+                    listener.onPrbFunctionalFinished()
+
+            except:
+                LOG_CURRENT_EXCEPTION()
 
         if clientPrb is None:
             clientPrb = prb_control.getClientPrebattle()
@@ -176,6 +182,9 @@ class PrbDispatcher(IPrbFunctional):
             clientPrb.onPlayerRemoved -= self.prb_onPlayerRemoved
             clientPrb.onKickedFromQueue -= self.prb_onKickedFromQueue
         return
+
+    def isPlayerJoined(self, ctx):
+        return ctx.getEntityType() is CTRL_ENTITY_TYPE.PREBATTLE and ctx.getID() == self.getID()
 
     def addListener(self, listener):
         if isinstance(listener, IPrbListener):
@@ -218,7 +227,11 @@ class PrbDispatcher(IPrbFunctional):
     def hasEntity(self):
         return True
 
-    def isConfirmToChange(self):
+    def hasLockedState(self):
+        team, assigned = decodeRoster(self.getRosterKey())
+        return self.getTeamState().isInQueue() and self.getPlayerInfo().isReady() and assigned
+
+    def isConfirmToChange(self, exit = FUNCTIONAL_EXIT.NO_FUNC):
         return self._settings is not None
 
     def getConfirmDialogMeta(self):
@@ -366,6 +379,13 @@ class PrbFunctional(PrbDispatcher):
     def getProps(self):
         return info.PrbPropsInfo(**prb_control.getPrebattleProps())
 
+    def doLeaveAction(self, dispatcher, ctx = None):
+        if ctx is None:
+            ctx = LeavePrbCtx(waitingID='prebattle/leave')
+        if dispatcher._setRequestCtx(ctx):
+            self.leave(ctx)
+        return
+
     def leave(self, ctx, callback = None):
         ctx.startProcessing(callback)
         BigWorld.player().prb_leave(ctx.onResponseReceived)
@@ -472,8 +492,8 @@ class PrbFunctional(PrbDispatcher):
         BigWorld.player().prb_kick(ctx.getPlayerID(), ctx.onResponseReceived)
 
     def swapTeams(self, ctx, callback = None):
-        if info.isRequestInCoolDown(PREBATTLE_REQUEST.SWAP_TEAMS):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.SWAP_TEAMS), type=SystemMessages.SM_TYPE.Error)
+        if info.isRequestInCoolDown(REQUEST_TYPE.SWAP_TEAMS):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.SWAP_TEAMS), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
@@ -481,22 +501,22 @@ class PrbFunctional(PrbDispatcher):
         if self.getPermissions().canChangePlayerTeam():
             ctx.startProcessing(callback)
             BigWorld.player().prb_swapTeams(ctx.onResponseReceived)
-            info.setRequestCoolDown(PREBATTLE_REQUEST.SWAP_TEAMS)
+            info.setRequestCoolDown(REQUEST_TYPE.SWAP_TEAMS)
         else:
             LOG_ERROR('Player can not swap teams', pPermissions)
             if callback:
                 callback(False)
 
     def sendInvites(self, ctx, callback = None):
-        if info.isRequestInCoolDown(PREBATTLE_REQUEST.SEND_INVITE):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.SEND_INVITE), type=SystemMessages.SM_TYPE.Error)
+        if info.isRequestInCoolDown(REQUEST_TYPE.SEND_INVITE):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.SEND_INVITE), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
         pPermissions = self.getPermissions()
         if self.getPermissions().canSendInvite():
             BigWorld.player().prb_sendInvites(ctx.getDatabaseIDs(), ctx.getComment())
-            info.setRequestCoolDown(PREBATTLE_REQUEST.SEND_INVITE, coolDown=REQUEST_COOLDOWN.PREBATTLE_INVITES)
+            info.setRequestCoolDown(REQUEST_TYPE.SEND_INVITE, coolDown=REQUEST_COOLDOWN.PREBATTLE_INVITES)
             if callback:
                 callback(True)
         else:
@@ -505,14 +525,14 @@ class PrbFunctional(PrbDispatcher):
                 callback(False)
 
     def _setTeamNotReady(self, ctx, callback = None):
-        if info.isRequestInCoolDown(PREBATTLE_REQUEST.SET_TEAM_STATE):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.SET_TEAM_STATE, REQUEST_COOLDOWN.PREBATTLE_TEAM_NOT_READY), type=SystemMessages.SM_TYPE.Error)
+        if info.isRequestInCoolDown(REQUEST_TYPE.SET_TEAM_STATE):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.SET_TEAM_STATE, REQUEST_COOLDOWN.PREBATTLE_TEAM_NOT_READY), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
         ctx.startProcessing(callback)
         BigWorld.player().prb_teamNotReady(ctx.getTeam(), ctx.onResponseReceived)
-        info.setRequestCoolDown(PREBATTLE_REQUEST.SET_TEAM_STATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_TEAM_NOT_READY)
+        info.setRequestCoolDown(REQUEST_TYPE.SET_TEAM_STATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_TEAM_NOT_READY)
 
     def _setTeamReady(self, ctx, callback = None):
         if isParentControlActivated():
@@ -531,8 +551,8 @@ class PrbFunctional(PrbDispatcher):
             SystemMessages.pushMessage(messages.getInvalidTeamMessage(notValidReason, functional=self), type=SystemMessages.SM_TYPE.Error)
 
     def _setPlayerNotReady(self, ctx, callback = None):
-        if info.isRequestInCoolDown(PREBATTLE_REQUEST.SET_PLAYER_STATE):
-            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(PREBATTLE_REQUEST.SET_PLAYER_STATE, REQUEST_COOLDOWN.PREBATTLE_NOT_READY), type=SystemMessages.SM_TYPE.Error)
+        if info.isRequestInCoolDown(REQUEST_TYPE.SET_PLAYER_STATE):
+            SystemMessages.pushMessage(messages.getRequestInCoolDownMessage(REQUEST_TYPE.SET_PLAYER_STATE, REQUEST_COOLDOWN.PREBATTLE_NOT_READY), type=SystemMessages.SM_TYPE.Error)
             if callback:
                 callback(False)
             return
@@ -545,7 +565,7 @@ class PrbFunctional(PrbDispatcher):
             return
         ctx.startProcessing(callback)
         BigWorld.player().prb_notReady(PREBATTLE_ACCOUNT_STATE.NOT_READY, ctx.onResponseReceived)
-        info.setRequestCoolDown(PREBATTLE_REQUEST.SET_PLAYER_STATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_NOT_READY)
+        info.setRequestCoolDown(REQUEST_TYPE.SET_PLAYER_STATE, coolDown=REQUEST_COOLDOWN.PREBATTLE_NOT_READY)
 
     def _setPlayerReady(self, ctx, callback = None):
         if isParentControlActivated():
@@ -589,3 +609,6 @@ class PrbFunctional(PrbDispatcher):
                         haveInBattle = True
 
         return info.PlayersStateStats(notReadyCount, haveInBattle, playersCount, limitMaxCount)
+# okay decompyling res/scripts/client/gui/prb_control/functional/default.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:42 EST

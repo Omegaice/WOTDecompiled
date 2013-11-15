@@ -1,9 +1,11 @@
+# 2013.11.15 11:26:51 EST
+# Embedded file name: scripts/client/gui/shared/gui_items/processors/tankman.py
 import BigWorld
 from debug_utils import LOG_DEBUG
 from gui.SystemMessages import SM_TYPE
 from gui.shared import g_itemsCache
 from gui.shared.gui_items import GUI_ITEM_TYPE
-from gui.shared.gui_items.processors import Processor, ItemProcessor, VehicleItemProcessor, makeI18nSuccess, makeI18nError, plugins
+from gui.shared.gui_items.processors import Processor, ItemProcessor, makeI18nSuccess, makeI18nError, plugins
 from gui.shared.utils.gui_items import formatPrice
 
 class TankmanDismiss(ItemProcessor):
@@ -12,10 +14,7 @@ class TankmanDismiss(ItemProcessor):
         vehicle = None
         if tankman.vehicleInvID > 0:
             vehicle = g_itemsCache.items.getVehicle(tankman.vehicleInvID)
-        if len(tankman.skills) > 0 or tankman.roleLevel >= 100:
-            confirmatorType = plugins.DismissTankmanConfirmator('protectedDismissTankman', tankman)
-        else:
-            confirmatorType = plugins.MessageConfirmator('dismissTankman')
+        confirmatorType = plugins.DismissTankmanConfirmator('protectedDismissTankman', tankman)
         raise confirmatorType or AssertionError
         super(TankmanDismiss, self).__init__(tankman, [confirmatorType, plugins.VehicleValidator(vehicle, isEnabled=tankman.vehicleInvID > 0)])
         return
@@ -85,7 +84,7 @@ class TankmanEquip(Processor):
         anotherTankman = dict(vehicle.crew).get(slot)
         if tankman is not None and anotherTankman is not None and anotherTankman.invID != tankman.invID:
             self.isReequip = True
-        self.addPlugins([plugins.VehicleLockValidator(vehicle), plugins.ModuleValidator(tankman), plugins.ModuleTypeValidator(tankman, (GUI_ITEM_TYPE.TANKMAN,))])
+        self.addPlugins([plugins.VehicleValidator(vehicle, False, prop={'isLocked': True}), plugins.ModuleValidator(tankman), plugins.ModuleTypeValidator(tankman, (GUI_ITEM_TYPE.TANKMAN,))])
         return
 
     def _errorHandler(self, code, errStr = '', ctx = None):
@@ -111,6 +110,56 @@ class TankmanEquip(Processor):
         return 'reequip_tankman'
 
 
+class TankmanRecruitAndEquip(Processor):
+
+    def __init__(self, vehicle, slot, tmanCostTypeIdx):
+        super(TankmanRecruitAndEquip, self).__init__()
+        self.vehicle = vehicle
+        self.slot = slot
+        self.tmanCostTypeIdx = tmanCostTypeIdx
+        self.isReplace = dict(vehicle.crew).get(slot) is not None
+        self.addPlugins([plugins.VehicleValidator(vehicle, False, prop={'isLocked': True}), plugins.MoneyValidator(self.__getRecruitPrice(tmanCostTypeIdx)), plugins.FreeTankmanValidator(isEnabled=tmanCostTypeIdx == 0)])
+        return
+
+    def _request(self, callback):
+        LOG_DEBUG('Make server request to buy and equip tankman:', self.vehicle, self.slot, self.tmanCostTypeIdx)
+        BigWorld.player().shop.buyAndEquipTankman(self.vehicle.invID, self.slot, self.tmanCostTypeIdx, lambda code, tmanInvID, tmanCompDescr: self._response(code, callback, ctx=tmanInvID))
+
+    def _errorHandler(self, code, errStr = '', ctx = None):
+        prefix = self.__getSysMsgPrefix()
+        if len(errStr):
+            return makeI18nError('%s/%s' % (prefix, errStr))
+        return makeI18nError('%s/server_error' % prefix, auxData=ctx)
+
+    def _successHandler(self, code, ctx = None):
+        tmanCost = self.__getRecruitPrice(self.tmanCostTypeIdx)
+        prefix = self.__getSysMsgPrefix()
+        if tmanCost[0] > 0 or tmanCost[1] > 0:
+            return makeI18nSuccess('%s/financial_success' % prefix, price=formatPrice(tmanCost), type=self.__getSysMsgType(), auxData=ctx)
+        return makeI18nSuccess('%s/success' % prefix, type=self.__getSysMsgType(), auxData=ctx)
+
+    def __getRecruitPrice(self, tmanCostTypeIdx):
+        upgradeCost = g_itemsCache.items.shop.tankmanCost[tmanCostTypeIdx]
+        if tmanCostTypeIdx == 1:
+            return (upgradeCost['credits'], 0)
+        if tmanCostTypeIdx == 2:
+            return (0, upgradeCost['gold'])
+        return (0, 0)
+
+    def __getSysMsgType(self):
+        tmanCost = self.__getRecruitPrice(self.tmanCostTypeIdx)
+        if tmanCost[0] > 0:
+            return SM_TYPE.PurchaseForCredits
+        if tmanCost[1] > 0:
+            return SM_TYPE.PurchaseForGold
+        return SM_TYPE.Information
+
+    def __getSysMsgPrefix(self):
+        if not self.isReplace:
+            return 'buy_and_equip_tankman'
+        return 'buy_and_reequip_tankman'
+
+
 class TankmanUnload(Processor):
 
     def __init__(self, vehicle, slot = -1):
@@ -128,7 +177,7 @@ class TankmanUnload(Processor):
         if slot == -1:
             berthsNeeded = len(filter(lambda (role, t): t is not None, vehicle.crew))
         self.__sysMsgPrefix = 'unload_tankman' if berthsNeeded == 1 else 'unload_crew'
-        self.addPlugins([plugins.VehicleLockValidator(vehicle), plugins.BarracksSlotsValidator(berthsNeeded)])
+        self.addPlugins([plugins.VehicleValidator(vehicle, False, prop={'isLocked': True}), plugins.BarracksSlotsValidator(berthsNeeded)])
 
     def _errorHandler(self, code, errStr = '', ctx = None):
         if len(errStr):
@@ -148,7 +197,7 @@ class TankmanRetraining(ItemProcessor):
 
     def __init__(self, tankman, vehicle, tmanCostTypeIdx):
         vehInInventory = vehicle.invID > 0
-        super(TankmanRetraining, self).__init__(tankman, (plugins.VehicleValidator(vehicle), plugins.MessageConfirmator('tankmanRetraining/unknownVehicle', ctx={'tankname': vehicle.userName}, isEnabled=not vehInInventory)))
+        super(TankmanRetraining, self).__init__(tankman, (plugins.VehicleValidator(vehicle, False), plugins.MessageConfirmator('tankmanRetraining/unknownVehicle', ctx={'tankname': vehicle.userName}, isEnabled=not vehInInventory)))
         self.vehicle = vehicle
         self.tmanCostTypeIdx = tmanCostTypeIdx
 
@@ -278,3 +327,6 @@ class TankmanChangePassport(ItemProcessor):
     def _request(self, callback):
         LOG_DEBUG('Make server request to change tankman passport:', self.item, self.firstNameID, self.lastNameID, self.iconID, self.isFemale)
         BigWorld.player().inventory.replacePassport(self.item.invID, self.isFemale, self.firstNameID, self.lastNameID, self.iconID, lambda code: self._response(code, callback))
+# okay decompyling res/scripts/client/gui/shared/gui_items/processors/tankman.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:51 EST

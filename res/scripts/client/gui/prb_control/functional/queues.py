@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:42 EST
+# Embedded file name: scripts/client/gui/prb_control/functional/queues.py
 import BigWorld
 import ArenaType
 from CurrentVehicle import g_currentVehicle
@@ -14,9 +16,9 @@ class JoinRandomFunctional(IQueueFunctional):
     def canPlayerDoAction(self):
         return True
 
-    def doAction(self, action = None):
+    def doAction(self, action = None, dispatcher = None):
         result = False
-        if action is None or action.actionName == PREBATTLE_ACTION_NAME.RANDOM_QUEUE or action.actionName == PREBATTLE_ACTION_NAME.UNDEFINED:
+        if action is None or action.actionName == PREBATTLE_ACTION_NAME.JOIN_RANDOM_QUEUE or action.actionName == PREBATTLE_ACTION_NAME.UNDEFINED:
             if isParentControlActivated():
                 events_dispatcher.showParentControlNotification()
             else:
@@ -50,10 +52,13 @@ class LeaveRandomFunctional(IQueueFunctional):
     def canPlayerDoAction(self):
         return False
 
-    def doAction(self, action = None):
+    def doAction(self, action = None, dispatcher = None):
         if hasattr(BigWorld.player(), 'dequeueRandom'):
             BigWorld.player().dequeueRandom()
         return True
 
     def onChanged(self):
         events_dispatcher.loadBattleQueue()
+# okay decompyling res/scripts/client/gui/prb_control/functional/queues.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:42 EST

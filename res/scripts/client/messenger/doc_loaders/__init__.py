@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:09 EST
+# Embedded file name: scripts/client/messenger/doc_loaders/__init__.py
 import ResMgr
 from messenger.doc_loaders import colors_schemes, html_templates, settings_set
 from messenger.doc_loaders import user_prefs
@@ -23,3 +25,6 @@ def load(messengerSettings):
             raise XMLError(xmlCtx, 'Tag "{0:>s}" not found'.format(tag))
 
     return
+# okay decompyling res/scripts/client/messenger/doc_loaders/__init__.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:09 EST

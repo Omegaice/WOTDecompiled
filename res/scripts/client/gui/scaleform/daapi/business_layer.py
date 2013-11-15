@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:51 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/business_layer.py
 import BigWorld
 from debug_utils import *
 from gui.Scaleform.daapi.settings import VIEWS_SETTINGS, VIEWS_PACKAGES
@@ -122,8 +124,8 @@ class BusinessHandler(SequenceIDLoader):
     def __createAcc(self, event):
         self._loadView(VIEW_ALIAS.LOGIN_CREATE_AN_ACC, event.title, event.message, event.submit)
 
-    def __showLogin(self, _ = None):
-        self._loadView(VIEW_ALIAS.LOGIN)
+    def __showLogin(self, event):
+        self._loadView(VIEW_ALIAS.LOGIN, event.ctx)
 
     def __showIntroVideo(self, event):
         self._loadView(VIEW_ALIAS.INTRO_VIDEO, event.ctx)
@@ -156,7 +158,7 @@ class BusinessHandler(SequenceIDLoader):
         self.app.loadView(VIEW_ALIAS.EXCHANGE_WINDOW, VIEW_ALIAS.EXCHANGE_WINDOW)
 
     def __showProfileWindow(self, event):
-        self.app.loadView(VIEW_ALIAS.PROFILE_WINDOW, 'window_%s' % event.ctx.get('userName'), event.ctx)
+        self.app.loadView(VIEW_ALIAS.PROFILE_WINDOW, 'window_%s' % event.ctx.get('databaseID'), event.ctx)
 
     def __showExchangeVcoinWindow(self, event):
         self.app.loadView(VIEW_ALIAS.EXCHANGE_VCOIN_WINDOW, VIEW_ALIAS.EXCHANGE_VCOIN_WINDOW)
@@ -270,7 +272,7 @@ class BusinessDlgsHandler(SequenceIDLoader):
 
     def __simpleDialogHandler(self, event):
         meta = event.meta
-        self._loadView(VIEW_ALIAS.SIMPLE_DIALOG, meta.getMessage(), meta.getTitle(), meta.getButtonLabels(), meta.getCallbackWrapper(event.handler), meta.canViewSkip)
+        self._loadView(VIEW_ALIAS.SIMPLE_DIALOG, meta.getMessage(), meta.getTitle(), meta.getButtonLabels(), meta.getCallbackWrapper(event.handler), meta.canViewSkip(), meta.getViewScopeType())
 
     def __confirmModuleHandler(self, event):
         self._loadView(VIEW_ALIAS.CONFIRM_MODULE_DIALOG, event.meta, event.handler)
@@ -297,3 +299,6 @@ class BusinessDlgsHandler(SequenceIDLoader):
         if event.eventType in self.handlers:
             return self.handlers[event.eventType](event)
         LOG_WARNING('Unknown dialog event type', event.eventType)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/business_layer.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:51 EST

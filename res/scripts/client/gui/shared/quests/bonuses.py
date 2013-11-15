@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:54 EST
+# Embedded file name: scripts/client/gui/shared/quests/bonuses.py
 import BigWorld
 from debug_utils import LOG_DEBUG
 from helpers import getLocalizedData, i18n
@@ -101,3 +103,6 @@ def getBonusObj(name, value):
         return _BONUSES[name](name, value)
     else:
         return None
+# okay decompyling res/scripts/client/gui/shared/quests/bonuses.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:55 EST

@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:33 EST
+# Embedded file name: scripts/client/gui/ClientUpdateManager.py
 import inspect
 
 class _ClientUpdateManager(object):
@@ -74,3 +76,6 @@ class _ClientUpdateManager(object):
 
 
 g_clientUpdateManager = _ClientUpdateManager()
+# okay decompyling res/scripts/client/gui/clientupdatemanager.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:34 EST

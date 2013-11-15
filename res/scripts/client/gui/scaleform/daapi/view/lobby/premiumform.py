@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:09 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/PremiumForm.py
 import BigWorld
 from adisp import process
 from debug_utils import LOG_DEBUG
@@ -6,7 +8,7 @@ from gui.Scaleform.daapi.view.meta.PremiumFormMeta import PremiumFormMeta
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.daapi.view.dialogs import I18nConfirmDialogMeta
 from gui.Scaleform.framework.entities.View import View
-from gui.shared import EVENT_BUS_SCOPE
+from gui.shared import EVENT_BUS_SCOPE, g_itemsCache
 from gui.shared.events import LobbySimpleEvent
 from gui.shared.utils.requesters import StatsRequester, StatsRequesterr
 import account_helpers
@@ -20,7 +22,8 @@ class PremiumForm(View, WindowViewMeta, PremiumFormMeta, AppRef):
 
     def _populate(self):
         super(PremiumForm, self)._populate()
-        g_clientUpdateManager.addCallbacks({'stats.gold': self.onSetGoldHndlr})
+        g_clientUpdateManager.addCallbacks({'stats.gold': self.onSetGoldHndlr,
+         'cache.mayConsumeWalletResources': self.onSetGoldHndlr})
 
     def _dispose(self):
         g_clientUpdateManager.removeObjectCallbacks(self)
@@ -36,7 +39,7 @@ class PremiumForm(View, WindowViewMeta, PremiumFormMeta, AppRef):
         self.__premiumBuyRequest(days, price)
 
     def onSetGoldHndlr(self, gold):
-        self.as_setGoldS(gold)
+        self.as_setGoldS(g_itemsCache.items.stats.gold)
 
     @process
     def __premiumBuyRequest(self, days, price):
@@ -92,3 +95,6 @@ class PremiumForm(View, WindowViewMeta, PremiumFormMeta, AppRef):
 
     def __systemErrorMessage(self, systemMessage, days, typeMessage):
         SystemMessages.g_instance.pushI18nMessage(systemMessage, days, type=typeMessage)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/premiumform.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:09 EST

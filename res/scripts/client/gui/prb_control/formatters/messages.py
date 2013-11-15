@@ -1,8 +1,15 @@
+# 2013.11.15 11:25:39 EST
+# Embedded file name: scripts/client/gui/prb_control/formatters/messages.py
 from CurrentVehicle import g_currentVehicle
+from UnitBase import UNIT_ERROR
 from constants import JOIN_FAILURE_NAMES, KICK_REASON_NAMES
 from debug_utils import LOG_ERROR
+from gui import SystemMessages
+from gui.Scaleform.locale.SYSTEM_MESSAGES import SYSTEM_MESSAGES
 from gui.prb_control import getLevelLimits, getClassLevelLimits, getTotalLevelLimits
-from gui.prb_control.settings import PREBATTLE_REQUEST_NAME, PREBATTLE_RESTRICTION
+from gui.prb_control.settings import REQUEST_TYPE_NAMES, PREBATTLE_RESTRICTION
+from gui.prb_control.settings import UNIT_ERROR_NAMES, UNIT_BROWSER_ERROR_NAMES
+from gui.prb_control.settings import UNIT_ERRORS_TRANSLATE_AS_WARNINGS
 from helpers import i18n
 from prebattle_shared import LIMIT_DEFAULTS, decodeRoster
 
@@ -117,10 +124,10 @@ def getInvalidVehicleMessage(reason, functional = None):
     return message
 
 
-def getRequestInCoolDownMessage(requestID, coolDown = 5.0):
-    requestName = requestID
-    if requestID in PREBATTLE_REQUEST_NAME:
-        requestName = PREBATTLE_REQUEST_NAME[requestID]
+def getRequestInCoolDownMessage(requestType, coolDown = 5.0):
+    requestName = requestType
+    if requestType in REQUEST_TYPE_NAMES:
+        requestName = REQUEST_TYPE_NAMES[requestType]
         requestName = i18n.makeString('#system_messages:prebattle/request/name/{0:>s}'.format(requestName))
     return i18n.makeString('#system_messages:prebattle/request/isInCoolDown', request=requestName, coolDown=coolDown)
 
@@ -132,15 +139,15 @@ def getPlayerStateChangedMessage(prbName, playerInfo):
         key = '#system_messages:{0:>s}/memberReady'.format(prbName)
     else:
         key = '#system_messages:{0:>s}/memberNotReady'.format(prbName)
-    return i18n.makeString(key, playerInfo.name)
+    return i18n.makeString(key, playerInfo.getFullName())
 
 
 def getPlayerAddedMessage(prbName, playerInfo):
-    return i18n.makeString('#system_messages:{0:>s}/memberJoined'.format(prbName), playerInfo.name)
+    return i18n.makeString('#system_messages:{0:>s}/memberJoined'.format(prbName), playerInfo.getFullName())
 
 
 def getPlayerRemovedMessage(prbName, playerInfo):
-    return i18n.makeString('#system_messages:{0:>s}/memberLeave'.format(prbName), playerInfo.name)
+    return i18n.makeString('#system_messages:{0:>s}/memberLeave'.format(prbName), playerInfo.getFullName())
 
 
 def getPlayerAssignFlagChanged(actorInfo, playerInfo):
@@ -149,4 +156,44 @@ def getPlayerAssignFlagChanged(actorInfo, playerInfo):
         key = '#system_messages:memberRosterChangedMain'
     else:
         key = '#system_messages:memberRosterChangedSecond'
-    return i18n.makeString(key, actorInfo.name, playerInfo.name)
+    return i18n.makeString(key, actorInfo.getFullName(), playerInfo.getFullName())
+
+
+def getUnitMessage(errorCode, errorString):
+    errorName = UNIT_ERROR_NAMES[errorCode]
+    if errorCode in UNIT_ERRORS_TRANSLATE_AS_WARNINGS:
+        msgType = SystemMessages.SM_TYPE.Warning
+        errorKey = SYSTEM_MESSAGES.unit_warnings(errorName)
+    else:
+        msgType = SystemMessages.SM_TYPE.Error
+        errorKey = SYSTEM_MESSAGES.unit_errors(errorName)
+    if errorKey is not None:
+        msgBody = i18n.makeString(errorKey)
+    else:
+        msgBody = errorName + '\n' + errorString
+    return (msgType, msgBody)
+
+
+def getUnitKickedReasonMessage(reasonStr):
+    return i18n.makeString(SYSTEM_MESSAGES.unit_warnings(reasonStr))
+
+
+def getUnitBrowserMessage(errorCode, errorString):
+    errorName = UNIT_BROWSER_ERROR_NAMES[errorCode]
+    errorKey = SYSTEM_MESSAGES.unitbrowser_errors(errorName)
+    if errorKey is not None:
+        msgBody = i18n.makeString(errorKey)
+    else:
+        msgBody = errorName + '\n' + errorString
+    return (SystemMessages.SM_TYPE.Error, msgBody)
+
+
+def getUnitOnlineStatusChangedMessage(pInfo):
+    if pInfo.isOffline():
+        key = '#system_messages:unit/info/offlineStatus'
+    else:
+        key = '#system_messages:unit/info/onlineStatus'
+    return i18n.makeString(key, userName=pInfo.getFullName())
+# okay decompyling res/scripts/client/gui/prb_control/formatters/messages.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:39 EST

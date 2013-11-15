@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:07 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/CompanyWindow.py
 from adisp import process
 from gui import makeHtmlString
 from gui.Scaleform.daapi.view.lobby.prb_windows import companies_dps
@@ -6,7 +8,7 @@ from gui.Scaleform.daapi.view.meta.CompanyWindowMeta import CompanyWindowMeta
 from gui.Scaleform.locale.PREBATTLE import PREBATTLE
 from gui.prb_control import context, getMaxSizeLimits, getTotalLevelLimits
 from gui.prb_control import formatters, getClassLevelLimits
-from gui.prb_control.settings import PREBATTLE_REQUEST, PREBATTLE_ROSTER
+from gui.prb_control.settings import REQUEST_TYPE, PREBATTLE_ROSTER
 from gui.prb_control.settings import PREBATTLE_SETTING_NAME
 from gui.shared import events, EVENT_BUS_SCOPE
 from helpers import i18n
@@ -209,9 +211,12 @@ class CompanyWindow(PrebattleWindow, CompanyWindowMeta):
         self.destroy()
 
     def __handleSetPrebattleCoolDown(self, event):
-        if event.requestID is PREBATTLE_REQUEST.SET_PLAYER_STATE:
+        if event.requestID is REQUEST_TYPE.SET_PLAYER_STATE:
             self.as_setCoolDownForReadyButtonS(event.coolDown)
-        elif event.requestID is PREBATTLE_REQUEST.CHANGE_SETTINGS:
+        elif event.requestID is REQUEST_TYPE.CHANGE_SETTINGS:
             self.as_setChangeSettingCoolDownS(event.coolDown)
-        elif event.requestID is PREBATTLE_REQUEST.SET_PLAYER_STATE:
+        elif event.requestID is REQUEST_TYPE.SET_PLAYER_STATE:
             self.as_setCoolDownForReadyButtonS(event.coolDown)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/companywindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:07 EST

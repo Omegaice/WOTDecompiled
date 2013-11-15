@@ -1,12 +1,14 @@
+# 2013.11.15 11:26:08 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/PrbSendInvitesWindow.py
 import account_helpers
-from debug_utils import LOG_ERROR
+from debug_utils import LOG_DEBUG
 from gui import SystemMessages
 from gui.Scaleform.daapi.view.meta.WindowViewMeta import WindowViewMeta
 from gui.Scaleform.daapi.view.meta.PrbSendInvitesWindowMeta import PrbSendInvitesWindowMeta
 from gui.Scaleform.framework.entities.View import View
 from gui.prb_control.context import SendInvitesCtx
-from gui.prb_control.prb_helpers import InjectPrebattle, prbFunctionalProperty
-from gui.prb_control.settings import PREBATTLE_REQUEST
+from gui.prb_control.prb_helpers import prbFunctionalProperty, unitFunctionalProperty
+from gui.prb_control.settings import REQUEST_TYPE
 from gui.shared import EVENT_BUS_SCOPE, events
 from helpers import i18n
 from messenger.gui.Scaleform.data import users_data_providers, search_data_providers
@@ -14,7 +16,6 @@ from messenger.proto.bw.search_porcessors import ISearchHandler
 __author__ = 'd_savitski'
 
 class PrbSendInvitesWindow(View, PrbSendInvitesWindowMeta, WindowViewMeta, ISearchHandler):
-    __metaclass__ = InjectPrebattle
 
     def __init__(self, ctx):
         super(PrbSendInvitesWindow, self).__init__()
@@ -33,6 +34,10 @@ class PrbSendInvitesWindow(View, PrbSendInvitesWindowMeta, WindowViewMeta, ISear
     def prbFunctional(self):
         pass
 
+    @unitFunctionalProperty
+    def unitFunctional(self):
+        pass
+
     def showError(self, value):
         SystemMessages.pushI18nMessage(value, type=SystemMessages.SM_TYPE.Error)
 
@@ -49,12 +54,13 @@ class PrbSendInvitesWindow(View, PrbSendInvitesWindowMeta, WindowViewMeta, ISear
         return
 
     def sendInvites(self, accountsToInvite, comment):
-        functional = self.prbFunctional
-        if functional and functional.getPermissions().canSendInvite():
-            functional.request(SendInvitesCtx(accountsToInvite, comment))
-        else:
-            LOG_ERROR('Player can not send invites:', functional.getPermissions() if functional else None)
-        return
+        functionals = (self.prbFunctional, self.unitFunctional)
+        for functional in functionals:
+            if functional and functional.hasEntity():
+                if functional.getPermissions().canSendInvite():
+                    functional.request(SendInvitesCtx(accountsToInvite, comment))
+                else:
+                    LOG_DEBUG('Player can not send invites:', functional.getPermissions())
 
     def onWindowClose(self):
         self.destroy()
@@ -92,5 +98,8 @@ class PrbSendInvitesWindow(View, PrbSendInvitesWindowMeta, WindowViewMeta, ISear
         return
 
     def __handleSetPrebattleCoolDown(self, event):
-        if event.requestID is PREBATTLE_REQUEST.SEND_INVITE:
+        if event.requestID is REQUEST_TYPE.SEND_INVITE:
             self.as_onReceiveSendInvitesCooldownS(event.coolDown)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/prbsendinviteswindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:08 EST

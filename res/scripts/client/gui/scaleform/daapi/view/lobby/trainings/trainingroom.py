@@ -1,22 +1,26 @@
+# 2013.11.15 11:26:21 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/trainings/TrainingRoom.py
 import ArenaType
 from adisp import process
+from gui import SystemMessages
 from gui.Scaleform.daapi.settings import VIEW_ALIAS
 from gui.Scaleform.daapi.view.lobby.trainings import formatters
 from gui.Scaleform.framework import AppRef, VIEW_TYPE, g_entitiesFactories
 from gui.Scaleform.framework.managers.containers import POP_UP_CRITERIA
+from gui.Scaleform.locale.SYSTEM_MESSAGES import SYSTEM_MESSAGES
 from gui.prb_control import context
 from gui.Scaleform.daapi import LobbySubView
 from gui.Scaleform.daapi.view.meta.TrainingRoomMeta import TrainingRoomMeta
 from gui.prb_control.prb_helpers import PrbListener
 from gui.prb_control.info import getPlayersComparator
 from gui.prb_control.settings import PREBATTLE_ROSTER, PREBATTLE_SETTING_NAME
-from gui.prb_control.settings import PREBATTLE_REQUEST
+from gui.prb_control.settings import REQUEST_TYPE, GUI_EXIT
 from gui.shared import events, EVENT_BUS_SCOPE
-from helpers import int2roman
+from helpers import int2roman, i18n
 from messenger.ext import passCensor
 from messenger.proto.events import g_messengerEvents
 from messenger.storage import storage_getter
-from debug_utils import LOG_NOTE
+from prebattle_shared import decodeRoster
 
 class TrainingRoom(LobbySubView, TrainingRoomMeta, AppRef, PrbListener):
 
@@ -52,17 +56,36 @@ class TrainingRoom(LobbySubView, TrainingRoomMeta, AppRef, PrbListener):
         self.fireEvent(events.ShowWindowEvent(events.ShowWindowEvent.SHOW_SEND_INVITES_WINDOW, {'prbName': 'training'}), scope=EVENT_BUS_SCOPE.LOBBY)
 
     def startTraining(self):
-        functional = self.prbFunctional
-        functional.request(context.SetTeamStateCtx(1, True))
-        functional.request(context.SetTeamStateCtx(2, True))
-        from time import strftime, localtime
-        LOG_NOTE('prebattleID: %d | arenaID: %d | timestamp: %s' % (functional.getID(), functional.getSettings()[PREBATTLE_SETTING_NAME.ARENA_TYPE_ID], strftime('%d.%m.%Y %H:%M:%S', localtime())))
-        self.as_disableStartButtonS(True)
         self.__closeWindows()
+        self.__doStartTraining()
+
+    @process
+    def __doStartTraining(self):
+        result = yield self.prbDispatcher.sendPrbRequest(context.SetTeamStateCtx(1, True))
+        if result:
+            result = yield self.prbDispatcher.sendPrbRequest(context.SetTeamStateCtx(2, True))
+            if not result:
+                yield self.prbDispatcher.sendPrbRequest(context.SetTeamStateCtx(1, False))
+        if not result:
+            self.__showActionErrorMessage()
+            self.as_disableControlsS(False)
+            self.__updateStartButton(self.prbFunctional)
+
+    def onTeamStatesReceived(self, functional, team1State, team2State):
+        team, assigned = decodeRoster(functional.getRosterKey())
+        if team1State.isInQueue() and team2State.isInQueue() and assigned:
+            self.as_disableControlsS(True)
+        elif assigned is False:
+            self.as_enabledCloseButtonS(False)
 
     @process
     def closeTrainingRoom(self):
-        yield self.prbDispatcher.leave(context.LeavePrbCtx(waitingID='prebattle/leave'))
+        result = yield self.prbDispatcher.leave(context.LeavePrbCtx(waitingID='prebattle/leave', guiExit=GUI_EXIT.TRAINING_LIST))
+        if not result:
+            self.__showActionErrorMessage()
+
+    def __showActionErrorMessage(self):
+        SystemMessages.pushMessage(i18n.makeString(SYSTEM_MESSAGES.TRAINING_ERROR_DOACTION), type=SystemMessages.SM_TYPE.Error)
 
     @process
     def changeTeam(self, accID, slot):
@@ -72,15 +95,17 @@ class TrainingRoom(LobbySubView, TrainingRoomMeta, AppRef, PrbListener):
             roster = settings[PREBATTLE_SETTING_NAME.DEFAULT_ROSTER]
             if not roster & PREBATTLE_ROSTER.UNASSIGNED:
                 roster |= PREBATTLE_ROSTER.UNASSIGNED
-        yield self.prbDispatcher.sendPrbRequest(context.AssignPrbCtx(accID, roster, waitingID='prebattle/assign'))
+        result = yield self.prbDispatcher.sendPrbRequest(context.AssignPrbCtx(accID, roster, waitingID='prebattle/assign'))
+        if not result:
+            self.__showActionErrorMessage()
 
     @process
     def swapTeams(self):
-        yield self.prbDispatcher.sendPrbRequest(context.SwapTeamsCtx(waitingID='prebattle/swap'))
+        result = yield self.prbDispatcher.sendPrbRequest(context.SwapTeamsCtx(waitingID='prebattle/swap'))
 
     @process
     def selectCommonVoiceChat(self, index):
-        yield self.prbDispatcher.sendPrbRequest(context.ChangeArenaVoipCtx(index, waitingID='prebattle/change_arena_voip'))
+        result = yield self.prbDispatcher.sendPrbRequest(context.ChangeArenaVoipCtx(index, waitingID='prebattle/change_arena_voip'))
 
     def __closeWindows(self):
         container = self.app.containerManager.getContainer(VIEW_TYPE.WINDOW)
@@ -179,8 +204,10 @@ class TrainingRoom(LobbySubView, TrainingRoomMeta, AppRef, PrbListener):
 
     def __updateStartButton(self, functional):
         if functional.isCreator():
-            isInRange, _ = functional.getLimits().isTeamsValid()
+            isInRange, state = functional.getLimits().isTeamsValid()
             self.as_disableStartButtonS(not isInRange)
+            if state == '' and isInRange:
+                self.as_enabledCloseButtonS(True)
         else:
             self.as_disableStartButtonS(True)
 
@@ -219,11 +246,11 @@ class TrainingRoom(LobbySubView, TrainingRoomMeta, AppRef, PrbListener):
         return result
 
     def __handleSetPrebattleCoolDown(self, event):
-        if event.requestID is PREBATTLE_REQUEST.CHANGE_SETTINGS:
+        if event.requestID is REQUEST_TYPE.CHANGE_SETTINGS:
             self.as_startCoolDownSettingS(event.coolDown)
-        elif event.requestID is PREBATTLE_REQUEST.SWAP_TEAMS:
+        elif event.requestID is REQUEST_TYPE.SWAP_TEAMS:
             self.as_startCoolDownSwapButtonS(event.coolDown)
-        elif event.requestID is PREBATTLE_REQUEST.CHANGE_ARENA_VOIP:
+        elif event.requestID is REQUEST_TYPE.CHANGE_ARENA_VOIP:
             self.as_startCoolDownVoiceChatS(event.coolDown)
 
     def __me_onUserRosterChanged(self, _, user):
@@ -240,3 +267,6 @@ class TrainingRoom(LobbySubView, TrainingRoomMeta, AppRef, PrbListener):
             else:
                 self.as_setPlayerChatRosterInOtherS(dbID, user.getRoster())
             return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/trainings/trainingroom.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:21 EST

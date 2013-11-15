@@ -1,3 +1,5 @@
+# 2013.11.15 11:26:08 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/PrebattleWindow.py
 from CurrentVehicle import g_currentVehicle
 from adisp import process
 from debug_utils import LOG_ERROR
@@ -232,7 +234,8 @@ class PrebattleWindow(View, WindowViewMeta, PrebattleWindowMeta, PrbListener, Ap
                 self.addListener(events.MessengerEvent.PRB_CHANNEL_CTRL_INITED, self.__handlePrbChannelControllerInited, scope=EVENT_BUS_SCOPE.LOBBY)
         return
 
-    def __handlePrbChannelControllerInited(self, ctx):
+    def __handlePrbChannelControllerInited(self, event):
+        ctx = event.ctx
         prbType = ctx.get('prbType', 0)
         if prbType is 0:
             LOG_ERROR('Prebattle type is not defined', ctx)
@@ -243,5 +246,10 @@ class PrebattleWindow(View, WindowViewMeta, PrebattleWindowMeta, PrbListener, Ap
                 LOG_ERROR('Channel controller is not defined', ctx)
                 return
             if prbType is self.prbFunctional.getPrbType():
-                controller.setView(self)
+                chat = self.chat
+                if chat is not None:
+                    controller.setView(chat)
             return
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/prebattlewindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:09 EST

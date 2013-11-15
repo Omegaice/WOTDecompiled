@@ -1,5 +1,7 @@
+# 2013.11.15 11:26:09 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/prb_windows/SquadWindow.py
 from gui.Scaleform.daapi.view.lobby.prb_windows.PrebattleWindow import PrebattleWindow
-from gui.prb_control.settings import PREBATTLE_ROSTER, PREBATTLE_REQUEST
+from gui.prb_control.settings import PREBATTLE_ROSTER, REQUEST_TYPE
 from gui.shared import events, EVENT_BUS_SCOPE
 __author__ = 'd_savitski'
 
@@ -52,5 +54,8 @@ class SquadWindow(PrebattleWindow):
         self.destroy()
 
     def __handleSetPrebattleCoolDown(self, event):
-        if event.requestID is PREBATTLE_REQUEST.SET_PLAYER_STATE:
+        if event.requestID is REQUEST_TYPE.SET_PLAYER_STATE:
             self.as_setCoolDownForReadyButtonS(event.coolDown)
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/prb_windows/squadwindow.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:09 EST

@@ -1,1 +1,13 @@
-# Embedded file name: scripts/client/messenger/proto/bw/filters.py
+
+# Can't uncompyle res/scripts/client/messenger/proto/bw/filters.pyc_failed
+Traceback (most recent call last):
+  File "/Library/Python/2.7/site-packages/uncompyle2/__init__.py", line 203, in main
+    uncompyle_file(infile, outstream, showasm, showast)
+  File "/Library/Python/2.7/site-packages/uncompyle2/__init__.py", line 135, in uncompyle_file
+    version, co = _load_module(filename)
+  File "/Library/Python/2.7/site-packages/uncompyle2/__init__.py", line 66, in _load_module
+    fp = open(filename, 'rb')
+IOError: [Errno 2] No such file or directory: 'res/scripts/client/messenger/proto/bw/filters.pyc_failed'
+# 2013.11.15 11:27:15 EST
+# decompiled 0 files: 0 okay, 1 failed, 0 verify failed
+# 2013.11.15 11:27:15 EST

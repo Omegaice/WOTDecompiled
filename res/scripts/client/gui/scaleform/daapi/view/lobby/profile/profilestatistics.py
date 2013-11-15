@@ -1,21 +1,45 @@
+# 2013.11.15 11:26:10 EST
+# Embedded file name: scripts/client/gui/Scaleform/daapi/view/lobby/profile/ProfileStatistics.py
 from gui.Scaleform.daapi.view.lobby.profile import ProfileCommon
 from gui.Scaleform.daapi.view.lobby.profile.ProfileSection import ProfileSection
+from gui.Scaleform.daapi.view.lobby.profile.ProfileUtils import ProfileUtils
 from gui.Scaleform.daapi.view.meta.ProfileStatisticsMeta import ProfileStatisticsMeta
 from gui.Scaleform.locale.PROFILE import PROFILE
 from helpers import i18n
 
 class ProfileStatistics(ProfileSection, ProfileStatisticsMeta):
 
-    def __init__(self):
-        super(ProfileStatistics, self).__init__()
+    def __init__(self, *args):
+        ProfileSection.__init__(self, *args)
+        ProfileStatisticsMeta.__init__(self)
+
+    def _sendAccountData(self, targetData, accountDossier):
+        commonParams = ProfileUtils.packProfileDossierInfo(targetData)
+        commonParams['survivalEfficiency'] = targetData.getSurvivalEfficiency()
+        detailedParams = {}
+        detailedParams['fragsCount'] = targetData.getFragsCount()
+        detailedParams['deathsCount'] = targetData.getDeathsCount()
+        detailedParams['fragsEfficiency'] = targetData.getFragsEfficiency()
+        detailedParams['damageDealt'] = targetData.getDamageDealt()
+        detailedParams['damageReceived'] = targetData.getDamageReceived()
+        detailedParams['damageEfficiency'] = targetData.getDamageEfficiency()
+        detailedParams['avgFrags'] = targetData.getAvgFrags()
+        detailedParams['maxFrags'] = targetData.getMaxFrags()
+        detailedParams['avgDamageDealt'] = targetData.getAvgDamageDealt()
+        detailedParams['avgDamageReceived'] = targetData.getAvgDamageReceived()
+        detailedParams['avgEnemiesSpotted'] = targetData.getAvgEnemiesSpotted()
+        chartsParams = targetData.getBattlesStats()
+        self.as_responseDossierS(self._battlesType, {'commonParams': commonParams,
+         'detailedParams': detailedParams,
+         'chartsParams': chartsParams})
 
     def _populate(self):
         super(ProfileStatistics, self)._populate()
-        initData = {'mainDropDownMenu': (PROFILE.SECTION_STATISTICS_DROPDOWN_LABELS_ALL,
-                              PROFILE.SECTION_STATISTICS_DROPDOWN_LABELS_RANDOM,
-                              PROFILE.SECTION_STATISTICS_DROPDOWN_LABELS_COMPANY,
-                              PROFILE.SECTION_STATISTICS_DROPDOWN_LABELS_CLAN,
-                              PROFILE.SECTION_STATISTICS_DROPDOWN_LABELS_TEAM),
+        initData = {'mainDropDownMenu': (PROFILE.PROFILE_DROPDOWN_LABELS_ALL,
+                              PROFILE.PROFILE_DROPDOWN_LABELS_RANDOM,
+                              PROFILE.PROFILE_DROPDOWN_LABELS_COMPANY,
+                              PROFILE.PROFILE_DROPDOWN_LABELS_CLAN,
+                              PROFILE.PROFILE_DROPDOWN_LABELS_TEAM),
          'detailedScores': {'killed': i18n.makeString(PROFILE.SECTION_STATISTICS_DETAILED_KILLED),
                             'destroyed': i18n.makeString(PROFILE.SECTION_STATISTICS_DETAILED_DESTROYED),
                             'destructionCoefficient': i18n.makeString(PROFILE.SECTION_STATISTICS_DETAILED_DESTRUCTIONCOEFFICIENT),
@@ -66,3 +90,6 @@ class ProfileStatistics(ProfileSection, ProfileStatisticsMeta):
 
     def _dispose(self):
         super(ProfileStatistics, self)._dispose()
+# okay decompyling res/scripts/client/gui/scaleform/daapi/view/lobby/profile/profilestatistics.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:26:10 EST

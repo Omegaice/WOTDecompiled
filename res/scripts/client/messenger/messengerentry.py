@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:14 EST
+# Embedded file name: scripts/client/messenger/MessengerEntry.py
 from ConnectionManager import connectionManager
 from PlayerEvents import g_playerEvents
 from messenger import g_settings
@@ -54,6 +56,10 @@ class MessengerEntry(object):
         self.__playerHelper.onAccountShowGUI()
 
     def onAvatarShowGUI(self):
+        import BattleReplay
+        if BattleReplay.g_replayCtrl.isPlaying:
+            self.__gui.switch(MESSENGER_SCOPE.BATTLE)
+            return
         self.__playerHelper.onAvatarShowGUI()
         scope = MESSENGER_SCOPE.BATTLE
         self.__protoPlugins.connect(scope)
@@ -86,3 +92,6 @@ class MessengerEntry(object):
 
 
 g_instance = MessengerEntry()
+# okay decompyling res/scripts/client/messenger/messengerentry.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:15 EST

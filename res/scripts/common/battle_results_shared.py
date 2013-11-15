@@ -1,3 +1,5 @@
+# 2013.11.15 11:27:31 EST
+# Embedded file name: scripts/common/battle_results_shared.py
 import struct
 from itertools import izip
 from debug_utils import *
@@ -113,3 +115,6 @@ class VehicleInteractionDetails(object):
 
     def toDict(self):
         return dict([ (vehID, dict(_VehicleInteractionDetailsItem(self.__values, offset))) for vehID, offset in self.__offsets.iteritems() ])
+# okay decompyling res/scripts/common/battle_results_shared.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:31 EST

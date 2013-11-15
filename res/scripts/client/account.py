@@ -1,3 +1,5 @@
+# 2013.11.15 11:25:06 EST
+# Embedded file name: scripts/client/Account.py
 import BigWorld, Keys
 import Event
 import cPickle
@@ -17,12 +19,15 @@ from ChatManager import chatManager
 from gui.Scaleform import VoiceChatInterface
 from adisp import process
 from OfflineMapCreator import g_offlineMapCreator
+from UnitBase import UnitBase
+from ClientUnitMgr import ClientUnitMgr, ClientUnitBrowser
+from AccountSyncData import synchronizeDicts
 
 class PlayerAccount(BigWorld.Entity, ClientChat):
     __onStreamCompletePredef = {AccountCommands.REQUEST_ID_PREBATTLES: 'receivePrebattles',
      AccountCommands.REQUEST_ID_PREBATTLE_ROSTER: 'receivePrebattleRoster'}
 
-    def version_eu8801(self):
+    def version_8903(self):
         pass
 
     def __init__(self):
@@ -57,12 +62,17 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
         self.intUserSettings.setProxy(self, self.syncData)
         self.isLongDisconnectedFromCenter = False
         self.prebattle = None
+        self.unitBrowser = ClientUnitBrowser(self)
+        self.unitMgr = ClientUnitMgr(self)
+        self.unitRosters = {}
         self.prebattleAutoInvites = g_accountRepository.prebattleAutoInvites
         self.prebattleInvites = g_accountRepository.prebattleInvites
         self.eventNotifications = g_accountRepository.eventNotifications
         self.clanMembers = g_accountRepository.clanMembers
         self.eventsData = g_accountRepository.eventsData
         self.isInRandomQueue = False
+        self.isInTutorialQueue = False
+        self.isInUnitAssembler = False
         self.__onCmdResponse = {}
         self.__onStreamComplete = {}
         return
@@ -203,6 +213,20 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
         LOG_DEBUG('onTutorialDequeued')
         events.onTutorialDequeued()
 
+    def onEnqueuedUnitAssembler(self):
+        LOG_DEBUG('onEnqueuedUnitAssembler')
+        self.isInUnitAssembler = True
+        events.onEnqueuedUnitAssembler()
+
+    def onEnqueueUnitAssemblerFailure(self, errorCode, errorStr):
+        LOG_DEBUG('onEnqueueUnitAssemblerFailure', errorCode, errorStr)
+        events.onEnqueueUnitAssemblerFailure(errorCode, errorStr)
+
+    def onDequeuedUnitAssembler(self):
+        LOG_DEBUG('onDequeuedUnitAssembler')
+        self.isInUnitAssembler = False
+        events.onDequeuedUnitAssembler()
+
     def onArenaCreated(self):
         LOG_DEBUG('onArenaCreated')
         self.prebattle = None
@@ -231,6 +255,30 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
         events.onPrebattleLeft()
         return
 
+    def onUnitMgrList(self, *args):
+        self.unitMgr.onUnitMgrList(*args)
+
+    def onUnitUpdate(self, *args):
+        self.unitMgr.onUnitUpdate(*args)
+
+    def onUnitError(self, *args):
+        self.unitMgr.onUnitError(*args)
+
+    def onUnitCallOk(self, *args):
+        self.unitMgr.onUnitCallOk(*args)
+
+    def onUnitBrowserError(self, *args):
+        self.unitBrowser.onError(*args)
+
+    def onUnitBrowserResultsSet(self, *args):
+        self.unitBrowser.onResultsSet(*args)
+
+    def onUnitBrowserResultsUpdate(self, *args):
+        self.unitBrowser.onResultsUpdate(*args)
+
+    def onUnitAssemblerSuccess(self, *args):
+        self.unitBrowser.onSearchSuccess(*args)
+
     def onKickedFromRandomQueue(self):
         LOG_DEBUG('onKickedFromRandomQueue')
         self.isInRandomQueue = False
@@ -238,6 +286,11 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
 
     def onKickedFromTutorialQueue(self):
         LOG_DEBUG('onKickedFromTutorialQueue')
+
+    def onKickedFromUnitAssembler(self):
+        LOG_DEBUG('onKickedFromUnitAssembler')
+        self.isInUnitAssembler = False
+        events.onKickedFromUnitAssembler()
 
     def onKickedFromArena(self, reasonCode):
         LOG_DEBUG('onKickedFromArena', reasonCode)
@@ -267,6 +320,7 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
             self.prebattle = ClientPrebattle.ClientPrebattle(ctx['prebattleID'])
         self.isInRandomQueue = ctx.get('isInRandomQueue', False)
         self.isInTutorialQueue = ctx.get('isInTutorialQueue', False)
+        self.isInTutorialQueue = ctx.get('isInUnitAssembler', False)
         if 'serverUTC' in ctx:
             import helpers.time_utils as tm
             tm.setTimeCorrection(ctx['serverUTC'])
@@ -353,11 +407,11 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
         if not events.isPlayerEntityChanging:
             self.base.doCmdInt3(AccountCommands.REQUEST_ID_NO_RESPONSE, AccountCommands.CMD_REQ_SERVER_STATS, 0, 0, 0)
 
-    def requestPlayerInfo(self, name, callback):
+    def requestPlayerInfo(self, databaseID, callback):
         if events.isPlayerEntityChanging:
             return
         proxy = lambda requestID, resultID, errorStr, ext = {}: callback(resultID, ext.get('databaseID', 0L), ext.get('dossier', ''), ext.get('clanDBID', 0), ext.get('clanInfo', None), ext.get('globalRating', 0))
-        self._doCmdStr(AccountCommands.CMD_REQ_PLAYER_INFO, name, proxy)
+        self._doCmdInt3(AccountCommands.CMD_REQ_PLAYER_INFO, databaseID, 0, 0, proxy)
 
     def requestAccountDossier(self, accountID, callback):
         if events.isPlayerEntityChanging:
@@ -371,11 +425,11 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
         proxy = lambda requestID, resultID, errorStr, ext = {}: callback(resultID, ext.get('dossier', ''))
         self._doCmdInt3(AccountCommands.CMD_REQ_VEHICLE_DOSSIER, databaseID, vehTypeCompDescr, 0, proxy)
 
-    def requestPlayerClanInfo(self, name, callback):
+    def requestPlayerClanInfo(self, databaseID, callback):
         if events.isPlayerEntityChanging:
             return
         proxy = lambda requestID, resultID, errorStr, ext = {}: callback(resultID, errorStr, ext.get('clanDBID', 0), ext.get('clanInfo', None))
-        self._doCmdStr(AccountCommands.CMD_REQ_PLAYER_CLAN_INFO, name, proxy)
+        self._doCmdInt3(AccountCommands.CMD_REQ_PLAYER_CLAN_INFO, databaseID, 0, 0, proxy)
 
     def requestPlayerGlobalRating(self, accountID, callback):
         if events.isPlayerEntityChanging:
@@ -400,6 +454,16 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
     def dequeueTutorial(self):
         if not events.isPlayerEntityChanging:
             self.base.doCmdInt3(AccountCommands.REQUEST_ID_NO_RESPONSE, AccountCommands.CMD_DEQUEUE_TUTORIAL, 0, 0, 0)
+
+    def enqueueUnitAssembler(self, compactDescrs):
+        if events.isPlayerEntityChanging:
+            return
+        args = list(compactDescrs)
+        self.base.doCmdIntArr(AccountCommands.REQUEST_ID_NO_RESPONSE, AccountCommands.CMD_ENQUEUE_UNIT_ASSEMBLER, args)
+
+    def dequeueUnitAssembler(self):
+        if not events.isPlayerEntityChanging:
+            self.base.doCmdInt3(AccountCommands.REQUEST_ID_NO_RESPONSE, AccountCommands.CMD_DEQUEUE_UNIT_ASSEMBLER, 0, 0, 0)
 
     def createArenaFromQueue(self):
         if not events.isPlayerEntityChanging:
@@ -639,6 +703,7 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
         self.__synchronizeCacheDict(self.prebattleInvites, diff, 'prebattleInvites', 'update', lambda : events.onPrebattleInvitesChanged(diff))
         self.__synchronizeCacheDict(self.clanMembers, diff.get('cache', None), 'clanMembers', 'replace', events.onClanMembersListChanged)
         self.__synchronizeCacheDict(self.eventsData, diff.get('cache', None), 'eventsData', 'replace', events.onEventsDataChanged)
+        synchronizeDicts(diff.get('unitRosters', {}), self.unitRosters)
         if triggerEvents:
             events.onClientUpdated(diff)
             if not isFullSync:
@@ -704,16 +769,19 @@ class PlayerAccount(BigWorld.Entity, ClientChat):
                 repDict.update(repl)
             diff = diffDict.get(key, None)
             if diff is not None:
-                for k, v in diff.iteritems():
-                    if v is None:
-                        repDict.pop(k, None)
-                        continue
-                    if syncMode == 'replace':
-                        repDict[k] = v
-                    else:
-                        repDict.setdefault(k, {})
-                        repDict[k].update(v)
+                if isinstance(diff, dict):
+                    for k, v in diff.iteritems():
+                        if v is None:
+                            repDict.pop(k, None)
+                            continue
+                        if syncMode == 'replace':
+                            repDict[k] = v
+                        else:
+                            repDict.setdefault(k, {})
+                            repDict[k].update(v)
 
+                else:
+                    LOG_WARNING('__synchronizeCacheDict: bad diff=%r for key=%r' % (diff, key))
             if repl is not None or diff is not None:
                 event()
             return
@@ -788,3 +856,6 @@ def _delAccountRepository():
 
 g_accountRepository = None
 connectionManager.onDisconnected += _delAccountRepository
+# okay decompyling res/scripts/client/account.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:25:07 EST

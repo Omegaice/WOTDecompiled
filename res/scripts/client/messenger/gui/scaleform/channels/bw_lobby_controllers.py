@@ -1,8 +1,11 @@
+# 2013.11.15 11:27:12 EST
+# Embedded file name: scripts/client/messenger/gui/Scaleform/channels/bw_lobby_controllers.py
 import types
 import BigWorld
 import constants
 from chat_shared import CHAT_MEMBER_GROUP
 from debug_utils import LOG_ERROR, LOG_DEBUG
+from gui.LobbyContext import g_lobbyContext
 from gui.prb_control.dispatcher import g_prbLoader
 from gui.prb_control.formatters import getPrebattleFullDescription
 from gui.prb_control.formatters import getBattleSessionStartTimeString
@@ -179,7 +182,8 @@ class _ChannelController(IChannelController):
             key = self.usersStorage.getUserGuiType(dbID)
         else:
             key = CHAT_MEMBER_GROUP[group].name()
-        return g_settings.lobby.getMessageFormat(key).format(message.originatorNickName, TimeFormatter.getMessageTimeFormat(message.time), message.data)
+        playerName = g_lobbyContext.getPlayerFullName(message.originatorNickName, pDBID=dbID)
+        return g_settings.lobby.getMessageFormat(key).format(playerName, TimeFormatter.getMessageTimeFormat(message.time), message.data)
 
     def _fireInitEvent(self):
         pass
@@ -369,3 +373,6 @@ class TrainingChannelController(LobbyChannelController):
             return
         if prbType is constants.PREBATTLE_TYPE.TRAINING and self._channel:
             self.proto.channels.removeChannelFromClient(self._channel)
+# okay decompyling res/scripts/client/messenger/gui/scaleform/channels/bw_lobby_controllers.pyc 
+# decompiled 1 files: 1 okay, 0 failed, 0 verify failed
+# 2013.11.15 11:27:13 EST
